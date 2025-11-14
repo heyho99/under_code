@@ -1,0 +1,559 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>UnderCode | コードクイズ自動作成</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="sidebar__brand">
+          <button class="sidebar-toggle" type="button" aria-label="サイドバーを開閉">
+            <span class="sidebar-toggle__bar"></span>
+            <span class="sidebar-toggle__bar"></span>
+          </button>
+          <div class="brand-mark">UC</div>
+          <div class="brand-text">
+            <span class="brand-name">UnderCode</span>
+            <span class="brand-sub">コードクイズ自動作成</span>
+          </div>
+        </div>
+
+        <nav class="sidebar__nav">
+          <div class="nav-section">
+            <div class="nav-section__label">ワークスペース</div>
+            <button class="nav-item nav-item--active" data-view="project">
+              <span class="nav-item__title">クイズ作成</span>
+              <span class="nav-item__desc">プロジェクト読み込み〜方針設定〜確認</span>
+            </button>
+            <button class="nav-item" data-view="quiz-list">
+              <span class="nav-item__title">クイズ一覧</span>
+              <span class="nav-item__desc">作成済みクイズに挑戦</span>
+            </button>
+          </div>
+        </nav>
+
+        <div class="sidebar__footer">
+          <div class="sidebar-meta">
+            <span class="sidebar-meta__label">想定スタック</span>
+            <span class="sidebar-meta__value">FastAPI / Vanilla JS</span>
+          </div>
+          <button class="sidebar-session-btn">新しいセッション</button>
+        </div>
+      </aside>
+
+      <main class="main">
+        <header class="main-header">
+          <div class="main-header__text">
+            <div class="main-header__row">
+              <h1 class="page-title" data-view-title>クイズを作成する</h1>
+            </div>
+            <p class="page-subtitle" data-view-subtitle>
+              プロジェクトの読み込みからクイズ生成、一覧からの挑戦までを一画面で行います。
+            </p>
+          </div>
+        </header>
+
+        <section class="view view--active" data-view-section="project">
+          <div class="step step--active" data-step="1">
+            <div class="layout-grid">
+              <section class="card">
+                <header class="card__header">
+                  <h2 class="card__title">ステップ 1: プロジェクトを読み込む</h2>
+                  <p class="card__subtitle">フォルダまたは単一ファイルを指定して解析対象を登録</p>
+                </header>
+                <div class="card__body">
+                  <div class="segmented">
+                    <button class="segmented__item segmented__item--active">フォルダ</button>
+                    <button class="segmented__item">ファイル</button>
+                  </div>
+                  <div class="dropzone">
+                    <div class="dropzone__hint-main">ここにドラッグ＆ドロップ</div>
+                    <div class="dropzone__hint-sub">または「参照」から選択</div>
+                    <button class="ghost-btn">参照...</button>
+                  </div>
+                  <dl class="inline-meta">
+                    <div class="inline-meta__row">
+                      <dt>対象の言語</dt>
+                      <dd>Python / TypeScript / Go（拡張予定）</dd>
+                    </div>
+                    <div class="inline-meta__row">
+                      <dt>解析単位</dt>
+                      <dd>ディレクトリ構造 / モジュール / 関数</dd>
+                    </div>
+                  </dl>
+                </div>
+              </section>
+            </div>
+            <div class="step-actions">
+              <button class="primary-btn js-step-next" data-next-step="2">次へ</button>
+            </div>
+          </div>
+
+          <div class="step" data-step="2">
+            <div class="layout-grid layout-grid--two">
+              <section class="card card--project-tree">
+                <header class="card__header">
+                  <h2 class="card__title">ステップ 2: プロジェクトツリー</h2>
+                  <p class="card__subtitle">読み込んだプロジェクトをGUIツリーで確認し、対象範囲を選択</p>
+                </header>
+                <div class="card__body card__body--stack">
+                  <div class="tree-panel">
+                    <ul class="tree">
+                      <li class="tree-node tree-node--folder tree-node--open">
+                        <div class="tree-node__row js-tree-folder" data-node-key="app">
+                          <span class="tree-node__twist"></span>
+                          <span class="tree-node__icon tree-node__icon--folder"></span>
+                          <span class="tree-node__label">app</span>
+                        </div>
+                        <ul class="tree-node__children">
+                          <li class="tree-node tree-node--folder tree-node--collapsed">
+                            <div class="tree-node__row js-tree-folder" data-node-key="app/api">
+                              <span class="tree-node__twist"></span>
+                              <span class="tree-node__icon tree-node__icon--folder"></span>
+                              <span class="tree-node__label">api</span>
+                            </div>
+                          </li>
+                          <li class="tree-node tree-node--folder tree-node--collapsed">
+                            <div class="tree-node__row js-tree-folder" data-node-key="app/services">
+                              <span class="tree-node__twist"></span>
+                              <span class="tree-node__icon tree-node__icon--folder"></span>
+                              <span class="tree-node__label">services</span>
+                            </div>
+                          </li>
+                          <li class="tree-node">
+                            <div class="tree-node__row" data-node-key="app/main.py">
+                              <span class="tree-node__twist"></span>
+                              <span class="tree-node__icon tree-node__icon--file"></span>
+                              <span class="tree-node__label">main.py</span>
+                            </div>
+                          </li>
+                        </ul>
+                      </li>
+                      <li class="tree-node tree-node--folder tree-node--collapsed">
+                        <div class="tree-node__row js-tree-folder" data-node-key="tests">
+                          <span class="tree-node__twist"></span>
+                          <span class="tree-node__icon tree-node__icon--folder"></span>
+                          <span class="tree-node__label">tests</span>
+                        </div>
+                        <ul class="tree-node__children">
+                          <li class="tree-node">
+                            <div class="tree-node__row" data-node-key="tests/test_auth.py">
+                              <span class="tree-node__twist"></span>
+                              <span class="tree-node__icon tree-node__icon--file"></span>
+                              <span class="tree-node__label">test_auth.py</span>
+                            </div>
+                          </li>
+                        </ul>
+                      </li>
+                    </ul>
+                  </div>
+                  <div class="summary-panel">
+                    <div class="summary-panel__label" data-summary-title>app/ フォルダ</div>
+                    <p class="summary-panel__text" data-summary-body>
+                      アプリケーション本体のコードが入るルートフォルダの想定です。ここからルーティングやサービス層が構成されます。
+                    </p>
+                  </div>
+                </div>
+              </section>
+
+              <section class="card">
+                <header class="card__header">
+                  <h2 class="card__title">ステップ 2: クイズ作成方針</h2>
+                  <p class="card__subtitle">クイズタイプと出題数を指定</p>
+                </header>
+                <div class="card__body card__body--stack">
+                  <div class="setting-row">
+                    <div>
+                      <div class="setting-row__label">クイズタイプ</div>
+                      <div class="setting-row__hint">出題したい観点を選択</div>
+                    </div>
+                    <div class="pill-group">
+                      <span class="pill pill--active" data-quiz-type="basic">基本文法</span>
+                      <span class="pill" data-quiz-type="process">処理</span>
+                      <span class="pill" data-quiz-type="function">関数</span>
+                      <span class="pill" data-quiz-type="class-module">クラス・モジュール</span>
+                    </div>
+                  </div>
+
+                  <div class="setting-row">
+                    <div>
+                      <div class="setting-row__label">クイズ数</div>
+                      <div class="setting-row__hint">1セッションあたりの出題数</div>
+                    </div>
+                    <div class="quiz-count">
+                      <input class="quiz-count__input" type="number" min="1" max="50" value="12" />
+                      <span class="quiz-count__suffix">問</span>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            </div>
+            <div class="step-actions step-actions--between">
+              <button class="primary-btn primary-btn--outline js-step-prev" data-prev-step="1">戻る</button>
+              <div>
+                <button class="primary-btn primary-btn--outline js-step-next" data-next-step="3">クイズ案を確認</button>
+                <button class="primary-btn js-step-next" data-next-step="3">クイズを生成</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="step" data-step="3">
+            <section class="card card--quiz-preview">
+              <header class="card__header">
+                <h2 class="card__title">ステップ 3: クイズの確認</h2>
+                <p class="card__subtitle">生成されたクイズを確認し、ブラウザ上のPython実行環境で試す</p>
+              </header>
+              <div class="card__body card__body--stack">
+                <ul class="list list--compact">
+                  <li class="list__item">
+                    <div class="list__primary">
+                      <span class="list__title">Q1. 認証フローの責務分離</span>
+                      <span class="list__meta">Router / Service / Repository のどこで何を行うべきかを説明してください。</span>
+                    </div>
+                  </li>
+                  <li class="list__item">
+                    <div class="list__primary">
+                      <span class="list__title">Q2. 非同期処理とDBセッション</span>
+                      <span class="list__meta">async / await とセッションスコープの関係について、コード片をもとに答えてください。</span>
+                    </div>
+                  </li>
+                  <li class="list__item list__item--placeholder">
+                    「クイズを生成」を押すと、このセクションに生成された設問と想定回答のサマリが並びます。
+                  </li>
+                </ul>
+                <p class="schema-note">
+                  ※ クイズ本番は web 上の Python 実行環境（例: paiza.io など）と連携し、その場でコードを実行して確認できる想定です。
+                </p>
+                <div class="list__actions">
+                  <button class="primary-btn js-step-prev" data-prev-step="2">戻る</button>
+                  <button class="primary-btn primary-btn--outline js-open-quiz-list">クイズ一覧へ</button>
+                </div>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" data-view-section="overview">
+          <div class="layout-grid layout-grid--three">
+            <section class="card">
+              <header class="card__header">
+                <h2 class="card__title">構造サマリ</h2>
+                <p class="card__subtitle">ディレクトリとレイヤリングの俯瞰</p>
+              </header>
+              <div class="card__body">
+                <ul class="bullet-list">
+                  <li>エントリポイントと主要エンドポイント</li>
+                  <li>ドメイン層 / アプリ層 / インフラ層の分離度</li>
+                  <li>テストコードのカバレッジ分布</li>
+                </ul>
+              </div>
+            </section>
+
+            <section class="card">
+              <header class="card__header">
+                <h2 class="card__title">依存関係グラフ</h2>
+                <p class="card__subtitle">モジュール間の参照関係を可視化</p>
+              </header>
+              <div class="card__body">
+                <div class="graph-placeholder">
+                  <div class="graph-node graph-node--strong">domain</div>
+                  <div class="graph-node">usecase</div>
+                  <div class="graph-node">infra</div>
+                  <div class="graph-node">interface</div>
+                </div>
+                <p class="graph-caption">※ モック表示：実装時には実際の依存関係から生成</p>
+              </div>
+            </section>
+
+            <section class="card">
+              <header class="card__header">
+                <h2 class="card__title">検知された論点候補</h2>
+                <p class="card__subtitle">クイズにしやすいポイント</p>
+              </header>
+              <div class="card__body card__body--list">
+                <ul class="list list--compact">
+                  <li class="list__item">
+                    <div class="list__primary">
+                      <span class="list__title">認証フローの責務分離</span>
+                      <span class="list__meta">FastAPI Router / Service / Repository</span>
+                    </div>
+                    <span class="list__pill">アーキテクチャ</span>
+                  </li>
+                  <li class="list__item">
+                    <div class="list__primary">
+                      <span class="list__title">非同期処理とDBセッション</span>
+                      <span class="list__meta">async / await とスコープ管理</span>
+                    </div>
+                    <span class="list__pill">実装</span>
+                  </li>
+                </ul>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" data-view-section="quiz-design">
+          <div class="layout-grid layout-grid--two">
+            <section class="card">
+              <header class="card__header">
+                <h2 class="card__title">クイズ作成ポリシー</h2>
+                <p class="card__subtitle">何を優先して理解させたいかを定義</p>
+              </header>
+              <div class="card__body card__body--stack">
+                <div class="setting-row">
+                  <div>
+                    <div class="setting-row__label">フォーカス</div>
+                    <div class="setting-row__hint">設計 / 実装 / テストなどの比率</div>
+                  </div>
+                  <div class="pill-group">
+                    <span class="pill pill--active">設計 40%</span>
+                    <span class="pill">実装 40%</span>
+                    <span class="pill">テスト 20%</span>
+                  </div>
+                </div>
+
+                <div class="setting-row">
+                  <div>
+                    <div class="setting-row__label">クイズ数</div>
+                    <div class="setting-row__hint">1セッションあたりの問数</div>
+                  </div>
+                  <div class="slider-row">
+                    <div class="slider-track">
+                      <div class="slider-thumb" style="width: 60%"></div>
+                    </div>
+                    <span class="slider-value">12問</span>
+                  </div>
+                </div>
+
+                <div class="setting-row">
+                  <div>
+                    <div class="setting-row__label">検証方法</div>
+                    <div class="setting-row__hint">回答の正誤判定ロジック</div>
+                  </div>
+                  <ul class="bullet-list bullet-list--dense">
+                    <li>paiza.io APIなど外部実行環境を利用</li>
+                    <li>入出力が定まる問題はローカルで検証</li>
+                    <li>構造理解クイズは厳格なスキーマ検証を実施</li>
+                  </ul>
+                </div>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" data-view-section="quiz-progress">
+          <div class="layout-grid layout-grid--two">
+            <section class="card">
+              <header class="card__header">
+                <h2 class="card__title">プロジェクト別の進捗</h2>
+                <p class="card__subtitle">QAセットと回答履歴を集約</p>
+              </header>
+              <div class="card__body card__body--list">
+                <ul class="list">
+                  <li class="list__item">
+                    <div class="list__primary">
+                      <span class="list__title">payment-service</span>
+                      <span class="list__meta">24 / 40 問完了 ・ 正答率 78%</span>
+                    </div>
+                    <div class="progress">
+                      <div class="progress__bar" style="width: 60%"></div>
+                    </div>
+                  </li>
+                  <li class="list__item">
+                    <div class="list__primary">
+                      <span class="list__title">next-dashboard</span>
+                      <span class="list__meta">10 / 20 問完了 ・ 正答率 65%</span>
+                    </div>
+                    <div class="progress">
+                      <div class="progress__bar" style="width: 50%"></div>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </section>
+
+            <section class="card">
+              <header class="card__header">
+                <h2 class="card__title">セッションサマリ</h2>
+                <p class="card__subtitle">直近の学習傾向を可視化</p>
+              </header>
+              <div class="card__body card__body--stack">
+                <div class="stat-row">
+                  <div class="stat">
+                    <div class="stat__label">7日間の正答率</div>
+                    <div class="stat__value">72%</div>
+                  </div>
+                  <div class="stat">
+                    <div class="stat__label">平均回答時間</div>
+                    <div class="stat__value">38秒</div>
+                  </div>
+                </div>
+                <div class="stat-row">
+                  <div class="stat">
+                    <div class="stat__label">構造系クイズ</div>
+                    <div class="stat__value">57%</div>
+                  </div>
+                  <div class="stat">
+                    <div class="stat__label">文法系クイズ</div>
+                    <div class="stat__value">84%</div>
+                  </div>
+                </div>
+                <p class="schema-note">※ すべてダミーデータ。実装時にはQAテーブルと回答テーブルを紐付け</p>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" data-view-section="quiz-list">
+          <section class="card card--quiz-list">
+            <header class="card__header">
+              <h2 class="card__title">クイズセット一覧</h2>
+              <p class="card__subtitle">作成済みのクイズセットから選び、セット内のクイズに挑戦できます</p>
+            </header>
+            <div class="card__body card__body--list">
+              <ul class="list list--quiz-set">
+                <li class="list__item quiz-set-item">
+                  <div class="list__row quiz-set-item__row">
+                    <div class="list__primary">
+                      <span class="list__title">認証フロー理解セット</span>
+                      <span class="list__meta">FastAPI の認証フローを通してレイヤ構造を確認するクイズセット</span>
+                    </div>
+                    <div class="list__actions">
+                      <button class="primary-btn js-open-quiz-set">クイズを選ぶ</button>
+                    </div>
+                  </div>
+                  <div class="quiz-set-item__meta">
+                    <span>前回挑戦: 2025/11/01</span>
+                    <span class="quiz-set-item__meta-separator">・</span>
+                    <span>正答率: 78%</span>
+                  </div>
+                </li>
+                <li class="list__item quiz-set-item">
+                  <div class="list__row quiz-set-item__row">
+                    <div class="list__primary">
+                      <span class="list__title">非同期処理・DB セット</span>
+                      <span class="list__meta">async / await と DB セッション管理にフォーカスしたクイズセット</span>
+                    </div>
+                    <div class="list__actions">
+                      <button class="primary-btn primary-btn--outline js-open-quiz-set">クイズを選ぶ</button>
+                    </div>
+                  </div>
+                  <div class="quiz-set-item__meta">
+                    <span>前回挑戦: 2025/10/21</span>
+                    <span class="quiz-set-item__meta-separator">・</span>
+                    <span>正答率: 64%</span>
+                  </div>
+                </li>
+                <li class="list__item list__item--placeholder">
+                  クイズセットを作成するとここに一覧が表示され、各セットからクイズを選べます
+                </li>
+              </ul>
+            </div>
+          </section>
+        </section>
+
+        <section class="view" data-view-section="quiz-set-detail">
+          <section class="card card--quiz-list">
+            <header class="card__header">
+              <h2 class="card__title">クイズセット内のクイズ</h2>
+              <p class="card__subtitle">選択したクイズセットに含まれるクイズから、挑戦するものを選択します</p>
+            </header>
+            <div class="card__body">
+              <div class="quiz-grid">
+                <article class="quiz-grid__item">
+                  <div class="quiz-grid__icon">Q1</div>
+                  <div class="quiz-grid__body">
+                    <h3 class="quiz-grid__title">認証フローの責務分離</h3>
+                    <p class="quiz-grid__meta">Router / Service / Repository の役割を整理する問題です。</p>
+                  </div>
+                  <div class="quiz-grid__actions">
+                    <button class="primary-btn js-open-quiz-play">挑戦する</button>
+                  </div>
+                </article>
+                <article class="quiz-grid__item">
+                  <div class="quiz-grid__icon">Q2</div>
+                  <div class="quiz-grid__body">
+                    <h3 class="quiz-grid__title">非同期処理とDBセッション</h3>
+                    <p class="quiz-grid__meta">async / await とセッションスコープに関する問題です。</p>
+                  </div>
+                  <div class="quiz-grid__actions">
+                    <button class="primary-btn primary-btn--outline js-open-quiz-play">挑戦する</button>
+                  </div>
+                </article>
+              </div>
+              <div class="quiz-set-detail__footer">
+                <button class="primary-btn primary-btn--outline js-back-to-quiz-set-list">クイズセット一覧に戻る</button>
+              </div>
+            </div>
+          </section>
+        </section>
+
+        <section class="view" data-view-section="quiz-play">
+          <section class="card">
+            <header class="card__header">
+              <h2 class="card__title">クイズ: 認証フローの責務分離</h2>
+              <p class="card__subtitle">Router / Service / Repository の役割を踏まえて、コードを読み解きながら回答します。</p>
+            </header>
+            <div class="card__body card__body--stack">
+              <div class="setting-row">
+                <div>
+                  <div class="setting-row__label">問題</div>
+                  <div class="setting-row__hint">下記の FastAPI コード片を前提に、責務分離の観点から空欄を埋めてください。</div>
+                </div>
+              </div>
+              <pre class="schema-preview"><code>from fastapi import APIRouter, Depends
+
+router = APIRouter()
+
+@router.post("/login")
+async def login(request: LoginRequest, service: AuthService = Depends(...)):
+    # TODO: 認証ロジックをどこに置くべきか？
+    ...
+</code></pre>
+              <div class="setting-row">
+                <div>
+                  <div class="setting-row__label">回答エリア</div>
+                  <div class="setting-row__hint">ブラウザ上の Python 実行環境と連携し、コードを実行して確認する想定です。</div>
+                </div>
+              </div>
+              <div class="code-editor-mock">
+                <div class="code-editor-mock__header">
+                  <div class="code-editor-mock__tabs">
+                    <span class="code-editor-mock__tab code-editor-mock__tab--active">answer.py</span>
+                  </div>
+                  <div class="code-editor-mock__header-buttons">
+                    <span class="code-editor-mock__dot"></span>
+                    <span class="code-editor-mock__dot"></span>
+                    <span class="code-editor-mock__dot"></span>
+                  </div>
+                </div>
+                <div class="code-editor-mock__body">
+                  <div class="code-editor-mock__gutter">
+                    <span>1</span>
+                    <span>2</span>
+                    <span>3</span>
+                    <span>4</span>
+                    <span>5</span>
+                  </div>
+                  <textarea class="code-editor-mock__textarea" placeholder="ここに回答用のコードを記述（モック）"></textarea>
+                </div>
+                <div class="code-editor-mock__footer">
+                  Python 3.11 / FastAPI / uvicorn （モック表示）
+                </div>
+              </div>
+              <div class="list__actions">
+                <button class="primary-btn primary-btn--outline js-back-to-quiz-list">クイズ一覧へ戻る</button>
+                <button class="primary-btn">Python 実行環境で試す（モック）</button>
+              </div>
+            </div>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
