@@ -19,7 +19,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const backToQuizSetListButtons = document.querySelectorAll(
     ".js-back-to-quiz-set-list"
   );
-  const quizTypePills = document.querySelectorAll(".pill[data-quiz-type]");
+  const quizCounterButtons = document.querySelectorAll(".quiz-counter-btn");
+  const runCodeButtons = document.querySelectorAll(".js-run-code");
+  const quizOutputEl = document.querySelector("[data-quiz-output]");
+  const answerTextarea = document.querySelector(".code-editor-mock__textarea");
 
   const viewCopy = {
     project: {
@@ -55,10 +58,20 @@ document.addEventListener("DOMContentLoaded", () => {
       body:
         "エンドポイント定義を置くAPIレイヤの想定です。FastAPI の router やエンドポイントごとのハンドラがまとまります。",
     },
+    "app/api/router.py": {
+      title: "app/api/router.py ファイル",
+      body:
+        "API エンドポイントのルーティング定義を記述するモジュールの想定です。パスやHTTPメソッドごとのハンドラを登録します。",
+    },
     "app/services": {
       title: "app/services/ フォルダ",
       body:
         "ユースケースやドメインロジックを実装するサービス層の想定です。ビジネスルールをここに集約し、API層から呼び出します。",
+    },
+    "app/services/service.py": {
+      title: "app/services/service.py ファイル",
+      body:
+        "アプリケーションのユースケースをまとめて実装するサービスクラスの想定です。認証や業務ロジックをメソッドとして提供します。",
     },
     "app/main.py": {
       title: "app/main.py ファイル",
@@ -184,13 +197,37 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  quizTypePills.forEach((pill) => {
-    pill.addEventListener("click", () => {
-      const group = pill.closest(".pill-group");
-      if (!group) return;
-      const siblings = group.querySelectorAll(".pill[data-quiz-type]");
-      siblings.forEach((p) => p.classList.remove("pill--active"));
-      pill.classList.add("pill--active");
+  quizCounterButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const row = btn.closest(".quiz-type-row");
+      if (!row) return;
+      const valueEl = row.querySelector(".quiz-counter-value");
+      if (!valueEl) return;
+
+      const current = Number(valueEl.dataset.count || "0");
+      const delta = Number(btn.dataset.delta || "0");
+      let next = current + delta;
+      if (next < 0) {
+        next = 0;
+      }
+
+      valueEl.dataset.count = String(next);
+      valueEl.textContent = `${next}問`;
+    });
+  });
+
+  runCodeButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (!quizOutputEl) return;
+
+      const code = answerTextarea ? answerTextarea.value.trim() : "";
+      if (!code) {
+        quizOutputEl.textContent =
+          ">>> 実行しました（モック）\n\n※ コードが空のため、出力はありません。";
+      } else {
+        quizOutputEl.textContent =
+          ">>> 実行しました（モック）\n\n（ここに実際の Python 実行結果が表示される想定です）";
+      }
     });
   });
 
@@ -206,9 +243,16 @@ document.addEventListener("DOMContentLoaded", () => {
       const node = row.closest(".tree-node--folder");
       if (!node) return;
 
-      const isCollapsed = node.classList.contains("tree-node--collapsed");
-      node.classList.toggle("tree-node--collapsed", !isCollapsed);
-      node.classList.toggle("tree-node--open", isCollapsed);
+      const isOpen = node.classList.contains("tree-node--open");
+
+      node.classList.remove("tree-node--open", "tree-node--collapsed");
+      const nextIsOpen = !isOpen;
+      node.classList.add(nextIsOpen ? "tree-node--open" : "tree-node--collapsed");
+
+      const twist = row.querySelector(".tree-node__twist");
+      if (twist) {
+        twist.textContent = nextIsOpen ? "▼" : "▶";
+      }
     });
   });
 

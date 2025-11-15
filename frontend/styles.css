@@ -582,6 +582,11 @@ body {
   align-items: center;
 }
 
+.setting-row--stack {
+  align-items: flex-start;
+  flex-direction: column;
+}
+
 .setting-row__label {
   font-size: 18px;
 }
@@ -634,6 +639,57 @@ body {
 .quiz-count__suffix {
   font-size: 16px;
   color: var(--text-muted);
+}
+
+.quiz-type-matrix {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.quiz-type-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.quiz-type-row__name {
+  font-size: 16px;
+  color: #374151;
+}
+
+.quiz-type-row__counts {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.quiz-counter-btn {
+  min-width: 60px;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-subtle);
+  background: #ffffff;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.quiz-counter-btn--minus {
+  color: var(--text-muted);
+}
+
+.quiz-counter-btn--plus {
+  border-color: var(--accent);
+  color: var(--accent-strong);
+  background: var(--accent-soft);
+}
+
+.quiz-counter-value {
+  min-width: 72px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 500;
 }
 
 .slider-row {
@@ -767,6 +823,43 @@ body {
   border-top: 1px solid rgba(15, 23, 42, 0.85);
   font-size: 14px;
   color: #9ca3af;
+}
+
+.quiz-run {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.quiz-run__controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.quiz-output {
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(15, 23, 42, 0.9);
+  background: #020617;
+}
+
+.quiz-output__label {
+  padding: 4px 10px;
+  font-size: 13px;
+  color: #9ca3af;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.85);
+}
+
+.quiz-output__body {
+  margin: 0;
+  padding: 8px 10px 10px;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 15px;
+  color: #e5e7eb;
+  white-space: pre-wrap;
 }
 
 .schema-note {
@@ -1014,20 +1107,6 @@ body {
   list-style: none;
   margin: 2px 0 0 18px;
   padding-left: 0;
-}
-
-.tree-node--folder .tree-node__row {
-  cursor: pointer;
-}
-
-.tree-node--folder .tree-node__twist::before {
-  content: "▶";
-  transform-origin: center;
-  transition: transform 0.12s ease;
-}
-
-.tree-node--folder.tree-node--open .tree-node__twist::before {
-  transform: rotate(90deg);
 }
 
 .tree-node--folder.tree-node--collapsed > .tree-node__children {
