@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const subtitleEl = document.querySelector("[data-view-subtitle]");
   const appShell = document.querySelector(".app-shell");
   const sidebarToggle = document.querySelector(".sidebar-toggle");
+  const sidebarToggleIcon = document.querySelector(".sidebar-toggle__icon");
   const steps = document.querySelectorAll("[data-step]");
   const stepNextButtons = document.querySelectorAll(".js-step-next");
   const stepPrevButtons = document.querySelectorAll(".js-step-prev");
@@ -260,7 +261,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (appShell && sidebarToggle) {
     sidebarToggle.addEventListener("click", () => {
-      appShell.classList.toggle("app-shell--sidebar-collapsed");
+      const isCollapsed = appShell.classList.toggle("app-shell--sidebar-collapsed");
+
+      if (sidebarToggleIcon) {
+        sidebarToggleIcon.textContent = isCollapsed
+          ? "keyboard_double_arrow_right"
+          : "keyboard_double_arrow_left";
+      }
     });
   }
 });
