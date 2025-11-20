@@ -30,11 +30,15 @@ document.addEventListener("DOMContentLoaded", () => {
     return map;
   }, {});
 
-  // 初期レンダリング: project ビュー
-  const projectRoot = ProjectView.getRoot();
-  if (projectRoot && typeof ProjectView.render === "function") {
-    ProjectView.render(projectRoot);
-  }
+  // 初期レンダリング: 全ビュー
+  allViews.forEach((view) => {
+    if (typeof view.getRoot !== "function") return;
+    const root = view.getRoot();
+    if (!root) return;
+    if (typeof view.render === "function") {
+      view.render(root);
+    }
+  });
 
   // レンダリング後の DOM をもとに要素を取得
   const steps = document.querySelectorAll("[data-step]");
