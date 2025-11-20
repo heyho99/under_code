@@ -31,11 +31,9 @@
             <div class="nav-section__label">ワークスペース</div>
             <button class="nav-item nav-item--active" data-view="project">
               <span class="nav-item__title">クイズ作成</span>
-              <span class="nav-item__desc">プロジェクト読み込み〜方針設定〜確認</span>
             </button>
             <button class="nav-item" data-view="quiz-list">
               <span class="nav-item__title">クイズ一覧</span>
-              <span class="nav-item__desc">作成済みクイズに挑戦</span>
             </button>
           </div>
         </nav>
@@ -63,25 +61,11 @@
                   <p class="card__subtitle">フォルダまたは単一ファイルを指定して解析対象を登録</p>
                 </header>
                 <div class="card__body">
-                  <div class="segmented">
-                    <button class="segmented__item segmented__item--active">フォルダ</button>
-                    <button class="segmented__item">ファイル</button>
-                  </div>
                   <div class="dropzone">
                     <div class="dropzone__hint-main">ここにドラッグ＆ドロップ</div>
                     <div class="dropzone__hint-sub">または「参照」から選択</div>
                     <button class="ghost-btn">参照...</button>
                   </div>
-                  <dl class="inline-meta">
-                    <div class="inline-meta__row">
-                      <dt>対象の言語</dt>
-                      <dd>Python / TypeScript / Go（拡張予定）</dd>
-                    </div>
-                    <div class="inline-meta__row">
-                      <dt>解析単位</dt>
-                      <dd>ディレクトリ構造 / モジュール / 関数</dd>
-                    </div>
-                  </dl>
                 </div>
               </section>
             </div>
@@ -103,20 +87,32 @@
                       <li class="tree-node tree-node--folder tree-node--collapsed">
                         <div class="tree-node__row js-tree-folder" data-node-key="app">
                           <span class="tree-node__twist">▶</span>
-                          <span class="tree-node__icon tree-node__icon--folder"></span>
+                          <input
+                            type="checkbox"
+                            class="tree-node__checkbox"
+                            data-node-checkbox="app"
+                          />
                           <span class="tree-node__label">app</span>
                         </div>
                         <ul class="tree-node__children">
                           <li class="tree-node tree-node--folder tree-node--collapsed">
                             <div class="tree-node__row js-tree-folder" data-node-key="app/api">
                               <span class="tree-node__twist">▶</span>
-                              <span class="tree-node__icon tree-node__icon--folder"></span>
+                              <input
+                                type="checkbox"
+                                class="tree-node__checkbox"
+                                data-node-checkbox="app/api"
+                              />
                               <span class="tree-node__label">api</span>
                             </div>
                             <ul class="tree-node__children">
                               <li class="tree-node">
                                 <div class="tree-node__row" data-node-key="app/api/router.py">
-                                  <span class="tree-node__icon tree-node__icon--file"></span>
+                                  <input
+                                    type="checkbox"
+                                    class="tree-node__checkbox"
+                                    data-node-checkbox="app/api/router.py"
+                                  />
                                   <span class="tree-node__label">router.py</span>
                                 </div>
                               </li>
@@ -125,13 +121,21 @@
                           <li class="tree-node tree-node--folder tree-node--collapsed">
                             <div class="tree-node__row js-tree-folder" data-node-key="app/services">
                               <span class="tree-node__twist">▶</span>
-                              <span class="tree-node__icon tree-node__icon--folder"></span>
+                              <input
+                                type="checkbox"
+                                class="tree-node__checkbox"
+                                data-node-checkbox="app/services"
+                              />
                               <span class="tree-node__label">services</span>
                             </div>
                             <ul class="tree-node__children">
                               <li class="tree-node">
                                 <div class="tree-node__row" data-node-key="app/services/service.py">
-                                  <span class="tree-node__icon tree-node__icon--file"></span>
+                                  <input
+                                    type="checkbox"
+                                    class="tree-node__checkbox"
+                                    data-node-checkbox="app/services/service.py"
+                                  />
                                   <span class="tree-node__label">service.py</span>
                                 </div>
                               </li>
@@ -139,7 +143,11 @@
                           </li>
                           <li class="tree-node">
                             <div class="tree-node__row" data-node-key="app/main.py">
-                              <span class="tree-node__icon tree-node__icon--file"></span>
+                              <input
+                                type="checkbox"
+                                class="tree-node__checkbox"
+                                data-node-checkbox="app/main.py"
+                              />
                               <span class="tree-node__label">main.py</span>
                             </div>
                           </li>
@@ -148,13 +156,21 @@
                       <li class="tree-node tree-node--folder tree-node--collapsed">
                         <div class="tree-node__row js-tree-folder" data-node-key="tests">
                           <span class="tree-node__twist">▶</span>
-                          <span class="tree-node__icon tree-node__icon--folder"></span>
+                          <input
+                            type="checkbox"
+                            class="tree-node__checkbox"
+                            data-node-checkbox="tests"
+                          />
                           <span class="tree-node__label">tests</span>
                         </div>
                         <ul class="tree-node__children">
                           <li class="tree-node">
                             <div class="tree-node__row" data-node-key="tests/test_auth.py">
-                              <span class="tree-node__icon tree-node__icon--file"></span>
+                              <input
+                                type="checkbox"
+                                class="tree-node__checkbox"
+                                data-node-checkbox="tests/test_auth.py"
+                              />
                               <span class="tree-node__label">test_auth.py</span>
                             </div>
                           </li>
@@ -163,7 +179,7 @@
                     </ul>
                   </div>
                   <div class="summary-panel">
-                    <div class="summary-panel__label" data-summary-title>app/ フォルダ</div>
+                    <div class="summary-panel__label" data-summary-title>app/</div>
                     <p class="summary-panel__text" data-summary-body>
                       アプリケーション本体のコードが入るルートフォルダの想定です。ここからルーティングやサービス層が構成されます。
                     </p>
@@ -171,18 +187,15 @@
                 </div>
               </section>
 
-              <section class="card">
-                <header class="card__header">
-                  <h2 class="card__title">ステップ 2: クイズ作成方針</h2>
-                  <p class="card__subtitle">クイズタイプごとに出題数を設定</p>
-                </header>
-                <div class="card__body card__body--stack">
-                  <div class="setting-row setting-row--stack">
-                    <div>
-                      <div class="setting-row__label">クイズタイプごとの問題数</div>
-                      <div class="setting-row__hint">各タイプについて 10問単位で増減できます（0問から任意の問数まで）。</div>
-                    </div>
-                    <div class="quiz-type-matrix">
+              <div class="step2-right-column">
+                <section class="card">
+                  <header class="card__header">
+                    <h2 class="card__title">ステップ 2: クイズ作成方針</h2>
+                    <p class="card__subtitle">クイズタイプごとに出題数を設定</p>
+                  </header>
+                  <div class="card__body card__body--stack">
+                    <div class="setting-row setting-row--stack">
+                      <div class="quiz-type-matrix">
                       <div class="quiz-type-row" data-quiz-type="basic">
                         <div class="quiz-type-row__name">基本文法</div>
                         <div class="quiz-type-row__counts">
@@ -273,51 +286,25 @@
                       </div>
                     </div>
                   </div>
-                </div>
-              </section>
+                </section>
+
+                <section class="card card--quiz-request">
+                  <header class="card__header">
+                    <h2 class="card__title">クイズ作成要望</h2>
+                  </header>
+                  <div class="card__body card__body--stack">
+                    <textarea
+                      class="quiz-request-textarea"
+                      placeholder="例：認証フローを重点的に出題したい、基本文法は少なめにしたい、など"
+                    ></textarea>
+                  </div>
+                </section>
+              </div>
             </div>
             <div class="step-actions step-actions--between">
               <button class="primary-btn primary-btn--outline js-step-prev" data-prev-step="1">戻る</button>
-              <div>
-                <button class="primary-btn primary-btn--outline js-step-next" data-next-step="3">クイズ案を確認</button>
-                <button class="primary-btn js-step-next" data-next-step="3">クイズを生成</button>
-              </div>
+              <button class="primary-btn js-generate-quiz">クイズを生成</button>
             </div>
-          </div>
-
-          <div class="step" data-step="3">
-            <section class="card card--quiz-preview">
-              <header class="card__header">
-                <h2 class="card__title">ステップ 3: クイズの確認</h2>
-                <p class="card__subtitle">生成されたクイズを確認し、ブラウザ上のPython実行環境で試す</p>
-              </header>
-              <div class="card__body card__body--stack">
-                <ul class="list list--compact">
-                  <li class="list__item">
-                    <div class="list__primary">
-                      <span class="list__title">Q1. 認証フローの責務分離</span>
-                      <span class="list__meta">Router / Service / Repository のどこで何を行うべきかを説明してください。</span>
-                    </div>
-                  </li>
-                  <li class="list__item">
-                    <div class="list__primary">
-                      <span class="list__title">Q2. 非同期処理とDBセッション</span>
-                      <span class="list__meta">async / await とセッションスコープの関係について、コード片をもとに答えてください。</span>
-                    </div>
-                  </li>
-                  <li class="list__item list__item--placeholder">
-                    「クイズを生成」を押すと、このセクションに生成された設問と想定回答のサマリが並びます。
-                  </li>
-                </ul>
-                <p class="schema-note">
-                  ※ クイズ本番は web 上の Python 実行環境（例: paiza.io など）と連携し、その場でコードを実行して確認できる想定です。
-                </p>
-                <div class="list__actions">
-                  <button class="primary-btn js-step-prev" data-prev-step="2">戻る</button>
-                  <button class="primary-btn primary-btn--outline js-open-quiz-list">クイズ一覧へ</button>
-                </div>
-              </div>
-            </section>
           </div>
         </section>
 
@@ -349,7 +336,6 @@
                   <div class="graph-node">infra</div>
                   <div class="graph-node">interface</div>
                 </div>
-                <p class="graph-caption">※ モック表示：実装時には実際の依存関係から生成</p>
               </div>
             </section>
 
@@ -486,7 +472,6 @@
                     <div class="stat__value">84%</div>
                   </div>
                 </div>
-                <p class="schema-note">※ すべてダミーデータ。実装時にはQAテーブルと回答テーブルを紐付け</p>
               </div>
             </section>
           </div>
@@ -496,7 +481,6 @@
           <section class="card card--quiz-list">
             <header class="card__header">
               <h2 class="card__title">クイズセット一覧</h2>
-              <p class="card__subtitle">作成済みのクイズセットから選び、セット内のクイズに挑戦できます</p>
             </header>
             <div class="card__body card__body--list">
               <ul class="list list--quiz-set">
@@ -531,9 +515,6 @@
                     <span class="quiz-set-item__meta-separator">・</span>
                     <span>正答率: 64%</span>
                   </div>
-                </li>
-                <li class="list__item list__item--placeholder">
-                  クイズセットを作成するとここに一覧が表示され、各セットからクイズを選べます
                 </li>
               </ul>
             </div>
@@ -601,7 +582,7 @@ async def login(request: LoginRequest, service: AuthService = Depends(...)):
               <div class="setting-row">
                 <div>
                   <div class="setting-row__label">回答エリア</div>
-                  <div class="setting-row__hint">ブラウザ上の Python 実行環境と連携し、コードを実行して確認する想定です。</div>
+                  <div class="setting-row__hint">コードを実行して確認できます。</div>
                 </div>
               </div>
               <div class="code-editor-mock">
@@ -623,20 +604,20 @@ async def login(request: LoginRequest, service: AuthService = Depends(...)):
                     <span>4</span>
                     <span>5</span>
                   </div>
-                  <textarea class="code-editor-mock__textarea" placeholder="ここに回答用のコードを記述（モック）"></textarea>
+                  <textarea class="code-editor-mock__textarea" placeholder="ここに回答用のコードを記述"></textarea>
                 </div>
                 <div class="code-editor-mock__footer">
-                  Python 3.11 / FastAPI / uvicorn （モック表示）
+                  Python 3.11 / FastAPI / uvicorn
                 </div>
               </div>
               <div class="quiz-run">
                 <div class="quiz-run__controls">
                   <button class="primary-btn primary-btn--outline js-back-to-quiz-list">クイズ一覧へ戻る</button>
-                  <button class="primary-btn js-run-code">コードを実行（モック）</button>
+                  <button class="primary-btn js-run-code">コードを実行</button>
                 </div>
                 <div class="quiz-output">
                   <div class="quiz-output__label">出力</div>
-                  <pre class="quiz-output__body" data-quiz-output>>> ここに実行結果が表示されます（モック）。</pre>
+                  <pre class="quiz-output__body" data-quiz-output>>> ここに実行結果が表示されます。</pre>
                 </div>
               </div>
             </div>

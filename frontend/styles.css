@@ -8,8 +8,8 @@
   --accent-soft: rgba(37, 99, 235, 0.12);
   --accent-strong: #1d4ed8;
   --text-main: #111827;
-  --text-muted: #6b7280;
-  --text-soft: #9ca3af;
+  --text-muted: #111827;
+  --text-soft: #111827;
   --radius-lg: 18px;
   --radius-md: 12px;
   --radius-pill: 999px;
@@ -156,7 +156,7 @@ body {
 }
 
 .nav-item__title {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 500;
 }
 
@@ -339,6 +339,12 @@ body {
   grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
 }
 
+.step2-right-column {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .layout-grid--three {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
@@ -439,16 +445,16 @@ body {
 }
 
 .dropzone__hint-main {
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .dropzone__hint-sub {
-  font-size: 12px;
+  font-size: 15px;
   color: var(--text-soft);
 }
 
 .ghost-btn {
-  margin-top: 8px;
+  margin-top: 12px;
   border-radius: var(--radius-pill);
   border: 1px solid var(--border-subtle);
   background: #ffffff;
@@ -655,7 +661,7 @@ body {
 }
 
 .quiz-type-row__name {
-  font-size: 16px;
+  font-size: 20px;
   color: #374151;
 }
 
@@ -690,6 +696,17 @@ body {
   text-align: center;
   font-size: 16px;
   font-weight: 500;
+}
+
+.quiz-request-textarea {
+  width: 100%;
+  min-height: 96px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  padding: 8px 10px;
+  font-size: 16px;
+  font-family: inherit;
+  resize: vertical;
 }
 
 .slider-row {
@@ -1016,7 +1033,7 @@ body {
   border: 1px solid rgba(209, 213, 219, 0.9);
   background: #f9fafb;
   padding: 8px 10px;
-  max-height: 210px;
+  max-height: calc(100vh - 260px);
   overflow-y: auto;
 }
 
@@ -1098,6 +1115,10 @@ body {
   color: #4b5563;
 }
 
+.tree-node__checkbox {
+  margin-right: 4px;
+}
+
 .tree-node__label {
   font-size: 18px;
   color: #374151;
@@ -1121,14 +1142,14 @@ body {
 }
 
 .summary-panel__label {
-  font-size: 12px;
+  font-size: 16px;
   color: var(--text-soft);
   margin-bottom: 4px;
 }
 
 .summary-panel__text {
   margin: 0;
-  font-size: 13px;
+  font-size: 16px;
   color: var(--text-muted);
   line-height: 1.5;
 }
