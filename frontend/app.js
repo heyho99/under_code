@@ -1,3 +1,11 @@
+import { ProjectView } from "./views/ProjectView.js";
+import { OverviewView } from "./views/OverviewView.js";
+import { QuizDesignView } from "./views/QuizDesignView.js";
+import { QuizProgressView } from "./views/QuizProgressView.js";
+import { QuizListView } from "./views/QuizListView.js";
+import { QuizSetDetailView } from "./views/QuizSetDetailView.js";
+import { QuizPlayView } from "./views/QuizPlayView.js";
+
 document.addEventListener("DOMContentLoaded", () => {
   const navItems = document.querySelectorAll(".nav-item");
   const views = document.querySelectorAll(".view");
@@ -6,6 +14,29 @@ document.addEventListener("DOMContentLoaded", () => {
   const appShell = document.querySelector(".app-shell");
   const sidebarToggle = document.querySelector(".sidebar-toggle");
   const sidebarToggleIcon = document.querySelector(".sidebar-toggle__icon");
+
+  const allViews = [
+    ProjectView,
+    OverviewView,
+    QuizDesignView,
+    QuizProgressView,
+    QuizListView,
+    QuizSetDetailView,
+    QuizPlayView,
+  ];
+
+  const viewMap = allViews.reduce((map, view) => {
+    map[view.key] = view;
+    return map;
+  }, {});
+
+  // 初期レンダリング: project ビュー
+  const projectRoot = ProjectView.getRoot();
+  if (projectRoot && typeof ProjectView.render === "function") {
+    ProjectView.render(projectRoot);
+  }
+
+  // レンダリング後の DOM をもとに要素を取得
   const steps = document.querySelectorAll("[data-step]");
   const stepNextButtons = document.querySelectorAll(".js-step-next");
   const stepPrevButtons = document.querySelectorAll(".js-step-prev");
@@ -26,29 +57,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const runCodeButtons = document.querySelectorAll(".js-run-code");
   const quizOutputEl = document.querySelector("[data-quiz-output]");
   const answerTextarea = document.querySelector(".code-editor-mock__textarea");
-
-  const viewCopy = {
-    project: {
-      title: "クイズを作成する",
-      subtitle:
-        "プロジェクトの読み込みからクイズ生成、一覧からの挑戦までを一画面で行います。",
-    },
-    "quiz-list": {
-      title: "クイズに挑戦する",
-      subtitle:
-        "作成済みのクイズセットから選択し、ブラウザ上のPython実行環境で試せる想定の画面です。",
-    },
-    "quiz-set-detail": {
-      title: "クイズセット内のクイズを選ぶ",
-      subtitle:
-        "選択したクイズセットに含まれるクイズの一覧から、挑戦したい問題を選択します。",
-    },
-    "quiz-play": {
-      title: "クイズを解く",
-      subtitle:
-        "選択したクイズの詳細と回答エリアを表示し、Python実行環境で試すことを想定した画面です。",
-    },
-  };
 
   const nodeSummaries = {
     app: {
@@ -127,15 +135,15 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function switchView(viewKey) {
-    views.forEach((view) => {
-      const isActive = view.dataset.viewSection === viewKey;
-      view.classList.toggle("view--active", isActive);
+    views.forEach((viewEl) => {
+      const isActive = viewEl.dataset.viewSection === viewKey;
+      viewEl.classList.toggle("view--active", isActive);
     });
 
-    const copy = viewCopy[viewKey];
-    if (copy && titleEl && subtitleEl) {
-      titleEl.textContent = copy.title;
-      subtitleEl.textContent = copy.subtitle;
+    const viewDef = viewMap[viewKey];
+    if (viewDef && titleEl && subtitleEl) {
+      titleEl.textContent = viewDef.title;
+      subtitleEl.textContent = viewDef.subtitle;
     }
   }
 
