@@ -21,6 +21,8 @@ document.addEventListener("DOMContentLoaded", () => {
     ".js-back-to-quiz-set-list"
   );
   const quizCounterButtons = document.querySelectorAll(".quiz-counter-btn");
+  const treeCheckboxes = document.querySelectorAll(".tree-node__checkbox");
+  const generateQuizButton = document.querySelector(".js-generate-quiz");
   const runCodeButtons = document.querySelectorAll(".js-run-code");
   const quizOutputEl = document.querySelector("[data-quiz-output]");
   const answerTextarea = document.querySelector(".code-editor-mock__textarea");
@@ -50,42 +52,42 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const nodeSummaries = {
     app: {
-      title: "app/ フォルダ",
+      title: "app/",
       body:
         "アプリケーション本体のコードが入るルートフォルダの想定です。ルーティングやサービス層などの中心的な構造が配置されます。",
     },
     "app/api": {
-      title: "app/api/ フォルダ",
+      title: "app/api/",
       body:
         "エンドポイント定義を置くAPIレイヤの想定です。FastAPI の router やエンドポイントごとのハンドラがまとまります。",
     },
     "app/api/router.py": {
-      title: "app/api/router.py ファイル",
+      title: "app/api/router.py",
       body:
         "API エンドポイントのルーティング定義を記述するモジュールの想定です。パスやHTTPメソッドごとのハンドラを登録します。",
     },
     "app/services": {
-      title: "app/services/ フォルダ",
+      title: "app/services/",
       body:
         "ユースケースやドメインロジックを実装するサービス層の想定です。ビジネスルールをここに集約し、API層から呼び出します。",
     },
     "app/services/service.py": {
-      title: "app/services/service.py ファイル",
+      title: "app/services/service.py",
       body:
         "アプリケーションのユースケースをまとめて実装するサービスクラスの想定です。認証や業務ロジックをメソッドとして提供します。",
     },
     "app/main.py": {
-      title: "app/main.py ファイル",
+      title: "app/main.py",
       body:
         "アプリケーションのエントリポイントとなるスクリプトの想定です。FastAPI アプリの起動やルーターのマウントなどを担当します。",
     },
     tests: {
-      title: "tests/ フォルダ",
+      title: "tests/",
       body:
         "単体テストや統合テストを配置するテストコード用フォルダの想定です。pytest などで実行されます。",
     },
     "tests/test_auth.py": {
-      title: "tests/test_auth.py ファイル",
+      title: "tests/test_auth.py",
       body:
         "認証まわりの振る舞いを検証するテストコードの想定です。正常系・異常系のケースをここで確認します。",
     },
@@ -154,6 +156,14 @@ document.addEventListener("DOMContentLoaded", () => {
       setStep(next);
     });
   });
+
+  if (generateQuizButton) {
+    generateQuizButton.addEventListener("click", () => {
+      // クイズ生成後はクイズ一覧へ遷移させる
+      setActiveNav("quiz-list");
+      switchView("quiz-list");
+    });
+  }
 
   stepPrevButtons.forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -224,23 +234,33 @@ document.addEventListener("DOMContentLoaded", () => {
       const code = answerTextarea ? answerTextarea.value.trim() : "";
       if (!code) {
         quizOutputEl.textContent =
-          ">>> 実行しました（モック）\n\n※ コードが空のため、出力はありません。";
+          ">>> 実行しました\n\n※ コードが空のため、出力はありません。";
       } else {
         quizOutputEl.textContent =
-          ">>> 実行しました（モック）\n\n（ここに実際の Python 実行結果が表示される想定です）";
+          ">>> 実行しました\n\n（ここに Python 実行結果が表示されます）";
       }
     });
   });
 
   treeRows.forEach((row) => {
-    row.addEventListener("click", () => {
+    row.addEventListener("click", (event) => {
+      const target = event.target;
+      if (target instanceof Element && target.closest(".tree-node__checkbox")) {
+        return;
+      }
+
       setActiveTreeRow(row);
       updateSummaryForNode(row);
     });
   });
 
   treeFolderRows.forEach((row) => {
-    row.addEventListener("click", () => {
+    row.addEventListener("click", (event) => {
+      const target = event.target;
+      if (target instanceof Element && target.closest(".tree-node__checkbox")) {
+        return;
+      }
+
       const node = row.closest(".tree-node--folder");
       if (!node) return;
 
@@ -253,6 +273,23 @@ document.addEventListener("DOMContentLoaded", () => {
       const twist = row.querySelector(".tree-node__twist");
       if (twist) {
         twist.textContent = nextIsOpen ? "▼" : "▶";
+      }
+    });
+  });
+
+  treeCheckboxes.forEach((checkbox) => {
+    checkbox.addEventListener("change", () => {
+      const treeNode = checkbox.closest(".tree-node");
+      if (!treeNode) return;
+
+      if (treeNode.classList.contains("tree-node--folder")) {
+        const checked = checkbox.checked;
+        const descendants = treeNode.querySelectorAll(
+          ".tree-node__children .tree-node__checkbox"
+        );
+        descendants.forEach((childCheckbox) => {
+          childCheckbox.checked = checked;
+        });
       }
     });
   });
