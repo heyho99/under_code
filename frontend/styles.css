@@ -1186,8 +1186,6 @@ body {
   line-height: 1;
 }
 
-/* サイドバーを閉じたとき（右向きダブル矢印）は、グリフがやや左寄りに見えるので
-   見た目の中心に来るように 1px だけ右へオフセットする */
 .app-shell--sidebar-collapsed .sidebar-toggle__icon {
   transform: translateX(1px);
 }

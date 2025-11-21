@@ -29,15 +29,14 @@
         <nav class="sidebar__nav">
           <div class="nav-section">
             <div class="nav-section__label">ワークスペース</div>
-            <button class="nav-item nav-item--active" data-view="project">
+            <button class="nav-item" data-nav="#/project">
               <span class="nav-item__title">クイズ作成</span>
             </button>
-            <button class="nav-item" data-view="quiz-list">
+            <button class="nav-item" data-nav="#/quiz-list">
               <span class="nav-item__title">クイズ一覧</span>
             </button>
           </div>
         </nav>
-
       </aside>
 
       <main class="main">
@@ -52,22 +51,16 @@
           </div>
         </header>
 
-        <section class="view view--active" data-view-section="project"></section>
-
+        <section class="view" data-view-section="project"></section>
         <section class="view" data-view-section="overview"></section>
-
         <section class="view" data-view-section="quiz-design"></section>
-
         <section class="view" data-view-section="quiz-progress"></section>
-
         <section class="view" data-view-section="quiz-list"></section>
-
         <section class="view" data-view-section="quiz-set-detail"></section>
-
         <section class="view" data-view-section="quiz-play"></section>
       </main>
     </div>
 
-    <script type="module" src="./app.js"></script>
+    <script type="module" src="./src/main.js"></script>
   </body>
 </html>
