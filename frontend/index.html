@@ -41,6 +41,51 @@
             </button>
           </div>
         </nav>
+
+        <div class="sidebar__footer">
+          <button
+            type="button"
+            class="sidebar-account"
+            id="js-sidebar-account"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >
+            <div class="sidebar-account__avatar">UC</div>
+            <div class="sidebar-account__info">
+              <div class="sidebar-account__name">ゲスト</div>
+              <div class="sidebar-account__email">guest@example.com</div>
+            </div>
+            <span
+              class="material-symbols-outlined sidebar-account__chevron"
+              aria-hidden="true"
+            >
+              expand_more
+            </span>
+          </button>
+          <div class="sidebar-account-menu" id="js-sidebar-account-menu">
+            <div class="sidebar-account-card">
+              <div class="sidebar-account-card__avatar">UC</div>
+              <div class="sidebar-account-card__name">ゲスト</div>
+              <div class="sidebar-account-card__email">guest@example.com</div>
+              <button
+                type="button"
+                class="sidebar-account-card__switch"
+              >
+                アカウントを切り替え
+              </button>
+              <button
+                type="button"
+                class="sidebar-account-card__logout"
+                id="js-logout-button"
+              >
+                ログアウト
+              </button>
+              <div class="sidebar-account-card__footer">
+                プライバシー ポリシー ・ 利用規約
+              </div>
+            </div>
+          </div>
+        </div>
       </aside>
 
       <main class="main">
