@@ -23,7 +23,6 @@ export function renderActivityChart(canvas, { labels, values, label = "日毎の
           label,
           data,
           backgroundColor: "rgba(37, 99, 235, 0.85)",
-          borderRadius: 6,
           maxBarThickness: 32,
         },
       ],

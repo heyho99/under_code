@@ -85,11 +85,27 @@ export const QuizProgressView = {
         </section>
 
         <section class="card card--full">
-          <header class="card__header">
-            <h2 class="card__title">日別の取り組み</h2>
-            <p class="card__subtitle">直近30日間の正解数（取り組み数）</p>
+          <header class="card__header card__header--with-controls">
+            <div class="card__header-main">
+              <h2 class="card__title">日別の取り組み</h2>
+              <p class="card__subtitle">直近の正解数（取り組み数）</p>
+            </div>
+            <div class="activity-controls">
+              <div class="segmented" data-activity-range>
+                <button class="segmented__item" data-range="7">直近7日</button>
+                <button class="segmented__item" data-range="14">直近14日</button>
+                <button class="segmented__item" data-range="30">直近30日</button>
+                <button class="segmented__item segmented__item--active" data-range="all">全期間</button>
+              </div>
+            </div>
           </header>
           <div class="card__body">
+            <div class="activity-summary">
+              <div class="activity-summary-card">
+                <span class="activity-summary__label">この期間の取り組み数</span>
+                <span class="activity-summary__value" id="js-activity-range-total">0 問</span>
+              </div>
+            </div>
             <div class="activity-chart-container">
               <canvas id="js-activity-chart" class="activity-chart-canvas"></canvas>
             </div>
