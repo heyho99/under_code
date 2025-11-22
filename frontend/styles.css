@@ -1295,6 +1295,69 @@ body {
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
 }
 
+.progress-summary {
+  display: flex;
+  gap: 16px;
+  align-items: stretch;
+}
+
+.progress-summary__left {
+  flex: 1 1 auto;
+}
+
+.progress-summary__right {
+  flex: 0 0 320px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: stretch;
+}
+
+.overall-donut-card {
+  flex: 1 1 auto;
+  border-radius: 14px;
+  background: #f9fafb;
+  border: 1px solid var(--border-subtle);
+  padding: 10px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+
+.overall-donut-card__title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.overall-donut-card__chart {
+  position: relative;
+  width: 100%;
+  max-width: 240px;
+  aspect-ratio: 1 / 1;
+}
+
+.overall-donut-card__chart canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.overall-donut-card__center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--accent-strong);
+}
+
+.overall-donut-card__meta {
+  font-size: 12px;
+  color: var(--text-soft);
+}
+
 @media (max-width: 1040px) {
   .layout-grid--three {
     grid-template-columns: repeat(2, minmax(0, 1fr));

@@ -1,6 +1,7 @@
 import { QuizProgressView } from "./QuizProgressView.js";
 import { updateHeader, activateSection } from "../../ui/MainHeader.js";
 import { renderActivityChart } from "../../ui/components/ActivityChart.js";
+import { renderCompletionDonut } from "../../ui/components/CompletionDonut.js";
 
 export const QuizProgressController = {
   mount() {
@@ -8,6 +9,35 @@ export const QuizProgressController = {
     QuizProgressView.render(root);
     updateHeader(QuizProgressView);
     activateSection(QuizProgressView.key);
+
+    // 全体完了率ドーナツチャート
+    const overallCanvas = root && root.querySelector("#js-overall-progress-chart");
+    const overallPercentEl = root && root.querySelector("#js-overall-progress-percent");
+    const overallMetaEl = root && root.querySelector("#js-overall-progress-meta");
+
+    if (overallCanvas) {
+      // タイプ別のダミーデータから全体完了率を算出
+      const totalQuestions = 100 + 50 + 40 + 25;
+      const completedQuestions = 42 + 15 + 28 + 5;
+      const percentage =
+        totalQuestions > 0
+          ? Math.round((completedQuestions / totalQuestions) * 100)
+          : 0;
+
+      if (overallPercentEl) {
+        overallPercentEl.textContent = `${percentage}%`;
+      }
+      if (overallMetaEl) {
+        overallMetaEl.textContent = `完了 ${completedQuestions} / ${totalQuestions} 問`;
+      }
+
+      renderCompletionDonut(overallCanvas, {
+        completed: completedQuestions,
+        total: totalQuestions,
+        percentElement: overallPercentEl,
+        metaElement: overallMetaEl,
+      });
+    }
 
     // 日毎の取り組み数（直近 N 日分のダミーデータ）
     const canvas = root && root.querySelector("#js-activity-chart");
