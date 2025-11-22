@@ -24,6 +24,10 @@ export const QuizCreationView = {
             <span class="wizard-step-number">3</span>
             <span class="wizard-step-label">クイズ詳細設定</span>
           </div>
+          <div class="wizard-step-item" data-step-target="4">
+            <span class="wizard-step-number">4</span>
+            <span class="wizard-step-label">確認・作成</span>
+          </div>
         </nav>
 
         <div class="wizard-main">
@@ -287,7 +291,111 @@ export const QuizCreationView = {
             </div>
             <div class="step-actions step-actions--between">
               <button class="primary-btn primary-btn--outline js-step-prev" data-prev-step="2">戻る</button>
-              <button class="primary-btn js-generate-quiz">クイズを生成</button>
+              <button class="primary-btn js-step-next" data-next-step="4">確認へ</button>
+            </div>
+          </div>
+
+          <!-- STEP 4 -->
+          <div class="step" data-step="4">
+            <div class="layout-grid">
+              <section class="card">
+                <header class="card__header">
+                  <h2 class="card__title">クイズ設定の確認</h2>
+                  <p class="card__subtitle">以下の内容でクイズを作成します。よろしければ作成ボタンを押してください。</p>
+                </header>
+                <div class="card__body">
+                  <!-- ヒーローセクション: 合計問題数 -->
+                  <div class="confirmation-hero">
+                    <div class="confirmation-hero__content">
+                      <div class="confirmation-hero__label">作成するクイズの合計</div>
+                      <div class="confirmation-hero__value">
+                        <span class="confirmation-hero__number" data-total-count>0</span>
+                        <span class="confirmation-hero__unit">問</span>
+                      </div>
+                    </div>
+                    <div class="confirmation-hero__icon">
+                      <span class="material-symbols-outlined">quiz</span>
+                    </div>
+                  </div>
+
+                  <div class="confirmation-grid">
+                    <!-- 左カラム: 解析対象・要望 -->
+                    <div class="confirmation-col">
+                      <div class="confirmation-section">
+                        <h3 class="confirmation-section__title">
+                          <span class="material-symbols-outlined">folder_open</span>
+                          解析対象プロジェクト
+                        </h3>
+                        <div class="confirmation-tree-box">
+                          <pre class="project-tree-preview">
+app/
+├─ api/
+│  └─ router.py
+├─ services/
+│  └─ service.py
+└─ main.py
+
+                          </pre>
+                        </div>
+                      </div>
+
+                      <div class="confirmation-section">
+                        <h3 class="confirmation-section__title">
+                          <span class="material-symbols-outlined">edit_note</span>
+                          作成への要望
+                        </h3>
+                        <div class="confirmation-request-box" data-summary-request>
+                          （入力された要望がここに表示されます）
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- 右カラム: 問題タイプ内訳 -->
+                    <div class="confirmation-col">
+                      <div class="confirmation-section">
+                        <h3 class="confirmation-section__title">
+                          <span class="material-symbols-outlined">category</span>
+                          出題タイプ別の内訳
+                        </h3>
+                        <ul class="confirmation-list">
+                          <li class="confirmation-list__item">
+                            <div class="confirmation-list__info">
+                              <span class="confirmation-list__label">基本文法</span>
+                              <span class="confirmation-list__desc">変数、型、制御構文など</span>
+                            </div>
+                            <span class="confirmation-list__value" data-summary-count="basic">0問</span>
+                          </li>
+                          <li class="confirmation-list__item">
+                            <div class="confirmation-list__info">
+                              <span class="confirmation-list__label">処理</span>
+                              <span class="confirmation-list__desc">アルゴリズム、データ操作</span>
+                            </div>
+                            <span class="confirmation-list__value" data-summary-count="process">0問</span>
+                          </li>
+                          <li class="confirmation-list__item">
+                            <div class="confirmation-list__info">
+                              <span class="confirmation-list__label">関数</span>
+                              <span class="confirmation-list__desc">引数、戻り値、スコープ</span>
+                            </div>
+                            <span class="confirmation-list__value" data-summary-count="function">0問</span>
+                          </li>
+                          <li class="confirmation-list__item">
+                            <div class="confirmation-list__info">
+                              <span class="confirmation-list__label">クラス・モジュール</span>
+                              <span class="confirmation-list__desc">OOP、インポート、構造</span>
+                            </div>
+                            <span class="confirmation-list__value" data-summary-count="class-module">0問</span>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            </div>
+            <div class="step-actions step-actions--between">
+              <button class="primary-btn primary-btn--outline js-step-prev" data-prev-step="3">戻る</button>
+              <button class="primary-btn js-generate-quiz">この内容でクイズを作成</button>
             </div>
           </div>
         </div>
