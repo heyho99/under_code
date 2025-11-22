@@ -3,7 +3,6 @@ import { routes } from "./routes.js";
 let currentController = null;
 
 const navMapping = {
-  "#/quiz-design": "#/project",
   "#/quiz-set-detail": "#/quiz-list",
   "#/quiz-play": "#/quiz-list",
 };
@@ -19,7 +18,7 @@ function setActiveNav(path) {
 }
 
 function handleRouteChange() {
-  const path = window.location.hash || "#/project";
+  const path = window.location.hash || "#/quiz-creation";
   const nextController = routes[path];
   if (!nextController) {
     return;
@@ -38,7 +37,7 @@ function handleRouteChange() {
   setActiveNav(path);
 }
 
-export function initRouter({ defaultPath = "#/project" } = {}) {
+export function initRouter({ defaultPath = "#/quiz-creation" } = {}) {
   window.addEventListener("hashchange", handleRouteChange);
 
   if (!window.location.hash) {
