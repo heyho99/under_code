@@ -197,7 +197,7 @@ export const QuizCreationController = {
 
         const twist = row.querySelector(".tree-node__twist");
         if (twist) {
-          twist.textContent = nextIsOpen ? "▼" : "▶";
+          twist.textContent = nextIsOpen ? "arrow_drop_down" : "arrow_right";
         }
       });
     });
