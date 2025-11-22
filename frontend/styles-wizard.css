@@ -53,6 +53,337 @@
   min-width: 0; /* 防止: flexアイテムのはみ出し */
 }
 
+/* STEP 1: Upload Hero */
+.step-content-centered {
+  display: flex;
+  justify-content: center;
+  padding: 20px 0;
+}
+
+.upload-hero {
+  width: 100%;
+  max-width: 600px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.upload-hero__icon-box {
+  width: 80px;
+  height: 80px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+  color: #0284c7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  box-shadow: 0 8px 20px rgba(14, 165, 233, 0.15);
+}
+
+.upload-hero__icon-box .material-symbols-outlined {
+  font-size: 40px;
+}
+
+.upload-hero__title {
+  margin: 0 0 8px;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.upload-hero__subtitle {
+  margin: 0 0 32px;
+  font-size: 16px;
+  color: var(--text-soft);
+  line-height: 1.6;
+}
+
+.dropzone--large {
+  width: 100%;
+  min-height: 240px;
+  background: #ffffff;
+  border: 2px dashed #cbd5e1;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.dropzone--large:hover {
+  border-color: var(--accent);
+  background: #f8fafc;
+  transform: translateY(-2px);
+}
+
+.dropzone__icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dropzone--large:hover .dropzone__icon {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.dropzone__icon .material-symbols-outlined {
+  font-size: 32px;
+}
+
+.dropzone__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.dropzone__hint-main {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.dropzone__hint-sub {
+  font-size: 14px;
+  color: var(--text-soft);
+}
+
+/* STEP 2: Tree View & Summary */
+.layout-grid--tree-view {
+  grid-template-columns: 1fr 280px;
+  align-items: start;
+}
+
+.card--tree {
+  min-height: 400px;
+}
+
+.card__title-icon {
+  margin-right: 4px;
+  color: var(--accent);
+  vertical-align: middle;
+  position: relative;
+  top: -1px;
+}
+
+.card__body--no-padding {
+  padding: 0;
+  margin-top: 10px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.tree-container {
+  padding: 10px 0;
+  height: 360px;
+  overflow-y: auto;
+}
+
+.tree {
+  font-size: 14px;
+}
+
+.tree-node__row {
+  padding: 6px 12px 6px 6px;
+  border-radius: 6px;
+  margin: 0 8px;
+  transition: background 0.15s ease;
+}
+
+.tree-node__type-icon {
+  font-size: 20px;
+  margin: 0 4px 0 2px;
+  color: #64748b;
+}
+
+.tree-node__twist {
+  font-size: 20px;
+  color: #94a3b8;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+.tree-node__twist:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: #475569;
+}
+
+.tree-node__indent {
+  width: 24px;
+  display: inline-block;
+}
+
+.summary-card {
+  background: #ffffff;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-soft);
+  padding: 20px;
+  position: sticky;
+  top: 20px;
+}
+
+.summary-card__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.summary-card__icon {
+  color: var(--accent);
+  font-size: 20px;
+}
+
+.summary-card__title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.summary-panel {
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+.summary-panel__label {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 13px;
+  color: var(--accent-strong);
+  background: var(--accent-soft);
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: inline-block;
+  margin-bottom: 12px;
+}
+
+.summary-panel__text {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-muted);
+}
+
+/* STEP 3: Quiz Settings */
+.quiz-settings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.quiz-setting-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: #ffffff;
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.quiz-setting-item:hover {
+  border-color: var(--accent);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);
+}
+
+.quiz-setting-item__icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.quiz-setting-item__icon.basic { background: #ecfdf5; color: #059669; }
+.quiz-setting-item__icon.process { background: #eff6ff; color: #2563eb; }
+.quiz-setting-item__icon.function { background: #f5f3ff; color: #7c3aed; }
+.quiz-setting-item__icon.class-module { background: #fff7ed; color: #ea580c; }
+
+.quiz-setting-item__info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.quiz-setting-item__name {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.quiz-setting-item__desc {
+  font-size: 13px;
+  color: var(--text-soft);
+}
+
+.quiz-counter {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f8fafc;
+  padding: 4px 6px;
+  border-radius: 99px;
+  border: 1px solid var(--border-subtle);
+}
+
+.quiz-counter-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.quiz-counter-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: #ffffff;
+  transform: scale(1.05);
+}
+
+.quiz-counter-btn:active {
+  transform: scale(0.95);
+}
+
+.quiz-counter-btn .material-symbols-outlined {
+  font-size: 18px;
+}
+
+.quiz-counter-value {
+  min-width: 48px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 600;
+  font-feature-settings: "tnum";
+}
+
 /* Confirmation step (STEP 4) */
 .confirmation-hero {
   display: flex;
