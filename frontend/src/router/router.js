@@ -3,7 +3,6 @@ import { routes } from "./routes.js";
 let currentController = null;
 
 const navMapping = {
-  "#/overview": "#/project",
   "#/quiz-design": "#/project",
   "#/quiz-progress": "#/project",
   "#/quiz-set-detail": "#/quiz-list",
