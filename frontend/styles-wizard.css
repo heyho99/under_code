@@ -161,7 +161,7 @@
 
 /* STEP 2: Tree View & Summary */
 .layout-grid--tree-view {
-  grid-template-columns: 1fr 280px;
+  grid-template-columns: 1fr;
   align-items: start;
 }
 
