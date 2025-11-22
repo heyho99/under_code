@@ -339,6 +339,10 @@ body {
   grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
 }
 
+.layout-grid--two .card--full {
+  grid-column: 1 / -1;
+}
+
 .step2-right-column {
   display: flex;
   flex-direction: column;
@@ -1222,6 +1226,25 @@ body {
 .stat__value {
   margin-top: 4px;
   font-size: 17px;
+}
+
+.stat--highlight {
+  background: linear-gradient(135deg, #eff6ff, #dbeafe);
+  border-color: rgba(37, 99, 235, 0.3);
+}
+
+.stat--highlight .stat__value {
+  color: var(--accent-strong);
+  font-weight: 600;
+}
+
+.activity-chart-container {
+  margin-top: 14px;
+}
+
+.activity-chart-canvas {
+  width: 100%;
+  max-height: 180px;
 }
 
 @media (max-width: 1040px) {

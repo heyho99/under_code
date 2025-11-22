@@ -12,27 +12,45 @@ export const QuizProgressView = {
       <div class="layout-grid layout-grid--two">
         <section class="card">
           <header class="card__header">
-            <h2 class="card__title">プロジェクト別の進捗</h2>
-            <p class="card__subtitle">QAセットと回答履歴を集約</p>
+            <h2 class="card__title">学習の進捗</h2>
+            <p class="card__subtitle">全体の累計進捗率（タイプ別）</p>
           </header>
           <div class="card__body card__body--list">
             <ul class="list">
               <li class="list__item">
                 <div class="list__primary">
-                  <span class="list__title">payment-service</span>
-                  <span class="list__meta">24 / 40 問完了 ・ 正答率 78%</span>
+                  <span class="list__title">基本文法</span>
+                  <span class="list__meta">42 / 100 問完了 ・ 完了率 42%</span>
                 </div>
                 <div class="progress">
-                  <div class="progress__bar" style="width: 60%"></div>
+                  <div class="progress__bar" style="width: 42%"></div>
                 </div>
               </li>
               <li class="list__item">
                 <div class="list__primary">
-                  <span class="list__title">next-dashboard</span>
-                  <span class="list__meta">10 / 20 問完了 ・ 正答率 65%</span>
+                  <span class="list__title">処理</span>
+                  <span class="list__meta">15 / 50 問完了 ・ 完了率 30%</span>
                 </div>
                 <div class="progress">
-                  <div class="progress__bar" style="width: 50%"></div>
+                  <div class="progress__bar" style="width: 30%"></div>
+                </div>
+              </li>
+              <li class="list__item">
+                <div class="list__primary">
+                  <span class="list__title">関数</span>
+                  <span class="list__meta">28 / 40 問完了 ・ 完了率 70%</span>
+                </div>
+                <div class="progress">
+                  <div class="progress__bar" style="width: 70%"></div>
+                </div>
+              </li>
+              <li class="list__item">
+                <div class="list__primary">
+                  <span class="list__title">クラス・モジュール</span>
+                  <span class="list__meta">5 / 25 問完了 ・ 完了率 20%</span>
+                </div>
+                <div class="progress">
+                  <div class="progress__bar" style="width: 20%"></div>
                 </div>
               </li>
             </ul>
@@ -41,29 +59,39 @@ export const QuizProgressView = {
 
         <section class="card">
           <header class="card__header">
-            <h2 class="card__title">セッションサマリ</h2>
-            <p class="card__subtitle">直近の学習傾向を可視化</p>
+            <h2 class="card__title">学習統計</h2>
+            <p class="card__subtitle">取り組んだ問題数の推移</p>
           </header>
           <div class="card__body card__body--stack">
             <div class="stat-row">
-              <div class="stat">
-                <div class="stat__label">7日間の正答率</div>
-                <div class="stat__value">72%</div>
-              </div>
-              <div class="stat">
-                <div class="stat__label">平均回答時間</div>
-                <div class="stat__value">38秒</div>
+              <div class="stat stat--highlight">
+                <div class="stat__label">今までの累計</div>
+                <div class="stat__value">90 問</div>
               </div>
             </div>
             <div class="stat-row">
               <div class="stat">
-                <div class="stat__label">構造系クイズ</div>
-                <div class="stat__value">57%</div>
+                <div class="stat__label">直近一か月</div>
+                <div class="stat__value">45 問</div>
               </div>
+            </div>
+            <div class="stat-row">
               <div class="stat">
-                <div class="stat__label">文法系クイズ</div>
-                <div class="stat__value">84%</div>
+                <div class="stat__label">直近一週間</div>
+                <div class="stat__value">12 問</div>
               </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card card--full">
+          <header class="card__header">
+            <h2 class="card__title">日別の取り組み</h2>
+            <p class="card__subtitle">直近30日間の正解数（取り組み数）</p>
+          </header>
+          <div class="card__body">
+            <div class="activity-chart-container">
+              <canvas id="js-activity-chart" class="activity-chart-canvas"></canvas>
             </div>
           </div>
         </section>
