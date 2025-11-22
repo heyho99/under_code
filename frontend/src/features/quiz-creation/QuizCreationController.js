@@ -68,6 +68,9 @@ export const QuizCreationController = {
     const treeCheckboxes = root.querySelectorAll(".tree-node__checkbox");
     const generateQuizButton = root.querySelector(".js-generate-quiz");
     const wizardStepItems = root.querySelectorAll(".wizard-step-item");
+    const requestTextarea = root.querySelector(".quiz-request-textarea");
+    const confirmationCountEls = root.querySelectorAll("[data-summary-count]");
+    const confirmationRequestEl = root.querySelector("[data-summary-request]");
 
     function setStep(stepNumber) {
       // 右側のコンテンツ切り替え
@@ -101,10 +104,46 @@ export const QuizCreationController = {
       summaryBodyEl.textContent = summary.body;
     }
 
+    function updateConfirmationSummary() {
+      let totalCount = 0;
+
+      if (confirmationCountEls.length > 0) {
+        const typeRows = root.querySelectorAll(".quiz-type-row");
+        typeRows.forEach((row) => {
+          const type = row.dataset.quizType;
+          const valueEl = row.querySelector(".quiz-counter-value");
+          if (!type || !valueEl) return;
+          const count = Number(valueEl.dataset.count || "0");
+          
+          // 合計に加算
+          totalCount += count;
+
+          const targetEl = root.querySelector(`[data-summary-count="${type}"]`);
+          if (targetEl) {
+            targetEl.textContent = `${count}問`;
+          }
+        });
+      }
+
+      // 合計数を表示更新
+      const totalCountEl = root.querySelector("[data-total-count]");
+      if (totalCountEl) {
+        totalCountEl.textContent = String(totalCount);
+      }
+
+      if (confirmationRequestEl) {
+        const text = requestTextarea && requestTextarea.value.trim();
+        confirmationRequestEl.textContent = text || "（特に要望は指定されていません）";
+      }
+    }
+
     stepNextButtons.forEach((btn) => {
       btn.addEventListener("click", () => {
         const next = Number(btn.dataset.nextStep);
         if (!next) return;
+        if (next === 4) {
+          updateConfirmationSummary();
+        }
         setStep(next);
       });
     });
