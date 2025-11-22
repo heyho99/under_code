@@ -67,11 +67,19 @@ export const ProjectController = {
     const quizCounterButtons = root.querySelectorAll(".quiz-counter-btn");
     const treeCheckboxes = root.querySelectorAll(".tree-node__checkbox");
     const generateQuizButton = root.querySelector(".js-generate-quiz");
+    const wizardStepItems = root.querySelectorAll(".wizard-step-item");
 
     function setStep(stepNumber) {
+      // 右側のコンテンツ切り替え
       steps.forEach((stepEl) => {
         const value = Number(stepEl.dataset.step);
         stepEl.classList.toggle("step--active", value === stepNumber);
+      });
+
+      // 左側サイドバーの切り替え
+      wizardStepItems.forEach((item) => {
+        const target = Number(item.dataset.stepTarget);
+        item.classList.toggle("wizard-step-item--active", target === stepNumber);
       });
     }
 
