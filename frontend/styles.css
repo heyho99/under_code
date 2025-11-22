@@ -473,7 +473,8 @@ body {
   padding: 0;
 }
 
-.app-shell--login .view[data-view-section="login"] {
+.app-shell--login .view[data-view-section="login"],
+.app-shell--login .view[data-view-section="signup"] {
   display: block;
 }
 
@@ -547,6 +548,25 @@ body {
 .login-form__submit {
   width: 100%;
   margin-top: 4px;
+}
+
+.login-card__footer-text {
+  margin: 12px 0 0;
+  font-size: 13px;
+  color: var(--text-soft);
+}
+
+.login-link-btn {
+  border: none;
+  background: none;
+  color: var(--accent);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 0 2px;
+}
+
+.login-link-btn:hover {
+  text-decoration: underline;
 }
 
 .step {
