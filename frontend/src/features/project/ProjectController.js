@@ -142,6 +142,11 @@ export const ProjectController = {
           return;
         }
 
+        // 三角アイコンをクリックした時以外は開閉しない（サマリ表示のみにする）
+        if (target instanceof Element && !target.closest(".tree-node__twist")) {
+          return;
+        }
+
         const node = row.closest(".tree-node--folder");
         if (!node) return;
 
