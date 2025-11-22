@@ -4,7 +4,6 @@ let currentController = null;
 
 const navMapping = {
   "#/quiz-design": "#/project",
-  "#/quiz-progress": "#/project",
   "#/quiz-set-detail": "#/quiz-list",
   "#/quiz-play": "#/quiz-list",
 };
