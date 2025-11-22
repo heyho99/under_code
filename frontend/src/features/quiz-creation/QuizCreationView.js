@@ -1,10 +1,10 @@
-export const ProjectView = {
-  key: "project",
+export const QuizCreationView = {
+  key: "quiz-creation",
   title: "クイズを作成する",
   subtitle:
     "プロジェクトの読み込みからクイズ生成、一覧からの挑戦までを一画面で行います。",
   getRoot() {
-    return document.querySelector('[data-view-section="project"]');
+    return document.querySelector('[data-view-section="quiz-creation"]');
   },
   render(root) {
     if (!root) return;

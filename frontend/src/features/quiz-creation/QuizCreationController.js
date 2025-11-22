@@ -1,4 +1,4 @@
-import { ProjectView } from "./ProjectView.js";
+import { QuizCreationView } from "./QuizCreationView.js";
 import { navigate } from "../../router/router.js";
 import { updateHeader, activateSection } from "../../ui/MainHeader.js";
 
@@ -45,12 +45,12 @@ const nodeSummaries = {
   },
 };
 
-export const ProjectController = {
+export const QuizCreationController = {
   mount() {
-    const root = ProjectView.getRoot();
-    ProjectView.render(root);
-    updateHeader(ProjectView);
-    activateSection(ProjectView.key);
+    const root = QuizCreationView.getRoot();
+    QuizCreationView.render(root);
+    updateHeader(QuizCreationView);
+    activateSection(QuizCreationView.key);
 
     if (!root) {
       return;
@@ -208,7 +208,7 @@ export const ProjectController = {
     setStep(1);
   },
   unmount() {
-    const root = ProjectView.getRoot();
+    const root = QuizCreationView.getRoot();
     if (root) root.innerHTML = "";
   },
 };

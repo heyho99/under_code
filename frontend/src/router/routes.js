@@ -1,5 +1,4 @@
-import { ProjectController } from "../features/project/ProjectController.js";
-import { QuizDesignController } from "../features/quiz-design/QuizDesignController.js";
+import { QuizCreationController } from "../features/quiz-creation/QuizCreationController.js";
 import { QuizProgressController } from "../features/quiz-progress/QuizProgressController.js";
 import { LoginController } from "../features/login/LoginController.js";
 import { SignupController } from "../features/signup/SignupController.js";
@@ -10,8 +9,7 @@ import { QuizPlayController } from "../features/quiz-play/QuizPlayController.js"
 export const routes = {
   "#/login": LoginController,
   "#/signup": SignupController,
-  "#/project": ProjectController,
-  "#/quiz-design": QuizDesignController,
+  "#/quiz-creation": QuizCreationController,
   "#/dashboard": QuizProgressController,
   "#/quiz-list": QuizListController,
   "#/quiz-set-detail": QuizSetDetailController,
