@@ -15,12 +15,19 @@ export const LoginController = {
     const emailInput = root && root.querySelector("#js-login-email");
     const passwordInput = root && root.querySelector("#js-login-password");
     const errorEl = root && root.querySelector("#js-login-error");
+    const goSignupBtn = root && root.querySelector("#js-go-signup");
 
     const clearError = () => {
       if (errorEl) {
         errorEl.textContent = "";
       }
     };
+
+    if (goSignupBtn) {
+      goSignupBtn.addEventListener("click", () => {
+        navigate("#/signup");
+      });
+    }
 
     if (form) {
       form.addEventListener("submit", (event) => {

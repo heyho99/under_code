@@ -42,6 +42,13 @@ export const LoginView = {
             <button type="submit" class="primary-btn login-form__submit">
               ログイン
             </button>
+            <p class="login-card__footer-text">
+              まだアカウントをお持ちでない方は
+              <button type="button" class="login-link-btn" id="js-go-signup">
+                新規登録
+              </button>
+              してください。
+            </p>
           </form>
         </div>
       </div>
