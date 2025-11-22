@@ -28,7 +28,10 @@ export const QuizListView = {
               <div class="quiz-set-item__meta">
                 <span>前回挑戦: 2025/11/01</span>
                 <span class="quiz-set-item__meta-separator">・</span>
-                <span>正答率: 78%</span>
+                <span>完了率: 78%</span>
+              </div>
+              <div class="progress">
+                <div class="progress__bar" style="width: 78%"></div>
               </div>
             </li>
             <li class="list__item quiz-set-item">
@@ -44,7 +47,10 @@ export const QuizListView = {
               <div class="quiz-set-item__meta">
                 <span>前回挑戦: 2025/10/21</span>
                 <span class="quiz-set-item__meta-separator">・</span>
-                <span>正答率: 64%</span>
+                <span>完了率: 64%</span>
+              </div>
+              <div class="progress">
+                <div class="progress__bar" style="width: 64%"></div>
               </div>
             </li>
           </ul>

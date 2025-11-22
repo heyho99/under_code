@@ -8,7 +8,7 @@ import { QuizPlayController } from "../features/quiz-play/QuizPlayController.js"
 export const routes = {
   "#/project": ProjectController,
   "#/quiz-design": QuizDesignController,
-  "#/quiz-progress": QuizProgressController,
+  "#/dashboard": QuizProgressController,
   "#/quiz-list": QuizListController,
   "#/quiz-set-detail": QuizSetDetailController,
   "#/quiz-play": QuizPlayController,
