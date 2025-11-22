@@ -1,5 +1,4 @@
 import { ProjectController } from "../features/project/ProjectController.js";
-import { OverviewController } from "../features/overview/OverviewController.js";
 import { QuizDesignController } from "../features/quiz-design/QuizDesignController.js";
 import { QuizProgressController } from "../features/quiz-progress/QuizProgressController.js";
 import { QuizListController } from "../features/quiz-list/QuizListController.js";
@@ -8,7 +7,6 @@ import { QuizPlayController } from "../features/quiz-play/QuizPlayController.js"
 
 export const routes = {
   "#/project": ProjectController,
-  "#/overview": OverviewController,
   "#/quiz-design": QuizDesignController,
   "#/quiz-progress": QuizProgressController,
   "#/quiz-list": QuizListController,
