@@ -373,17 +373,35 @@ export const QuizCreationView = {
                   <p class="card__subtitle">以下の内容でクイズを作成します。よろしければ作成ボタンを押してください。</p>
                 </header>
                 <div class="card__body">
-                  <!-- ヒーローセクション: 合計問題数 -->
-                  <div class="confirmation-hero">
-                    <div class="confirmation-hero__content">
-                      <div class="confirmation-hero__label">作成するクイズの合計</div>
-                      <div class="confirmation-hero__value">
-                        <span class="confirmation-hero__number" data-total-count>0</span>
-                        <span class="confirmation-hero__unit">問</span>
+                  <!-- 上段: タイトル入力 + 合計数 -->
+                  <div class="confirmation-header-row">
+                    <div class="confirmation-header__left">
+                      <div class="login-form__field">
+                        <label class="login-form__label">クイズセットのタイトル</label>
+                        <input type="text" class="login-form__input" placeholder="例: React基礎クイズ" data-quiz-title>
                       </div>
                     </div>
-                    <div class="confirmation-hero__icon">
-                      <span class="material-symbols-outlined">quiz</span>
+                    <div class="confirmation-header__right">
+                      <div class="confirmation-hero">
+                        <div class="confirmation-hero__content">
+                          <div class="confirmation-hero__label">作成するクイズの合計</div>
+                          <div class="confirmation-hero__value">
+                            <span class="confirmation-hero__number" data-total-count>0</span>
+                            <span class="confirmation-hero__unit">問</span>
+                          </div>
+                        </div>
+                        <div class="confirmation-hero__icon">
+                          <span class="material-symbols-outlined">quiz</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- 説明入力 -->
+                  <div class="confirmation-description-row">
+                    <div class="login-form__field">
+                      <label class="login-form__label">説明 (オプション)</label>
+                      <textarea class="quiz-request-textarea" placeholder="このクイズセットに関するメモや説明を入力..." data-quiz-description style="min-height: 80px;"></textarea>
                     </div>
                   </div>
 

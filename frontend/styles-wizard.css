@@ -385,6 +385,23 @@
 }
 
 /* Confirmation step (STEP 4) */
+.confirmation-header-row {
+  display: flex;
+  gap: 24px;
+  align-items: stretch;
+}
+
+.confirmation-header__left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.confirmation-header__right {
+  flex: 0 0 320px;
+}
+
 .confirmation-hero {
   display: flex;
   align-items: center;
@@ -392,10 +409,14 @@
   background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
   border: 1px solid #bae6fd;
   border-radius: var(--radius-md);
-  padding: 20px 24px;
-  margin-bottom: 24px;
+  padding: 16px 20px;
   position: relative;
   overflow: hidden;
+  height: 100%;
+}
+
+.confirmation-description-row {
+  margin-top: 20px;
 }
 
 .confirmation-hero::before {
@@ -462,6 +483,7 @@
 }
 
 .confirmation-grid {
+  margin-top: 24px;
   display: grid;
   grid-template-columns: 1.2fr 1fr;
   gap: 24px;
