@@ -158,7 +158,7 @@ export const QuizCreationController = {
 
     openQuizListButtons.forEach((btn) => {
       btn.addEventListener("click", () => {
-        navigate("#/quiz-list");
+        navigate("#/quiz-set-list");
       });
     });
 
@@ -240,7 +240,7 @@ export const QuizCreationController = {
 
     if (generateQuizButton) {
       generateQuizButton.addEventListener("click", () => {
-        navigate("#/quiz-list");
+        navigate("#/quiz-set-list");
       });
     }
 

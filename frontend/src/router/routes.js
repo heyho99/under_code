@@ -11,7 +11,7 @@ export const routes = {
   "#/signup": SignupController,
   "#/quiz-creation": QuizCreationController,
   "#/dashboard": QuizProgressController,
-  "#/quiz-list": QuizListController,
-  "#/quiz-set-detail": QuizSetDetailController,
+  "#/quiz-set-list": QuizListController,
+  "#/problem-list": QuizSetDetailController,
   "#/quiz-play": QuizPlayController,
 };

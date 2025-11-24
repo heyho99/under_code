@@ -16,7 +16,7 @@ export const QuizListController = {
     const openQuizSetButtons = root.querySelectorAll(".js-open-quiz-set");
     openQuizSetButtons.forEach((btn) => {
       btn.addEventListener("click", () => {
-        navigate("#/quiz-set-detail");
+        navigate("#/problem-list");
       });
     });
   },
