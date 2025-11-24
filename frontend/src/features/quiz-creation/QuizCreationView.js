@@ -69,7 +69,7 @@ export const QuizCreationView = {
                     <span class="material-symbols-outlined card__title-icon">account_tree</span>
                     プロジェクトツリー
                   </h2>
-                  <p class="card__subtitle">解析・出題の対象とする範囲を選択してください。</p>
+                  <p class="card__subtitle">解析・出題の対象とする範囲を選択してください（v2の機能、v1ではツリーを確認するだけ）</p>
                 </header>
                 <div class="card__body card__body--no-padding">
                   <div class="tree-container">
@@ -186,7 +186,7 @@ export const QuizCreationView = {
               <aside class="summary-card">
                 <div class="summary-card__header">
                   <span class="material-symbols-outlined summary-card__icon">info</span>
-                  <h3 class="summary-card__title">選択項目の詳細</h3>
+                  <h3 class="summary-card__title">選択項目の詳細（v2の機能、v1では表示無し）</h3>
                 </div>
                 <div class="summary-panel">
                   <div class="summary-panel__label" data-summary-title>app/</div>
