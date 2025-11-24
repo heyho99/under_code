@@ -63,13 +63,41 @@ async def login(request: LoginRequest, service: AuthService = Depends(...)):
             </div>
           </div>
           <div class="quiz-run">
-            <div class="quiz-run__controls">
-              <button class="primary-btn primary-btn--outline js-back-to-quiz-list">クイズ一覧へ戻る</button>
-              <button class="primary-btn js-run-code">コードを実行</button>
-            </div>
             <div class="quiz-output">
-              <div class="quiz-output__label">出力</div>
-              <pre class="quiz-output__body" data-quiz-output>>> ここに実行結果が表示されます。</pre>
+              <div class="quiz-output__label">
+                <span class="material-symbols-outlined" style="font-size: 16px;">terminal</span>
+                コンソール出力
+              </div>
+              <pre class="quiz-output__body" data-quiz-output>>> 準備完了</pre>
+            </div>
+
+            <div class="quiz-feedback" data-quiz-feedback style="display: none;">
+              <!-- ここに正解やヒントがカードとして表示されます -->
+            </div>
+
+            <div class="quiz-run__controls">
+              <button class="primary-btn primary-btn--subtle js-back-to-quiz-list">
+                <span class="material-symbols-outlined">arrow_back</span>
+                一覧へ
+              </button>
+              <div class="quiz-run__actions">
+                <button class="primary-btn primary-btn--subtle js-hint-v2">
+                  <span class="material-symbols-outlined">lightbulb</span>
+                  ヒント
+                </button>
+                <button class="primary-btn primary-btn--subtle js-view-answer">
+                  <span class="material-symbols-outlined">visibility</span>
+                  正解
+                </button>
+                <button class="primary-btn primary-btn--outline js-run-code">
+                  <span class="material-symbols-outlined">play_arrow</span>
+                  実行
+                </button>
+                <button class="primary-btn js-submit-quiz">
+                  <span class="material-symbols-outlined">check</span>
+                  提出
+                </button>
+              </div>
             </div>
           </div>
         </div>

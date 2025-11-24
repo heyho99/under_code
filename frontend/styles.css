@@ -1118,6 +1118,12 @@ body {
   gap: 8px;
 }
 
+.quiz-run__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .quiz-output {
   border-radius: var(--radius-md);
   border: 1px solid rgba(15, 23, 42, 0.9);
@@ -1129,6 +1135,42 @@ body {
   font-size: 13px;
   color: #9ca3af;
   border-bottom: 1px solid rgba(15, 23, 42, 0.85);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.quiz-feedback {
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: var(--radius-md);
+  padding: 16px;
+  animation: fadeIn 0.3s ease;
+}
+
+.quiz-feedback--answer {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.quiz-feedback__title {
+  margin: 0 0 8px;
+  font-size: 15px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.quiz-feedback__title .material-symbols-outlined {
+  font-size: 20px;
+}
+
+.quiz-feedback__content {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--text-main);
+  white-space: pre-wrap;
 }
 
 .quiz-output__body {
@@ -1269,6 +1311,11 @@ body {
   justify-content: flex-end;
 }
 
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .primary-btn {
   border-radius: var(--radius-pill);
   border: none;
@@ -1278,6 +1325,19 @@ body {
   color: #ffffff;
   cursor: pointer;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: transform 0.1s ease, box-shadow 0.15s ease;
+}
+
+.primary-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+}
+
+.primary-btn .material-symbols-outlined {
+  font-size: 18px;
 }
 
 .primary-btn--outline {
@@ -1285,6 +1345,23 @@ body {
   color: var(--accent-strong);
   border: 1px solid var(--accent);
 }
+
+.primary-btn--outline:hover {
+  background: var(--accent-soft);
+}
+
+.primary-btn--subtle {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border-subtle);
+}
+
+.primary-btn--subtle:hover {
+  background: #f3f4f6;
+  color: var(--text-main);
+  border-color: #d1d5db;
+}
+
 
 .card--project-tree {
   min-height: 220px;
