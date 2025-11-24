@@ -24,7 +24,7 @@ export const QuizSetDetailController = {
 
     backToQuizSetListButtons.forEach((btn) => {
       btn.addEventListener("click", () => {
-        navigate("#/quiz-list");
+        navigate("#/quiz-set-list");
       });
     });
   },

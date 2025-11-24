@@ -3,8 +3,8 @@ import { routes } from "./routes.js";
 let currentController = null;
 
 const navMapping = {
-  "#/quiz-set-detail": "#/quiz-list",
-  "#/quiz-play": "#/quiz-list",
+  "#/problem-list": "#/quiz-set-list",
+  "#/quiz-play": "#/quiz-set-list",
 };
 
 function setActiveNav(path) {

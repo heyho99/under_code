@@ -45,7 +45,7 @@ export const QuizPlayController = {
 
     backToQuizListButtons.forEach((btn) => {
       btn.addEventListener("click", () => {
-        navigate("#/quiz-set-detail");
+        navigate("#/problem-list");
       });
     });
 
