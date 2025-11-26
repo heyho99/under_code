@@ -1,4 +1,12 @@
-## ディレクトリ構造
+## ディレクトリ構成
+
+### dockerまわり
+
+- 各コンテナはnode, fast apiのwebサーバで通信
+    - **Frontend**: node プロセスが :80 でHTTP待機
+    - **BFF**: uvicorn プロセスが :8081 でHTTP待機
+    - **Services**: uvicorn プロセスが :800X でHTTP待機
+- 各サービス配下のDockerfile.envにイメージの構成を記述する
 
 ### ルートディレクトリ構造
 
@@ -13,15 +21,15 @@ root/
 ├── generator-service/    # [Generator] LLMによる生成
 ├── executor-service/     # [Executor] コード実行環境
 ├── validator-service/    # [Validator] コード正誤判定
-├── tutor-service/        # [Tutor] AIヒント (v2予定)
-└── infra/                # インフラストラクチャ定義 (Docker Compose等)
-
+└──  tutor-service/        # [Tutor] AIヒント (v2予定)
 ```
 
 ### フロントエンド
 
 ```
 frontend/
+├─ Dockerfile 
+├─ Dockerfile.env
 ├─ index.html                         # app-shell と <main> / data-view-section="..." を定義
 ├─ styles.css                         # 全体スタイル（レイアウト + コンポーネント）
 ├─ styles-wizard.css                  # クイズ作成ウィザード専用スタイル
@@ -112,6 +120,7 @@ bff/
 │   └── main.py                             # FastAPI アプリ定義 / エントリーポイント
 ├── tests/
 ├── requirements.txt
+├── Dockerfile.env
 └── Dockerfile
 
 ```
@@ -146,6 +155,7 @@ user-service/
 │   └── 002_add_columns.sql
 ├── tests/
 ├── requirements.txt
+├── Dockerfile.env
 └── Dockerfile
 ```
 
@@ -181,6 +191,7 @@ quiz-service/
 │   └── 001_create_quiz_tables.sql
 ├── tests/
 ├── requirements.txt
+├── Dockerfile.env
 └── Dockerfile
 ```
 
@@ -211,6 +222,7 @@ progress-service/
 │   └── 001_create_progress_tables.sql
 ├── tests/
 ├── requirements.txt
+├── Dockerfile.env
 └── Dockerfile
 ```
 
@@ -241,6 +253,7 @@ generator-service/
 ├── prompts/                            # プロンプトテンプレート(JSON/Markdown)
 ├── tests/
 ├── requirements.txt
+├── Dockerfile.env
 └── Dockerfile
 
 ```
@@ -265,6 +278,7 @@ executor-service/
 ├── templates/                          # 言語別実行テンプレート (Dockerfile/スクリプト)
 ├── tests/
 ├── requirements.txt
+├── Dockerfile.env
 └── Dockerfile
 
 ```
@@ -289,10 +303,6 @@ validator-service/
 │   └── main.py                         # FastAPI アプリ定義
 ├── tests/
 ├── requirements.txt
+├── Dockerfile.env
 └── Dockerfile
-
 ```
-
-### インフラ (infra)
-
-ローカル開発環境を一括で立ち上げるための設定を管理します。
