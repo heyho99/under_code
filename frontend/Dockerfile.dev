@@ -1,0 +1,16 @@
+FROM node:18-alpine
+
+WORKDIR /app
+
+# package.json のみを先にコピーして依存関係をインストール
+COPY package.json ./
+RUN npm install
+
+# ソースコードをコピー (バインドマウントする場合は本来不要だが、COPYしておくと安心)
+COPY . .
+
+# ポート公開
+EXPOSE 80
+
+# 開発サーバー起動
+CMD ["npm", "run", "dev"]
