@@ -1,9 +1,26 @@
 import { QuizPlayView } from "./QuizPlayView.js";
 import { navigate } from "../../router/router.js";
 import { updateHeader, activateSection } from "../../ui/MainHeader.js";
+import { quizPlayApi } from "../../core/api/quizPlayApi.js";
+
+function getSelectedProblemId() {
+  try {
+    if (typeof window !== "undefined" && window.sessionStorage) {
+      const raw = window.sessionStorage.getItem("selectedProblemId");
+      if (!raw) return null;
+      const id = Number(raw);
+      if (Number.isNaN(id)) {
+        return null;
+      }
+      return id;
+    }
+  } catch {
+  }
+  return null;
+}
 
 export const QuizPlayController = {
-  mount() {
+  async mount() {
     const root = QuizPlayView.getRoot();
     QuizPlayView.render(root);
     updateHeader(QuizPlayView);
@@ -18,14 +35,49 @@ export const QuizPlayController = {
     const submitQuizButtons = root.querySelectorAll(".js-submit-quiz");
     const viewAnswerButtons = root.querySelectorAll(".js-view-answer");
     const hintV2Buttons = root.querySelectorAll(".js-hint-v2");
-    
+
     const quizOutputEl = root.querySelector("[data-quiz-output]");
     const quizFeedbackEl = root.querySelector("[data-quiz-feedback]");
     const answerTextarea = root.querySelector(".code-editor-mock__textarea");
 
+    const titleEl = root.querySelector("[data-quiz-title]");
+    const descriptionEl = root.querySelector("[data-quiz-description]");
+    const hintEl = root.querySelector("[data-quiz-hint]");
+    const markdownEl = root.querySelector("[data-quiz-markdown]");
+
+    const problemId = getSelectedProblemId();
+
+    if (!problemId) {
+      if (titleEl) titleEl.textContent = "問題が選択されていません";
+      if (descriptionEl)
+        descriptionEl.textContent = "クイズセットから問題を選択してから、再度お試しください。";
+    } else {
+      try {
+        const detail = await quizPlayApi.getProblemDetail(problemId);
+        if (titleEl) {
+          titleEl.textContent = detail?.title || `問題 #${problemId}`;
+        }
+        if (descriptionEl) {
+          descriptionEl.textContent = detail?.description || "";
+        }
+        if (hintEl) {
+          // v1 では description を軽くヒントとしても使う程度にとどめる
+          hintEl.textContent = detail?.description || "";
+        }
+        if (markdownEl) {
+          // 簡易的に contentMarkdown をそのままテキストとして表示
+          markdownEl.textContent = detail?.contentMarkdown || "";
+        }
+      } catch (_error) {
+        if (titleEl) titleEl.textContent = "問題を取得できませんでした";
+        if (descriptionEl)
+          descriptionEl.textContent = "時間をおいて再度お試しください。";
+      }
+    }
+
     const showFeedback = (title, content, isAnswer = false) => {
       if (!quizFeedbackEl) return;
-      
+
       quizFeedbackEl.style.display = "block";
       quizFeedbackEl.className = "quiz-feedback"; // reset class
       if (isAnswer) {
@@ -33,7 +85,7 @@ export const QuizPlayController = {
       }
 
       const icon = isAnswer ? "check_circle" : "lightbulb";
-      
+
       quizFeedbackEl.innerHTML = `
         <div class="quiz-feedback__title">
           <span class="material-symbols-outlined">${icon}</span>
@@ -50,38 +102,104 @@ export const QuizPlayController = {
     });
 
     runCodeButtons.forEach((btn) => {
-      btn.addEventListener("click", () => {
+      btn.addEventListener("click", async () => {
         if (!quizOutputEl) return;
 
-        // フィードバックエリアを隠す
         if (quizFeedbackEl) quizFeedbackEl.style.display = "none";
 
         const code = answerTextarea ? answerTextarea.value.trim() : "";
         if (!code) {
           quizOutputEl.textContent =
             ">>> 実行しました\n\n※ コードが空のため、出力はありません。";
-        } else {
+          return;
+        }
+
+        try {
+          const result = await quizPlayApi.executeCode({
+            language: "python",
+            code,
+          });
+          const stdout = result?.stdout ?? "";
+          const stderr = result?.stderr ?? "";
+          const exitCode = result?.exitCode;
+
+          let text = ">>> 実行しました\n\n";
+          if (stdout) {
+            text += stdout;
+          }
+          if (stderr) {
+            text += (stdout ? "\n" : "") + stderr;
+          }
+          if (!stdout && !stderr) {
+            text += "※ 出力はありません。";
+          }
+          if (exitCode !== undefined && exitCode !== null) {
+            text += `\n\n(exitCode: ${exitCode})`;
+          }
+
+          quizOutputEl.textContent = text;
+        } catch (_error) {
           quizOutputEl.textContent =
-            ">>> 実行しました\n\n（ここに Python 実行結果が表示されます）";
+            ">>> 実行に失敗しました。時間をおいて再度お試しください。";
         }
       });
     });
 
     submitQuizButtons.forEach((btn) => {
-      btn.addEventListener("click", () => {
-        showFeedback("正解です！", "素晴らしい！コードは正しく実装されています。\n実行時間: 0.02s", true);
+      btn.addEventListener("click", async () => {
+        const code = answerTextarea ? answerTextarea.value.trim() : "";
+        if (!problemId) {
+          showFeedback(
+            "問題が選択されていません",
+            "クイズセットから問題を選択してから提出してください。",
+            false
+          );
+          return;
+        }
+
+        try {
+          const result = await quizPlayApi.submit({
+            problemId,
+            submittedCode: code,
+          });
+
+          const isCorrect = Boolean(result?.isCorrect);
+          const message =
+            result?.message || (isCorrect ? "正解です" : "不正解です");
+
+          showFeedback(
+            isCorrect ? "正解です！" : "結果",
+            message,
+            isCorrect
+          );
+        } catch (_error) {
+          showFeedback(
+            "提出に失敗しました",
+            "時間をおいて再度お試しください。",
+            false
+          );
+        }
       });
     });
 
+    // v1ではヒント/正解は固定文言のまま簡易に残しておく
     viewAnswerButtons.forEach((btn) => {
       btn.addEventListener("click", () => {
-        showFeedback("正解と解説", "def login(request: LoginRequest, service: AuthService = Depends(get_auth_service)):\n    # 認証ロジックはService層に委譲するのが一般的です\n    return service.login(request.email, request.password)", false);
+        showFeedback(
+          "正解と解説",
+          "このバージョンでは模範解答は表示されません。提出結果を参考に改善してみましょう。",
+          false
+        );
       });
     });
 
     hintV2Buttons.forEach((btn) => {
       btn.addEventListener("click", () => {
-        showFeedback("AIヒント", "Depends(...) の中身は、共通の認証ロジックを持つ関数（依存性注入）を指定するのが一般的です。\nFastAPIのドキュメントにおける 'Dependency Injection' の章を思い出してみましょう。", false);
+        showFeedback(
+          "ヒント",
+          "問題文や既存コードのコメントをもう一度よく読み、何が求められているか整理してみましょう。",
+          false
+        );
       });
     });
   },
