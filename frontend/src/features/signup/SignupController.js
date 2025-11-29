@@ -1,5 +1,6 @@
 import { SignupView } from "./SignupView.js";
 import { navigate } from "../../router/router.js";
+import { authApi } from "../../core/api/authApi.js";
 
 export const SignupController = {
   mount() {
@@ -29,7 +30,7 @@ export const SignupController = {
     }
 
     if (form) {
-      form.addEventListener("submit", (event) => {
+      form.addEventListener("submit", async (event) => {
         event.preventDefault();
         clearError();
 
@@ -44,8 +45,28 @@ export const SignupController = {
           return;
         }
 
-        // ダミー登録: 実際のAPI連携は後で実装する想定
-        navigate("#/login");
+        try {
+          const user = await authApi.signup({
+            username: name,
+            email,
+            password,
+          });
+
+          try {
+            if (typeof window !== "undefined" && window.localStorage) {
+              window.localStorage.setItem("authToken", user.token);
+              window.localStorage.setItem("currentUser", JSON.stringify(user));
+            }
+          } catch {
+            // localStorage 書き込み失敗時は無視
+          }
+
+          navigate("#/dashboard");
+        } catch (error) {
+          if (errorEl) {
+            errorEl.textContent = error.message || "サインアップに失敗しました。";
+          }
+        }
       });
     }
   },

@@ -21,28 +21,28 @@ services:
     stdin_open: true
     tty: true
 
-#   # =========================================
-#   # BFF
-#   # Host: 8081 -> Container: 80
-#   # =========================================
-#   bff:
-#     build:
-#       context: ./bff
-#       dockerfile: Dockerfile.dev
-#     volumes:
-#       - ./bff:/app
-#     ports:
-#       - "8081:80"
-#     environment:
-#       # コンテナ間通信なので、相手のサービス名とポート80を指定
-#       - USER_SERVICE_URL=http://user-service:80
-#       - QUIZ_SERVICE_URL=http://quiz-service:80
-#       - PROGRESS_SERVICE_URL=http://progress-service:80
-#       - GENERATOR_SERVICE_URL=http://generator-service:80
-#       - EXECUTOR_SERVICE_URL=http://executor-service:80
-#       - VALIDATOR_SERVICE_URL=http://validator-service:80
-#       - TUTOR_SERVICE_URL=http://tutor-service:80
-#     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80", "--reload"]
+  # =========================================
+  # BFF
+  # Host: 8081 -> Container: 80
+  # =========================================
+  bff:
+    build:
+      context: ./bff
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./bff:/app
+    ports:
+      - "8081:80"
+    environment:
+      # コンテナ間通信なので、相手のサービス名とポート80を指定
+      - USER_SERVICE_URL=http://user-service:80
+      - QUIZ_SERVICE_URL=http://quiz-service:80
+      - PROGRESS_SERVICE_URL=http://progress-service:80
+      - GENERATOR_SERVICE_URL=http://generator-service:80
+      - EXECUTOR_SERVICE_URL=http://executor-service:80
+      - VALIDATOR_SERVICE_URL=http://validator-service:80
+      - TUTOR_SERVICE_URL=http://tutor-service:80
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80", "--reload"]
 
 #   # =========================================
 #   # Microservices (Domain)

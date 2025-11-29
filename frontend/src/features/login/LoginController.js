@@ -1,5 +1,6 @@
 import { LoginView } from "./LoginView.js";
 import { navigate } from "../../router/router.js";
+import { authApi } from "../../core/api/authApi.js";
 
 export const LoginController = {
   mount() {
@@ -30,7 +31,7 @@ export const LoginController = {
     }
 
     if (form) {
-      form.addEventListener("submit", (event) => {
+      form.addEventListener("submit", async (event) => {
         event.preventDefault();
         clearError();
 
@@ -44,8 +45,24 @@ export const LoginController = {
           return;
         }
 
-        // ダミー認証: とりあえずどんな値でも成功扱いにする
-        navigate("#/dashboard");
+        try {
+          const user = await authApi.login({ email, password });
+
+          try {
+            if (typeof window !== "undefined" && window.localStorage) {
+              window.localStorage.setItem("authToken", user.token);
+              window.localStorage.setItem("currentUser", JSON.stringify(user));
+            }
+          } catch {
+            // localStorage 書き込み失敗時は無視
+          }
+
+          navigate("#/dashboard");
+        } catch (error) {
+          if (errorEl) {
+            errorEl.textContent = error.message || "ログインに失敗しました。";
+          }
+        }
       });
     }
   },
