@@ -1,6 +1,7 @@
 import { QuizCreationView } from "./QuizCreationView.js";
 import { navigate } from "../../router/router.js";
 import { updateHeader, activateSection } from "../../ui/MainHeader.js";
+import { quizCreationApi } from "../../core/api/quizCreationApi.js";
 
 const nodeSummaries = {
   app: {
@@ -72,6 +73,8 @@ export const QuizCreationController = {
     const confirmationCountEls = root.querySelectorAll("[data-summary-count]");
     const confirmationRequestEl = root.querySelector("[data-summary-request]");
 
+    let sourceId = null;
+
     function setStep(stepNumber) {
       // 右側のコンテンツ切り替え
       steps.forEach((stepEl) => {
@@ -137,10 +140,34 @@ export const QuizCreationController = {
       }
     }
 
+    async function ensureSourceUploaded() {
+      if (sourceId !== null) {
+        return sourceId;
+      }
+      try {
+        const res = await quizCreationApi.uploadMockSource();
+        if (res && typeof res.sourceId === "number") {
+          sourceId = res.sourceId;
+          return sourceId;
+        }
+      } catch (error) {
+        if (typeof window !== "undefined" && window.alert) {
+          window.alert(error.message || "プロジェクトのアップロードに失敗しました。");
+        }
+      }
+      return null;
+    }
+
     stepNextButtons.forEach((btn) => {
-      btn.addEventListener("click", () => {
+      btn.addEventListener("click", async () => {
         const next = Number(btn.dataset.nextStep);
         if (!next) return;
+        if (next === 2) {
+          const uploadedSourceId = await ensureSourceUploaded();
+          if (!uploadedSourceId) {
+            return;
+          }
+        }
         if (next === 4) {
           updateConfirmationSummary();
         }
@@ -239,8 +266,62 @@ export const QuizCreationController = {
     });
 
     if (generateQuizButton) {
-      generateQuizButton.addEventListener("click", () => {
-        navigate("#/quiz-set-list");
+      generateQuizButton.addEventListener("click", async () => {
+        if (sourceId === null) {
+          const uploadedSourceId = await ensureSourceUploaded();
+          if (!uploadedSourceId) {
+            return;
+          }
+        }
+
+        const titleInput = root.querySelector("[data-quiz-title]");
+        const title =
+          (titleInput && titleInput.value && titleInput.value.trim()) ||
+          "Untitled Quiz";
+
+        const typeRows = root.querySelectorAll(".quiz-type-row");
+        let syntaxCount = 0;
+        let logicCount = 0;
+        let functionCount = 0;
+        let classCount = 0;
+
+        typeRows.forEach((row) => {
+          const type = row.dataset.quizType;
+          const valueEl = row.querySelector(".quiz-counter-value");
+          if (!type || !valueEl) return;
+          const count = Number(valueEl.dataset.count || "0");
+          if (type === "basic") {
+            syntaxCount = count;
+          } else if (type === "process") {
+            logicCount = count;
+          } else if (type === "function") {
+            functionCount = count;
+          } else if (type === "class-module") {
+            classCount = count;
+          }
+        });
+
+        const requestText = requestTextarea && requestTextarea.value.trim();
+
+        try {
+          await quizCreationApi.generateQuiz({
+            sourceId,
+            title,
+            problemCounts: {
+              syntax: syntaxCount,
+              logic: logicCount,
+              function: functionCount,
+              class: classCount,
+            },
+            customInstruction: requestText || null,
+            excludePaths: [],
+          });
+          navigate("#/quiz-set-list");
+        } catch (error) {
+          if (typeof window !== "undefined" && window.alert) {
+            window.alert(error.message || "クイズの作成に失敗しました。");
+          }
+        }
       });
     }
 
