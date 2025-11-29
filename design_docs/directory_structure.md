@@ -40,39 +40,47 @@ frontend/
    │  ├─ routes.js                    # "#/quiz-creation" / "#/dashboard" など → controller の mount/unmount を束ねる
    │  └─ router.js                    # hashchange ハンドラ定義・現在ルートの管理・navigate()
    │
-   ├─ core/                           # ★ 全画面共通の基盤（現在はプレースホルダ）
-   │  └─ index.js
+   ├─ core/                           # ★ 全画面共通の基盤
+   │  ├─ index.js
+   │  └─ api/                         # ★ BFF API へのアクセス層（/api/v1xxx）
+   │     ├─ apiClient.js             # 共通クライアント（baseURL, fetch ラッパ, エラーハンドリング）
+   │     ├─ authApi.js               # /auth/login, /auth/signup
+   │     ├─ dashboardApi.js          # /dashboard/summary, /dashboard/categories, /dashboard/activities
+   │     ├─ quizCreationApi.js       # /quiz-creation/upload, /quiz-creation/generate
+   │     ├─ quizSetsApi.js           # /quiz-sets, /quiz-sets/{id}
+   │     ├─ playApi.js               # /problems/{id}
+   │     └─ submissionsApi.js        # /runner/execute, /submissions
    │
    ├─ features/                       # ★ 画面(ドメイン)単位に view / controller / state を束ねる
    │  ├─ login/                       # ログイン画面
    │  │  ├─ LoginView.js
-   │  │  └─ LoginController.js
+   │  │  └─ LoginController.js       # ← core/api/authApi.js を利用
    │  │
    │  ├─ signup/                      # 新規登録画面
    │  │  ├─ SignupView.js
-   │  │  └─ SignupController.js
+   │  │  └─ SignupController.js      # ← core/api/authApi.js を利用
    │  │
    │  ├─ quiz-creation/               # クイズ作成ウィザード
    │  │  ├─ QuizCreationView.js
-   │  │  └─ QuizCreationController.js
+   │  │  └─ QuizCreationController.js # ← core/api/quizCreationApi.js を利用
    │  │
    │  ├─ quiz-progress/               # ダッシュボード（学習状況）
    │  │  ├─ QuizProgressView.js
-   │  │  ├─ QuizProgressController.js
+   │  │  ├─ QuizProgressController.js # ← core/api/dashboardApi.js を利用
    │  │  └─ quizProgressState.js
    │  │
    │  ├─ quiz-list/                   # クイズセット一覧
    │  │  ├─ QuizListView.js
-   │  │  └─ QuizListController.js
+   │  │  └─ QuizListController.js     # ← core/api/quizSetsApi.js を利用
    │  │
    │  ├─ quiz-set-detail/             # セット詳細 + 問題リスト
    │  │  ├─ QuizSetDetailView.js
-   │  │  ├─ QuizSetDetailController.js
+   │  │  ├─ QuizSetDetailController.js# ← core/api/quizSetsApi.js を利用
    │  │  └─ quizSetDetailState.js
    │  │
    │  └─ quiz-play/                   # クイズ解答画面
    │     ├─ QuizPlayView.js
-   │     ├─ QuizPlayController.js
+   │     ├─ QuizPlayController.js     # ← core/api/playApi.js, submissionsApi.js を利用
    │     └─ quizPlayState.js
    │
    └─ ui/                             # 再利用 UI コンポーネント（index.html の構造と対応）
