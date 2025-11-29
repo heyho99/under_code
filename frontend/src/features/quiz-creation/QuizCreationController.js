@@ -18,8 +18,6 @@ export const QuizCreationController = {
     const stepNextButtons = root.querySelectorAll(".js-step-next");
     const stepPrevButtons = root.querySelectorAll(".js-step-prev");
     const openQuizListButtons = root.querySelectorAll(".js-open-quiz-list");
-    const summaryTitleEl = root.querySelector("[data-summary-title]");
-    const summaryBodyEl = root.querySelector("[data-summary-body]");
     const quizCounterButtons = root.querySelectorAll(".quiz-counter-btn");
     const treeContainer = root.querySelector(".tree-container");
     const generateQuizButton = root.querySelector(".js-generate-quiz");
@@ -31,7 +29,6 @@ export const QuizCreationController = {
 
     let sourceId = null;
     let lastAnalysisRoot = null;
-    let analysisNodeMap = {};
 
     function setStep(stepNumber) {
       // 右側のコンテンツ切り替え
@@ -53,19 +50,6 @@ export const QuizCreationController = {
       if (row) {
         row.classList.add("tree-node__row--active");
       }
-    }
-
-    function updateSummaryForNode(row) {
-      if (!summaryTitleEl || !summaryBodyEl) return;
-      if (!row) return;
-      const key = row.dataset.nodeKey;
-      if (!key) return;
-      const node = analysisNodeMap[key];
-      if (!node) return;
-
-      const title = node.name + (node.type === "directory" ? "/" : "");
-      summaryTitleEl.textContent = title;
-      summaryBodyEl.textContent = node.description || "";
     }
 
     function updateConfirmationSummary() {
@@ -247,18 +231,6 @@ export const QuizCreationController = {
         }
 
         lastAnalysisRoot = rootNode;
-        analysisNodeMap = {};
-
-        const indexNode = (node, parentPath) => {
-          if (!node || !node.name) return;
-          const key = parentPath ? `${parentPath}/${node.name}` : node.name;
-          analysisNodeMap[key] = node;
-          if (node.children && node.children.length > 0) {
-            node.children.forEach((child) => indexNode(child, key));
-          }
-        };
-
-        indexNode(rootNode, "");
 
         const rootLi = createTreeNodeElement(rootNode, "");
         if (rootLi) {
@@ -334,7 +306,6 @@ export const QuizCreationController = {
         }
 
         setActiveTreeRow(row);
-        updateSummaryForNode(row);
       });
 
       treeContainer.addEventListener("change", (event) => {

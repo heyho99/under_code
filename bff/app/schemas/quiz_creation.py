@@ -18,7 +18,6 @@ class SourceUploadResponse(BaseModel):
 class TreeNode(BaseModel):
     name: str
     type: str  # "directory" or "file"
-    description: Optional[str] = ""
     children: List["TreeNode"] = []
 
 
