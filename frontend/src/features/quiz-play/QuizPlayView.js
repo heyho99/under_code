@@ -12,25 +12,17 @@ export const QuizPlayView = {
     root.innerHTML = `
       <section class="card">
         <header class="card__header">
-          <h2 class="card__title">クイズ: 認証フローの責務分離</h2>
-          <p class="card__subtitle">Router / Service / Repository の役割を踏まえて、コードを読み解きながら回答します。</p>
+          <h2 class="card__title" data-quiz-title>クイズタイトル</h2>
+          <p class="card__subtitle" data-quiz-description>ここに問題の概要が表示されます。</p>
         </header>
         <div class="card__body card__body--stack">
           <div class="setting-row">
             <div>
               <div class="setting-row__label">問題</div>
-              <div class="setting-row__hint">下記の FastAPI コード片を前提に、責務分離の観点から空欄を埋めてください。</div>
+              <div class="setting-row__hint" data-quiz-hint>ここに問題の補足説明が表示されます。</div>
             </div>
           </div>
-          <pre class="schema-preview"><code>from fastapi import APIRouter, Depends
-
-router = APIRouter()
-
-@router.post("/login")
-async def login(request: LoginRequest, service: AuthService = Depends(...)):
-    # TODO: 認証ロジックをどこに置くべきか？
-    ...
-</code></pre>
+          <pre class="schema-preview"><code data-quiz-markdown>問題の本文がここに表示されます。</code></pre>
           <div class="setting-row">
             <div>
               <div class="setting-row__label">回答エリア</div>
