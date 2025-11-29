@@ -77,19 +77,6 @@ export const QuizCreationView = {
                   </div>
                 </div>
               </section>
-
-              <aside class="summary-card">
-                <div class="summary-card__header">
-                  <span class="material-symbols-outlined summary-card__icon">info</span>
-                  <h3 class="summary-card__title">選択項目の詳細（v2の機能、v1では表示無し）</h3>
-                </div>
-                <div class="summary-panel">
-                  <div class="summary-panel__label" data-summary-title>app/</div>
-                  <p class="summary-panel__text" data-summary-body>
-                    アプリケーション本体のコードが入るルートフォルダの想定です。ここからルーティングやサービス層が構成されます。
-                  </p>
-                </div>
-              </aside>
             </div>
             <div class="step-actions step-actions--between">
               <button class="primary-btn primary-btn--outline js-step-prev" data-prev-step="1">戻る</button>
