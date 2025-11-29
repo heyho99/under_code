@@ -199,20 +199,18 @@
     }
     ```
     
-- GET `/api/quiz-creation/analysis` （v2実装なので、v1では実装しない）
+- GET `/api/quiz-creation/analysis`
     - 処理：アップロード済みのファイル群からディレクトリツリー構造とLLM説明書きの取得
-    - サービス：[Quiz Service, Generator(LLMでファイル説明作成)]
+    - サービス：[Quiz Service]
     
     ```markdown
     1. Quiz Service から、対象のファイル/ディレクトリ構造を読み出す
-    2. ディレクトリ名や主要なファイルの内容を抜粋し、Generator (LLM) に投げる
-    3. LLMにより「各ディレクトリ・ファイルの概要説明」を生成する
-    4. ツリー構造のJSONデータに説明文（description）を付与して返す
+    2. ツリー構造のJSONデータを返す
     ```
     
     ```json
     {
-      "description": "Quiz Service から解析済みツリー構造を取得(内部でGenerator呼び出し)",
+      "description": "Quiz Service からツリー構造を取得",
       "request": "GET /quiz/source-data/5001/analysis",
       "header": "",
       "body": null,
