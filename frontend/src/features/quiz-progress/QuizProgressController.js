@@ -2,9 +2,10 @@ import { QuizProgressView } from "./QuizProgressView.js";
 import { updateHeader, activateSection } from "../../ui/MainHeader.js";
 import { renderActivityChart } from "../../ui/components/ActivityChart.js";
 import { renderCompletionDonut } from "../../ui/components/CompletionDonut.js";
+import { dashboardApi } from "../../core/api/dashboardApi.js";
 
 export const QuizProgressController = {
-  mount() {
+  async mount() {
     const root = QuizProgressView.getRoot();
     QuizProgressView.render(root);
     updateHeader(QuizProgressView);
@@ -15,53 +16,35 @@ export const QuizProgressController = {
     const overallPercentEl = root && root.querySelector("#js-overall-progress-percent");
     const overallMetaEl = root && root.querySelector("#js-overall-progress-meta");
 
-    if (overallCanvas) {
-      // タイプ別のダミーデータから全体完了率を算出
-      const totalQuestions = 100 + 50 + 40 + 25;
-      const completedQuestions = 42 + 15 + 28 + 5;
-      const percentage =
-        totalQuestions > 0
-          ? Math.round((completedQuestions / totalQuestions) * 100)
-          : 0;
+    if (overallCanvas && overallPercentEl && overallMetaEl) {
+      try {
+        const summary = await dashboardApi.getSummary();
+        const totalQuestions = Number(summary?.totalProblems) || 0;
+        const completedQuestions = Number(summary?.completedProblems) || 0;
+        const percentage =
+          totalQuestions > 0
+            ? Math.round((completedQuestions / totalQuestions) * 100)
+            : 0;
 
-      if (overallPercentEl) {
         overallPercentEl.textContent = `${percentage}%`;
-      }
-      if (overallMetaEl) {
         overallMetaEl.textContent = `完了 ${completedQuestions} / ${totalQuestions} 問`;
-      }
 
-      renderCompletionDonut(overallCanvas, {
-        completed: completedQuestions,
-        total: totalQuestions,
-        percentElement: overallPercentEl,
-        metaElement: overallMetaEl,
-      });
+        renderCompletionDonut(overallCanvas, {
+          completed: completedQuestions,
+          total: totalQuestions,
+          percentElement: overallPercentEl,
+          metaElement: overallMetaEl,
+        });
+      } catch (_error) {
+        overallPercentEl.textContent = "0%";
+        overallMetaEl.textContent = "データを取得できませんでした";
+      }
     }
 
     // 日毎の取り組み数（直近 N 日分のダミーデータ）
     const canvas = root && root.querySelector("#js-activity-chart");
     const rangeRoot = root && root.querySelector("[data-activity-range]");
     const totalEl = root && root.querySelector("#js-activity-range-total");
-
-    const buildDailyData = (days) => {
-      const today = new Date();
-      const labels = [];
-      const values = [];
-
-      for (let i = days - 1; i >= 0; i -= 1) {
-        const d = new Date(today);
-        d.setDate(d.getDate() - i);
-        const label = `${d.getMonth() + 1}/${d.getDate()}`;
-        labels.push(label);
-
-        // ダミーの取り組み数（0〜6 問程度）
-        const value = Math.floor(Math.random() * 7);
-        values.push(value);
-      }
-
-      return { labels, values };
-    };
 
     const updateTotal = (values) => {
       if (!totalEl) return;
@@ -71,20 +54,45 @@ export const QuizProgressController = {
 
     if (canvas) {
       const defaultDays = "all";
-      const maxDays = 30;
-      const baseData = buildDailyData(maxDays);
+      let baseActivities = [];
+
+      try {
+        baseActivities = await dashboardApi.getActivities(30);
+      } catch (_error) {
+        baseActivities = [];
+      }
+
+      const buildDailyData = (activities) => {
+        const labels = [];
+        const values = [];
+
+        activities.forEach((item) => {
+          const d = new Date(item.date);
+          const label = `${d.getMonth() + 1}/${d.getDate()}`;
+          labels.push(label);
+          values.push(Number(item.count) || 0);
+        });
+
+        return { labels, values };
+      };
+
+      const maxDays = baseActivities.length || 0;
+      const baseData = buildDailyData(baseActivities);
 
       const applyRange = (range) => {
-        let labels;
-        let values;
+        let labels = [];
+        let values = [];
 
-        if (range === "all") {
+        if (!maxDays) {
+          labels = [];
+          values = [];
+        } else if (range === "all") {
           labels = baseData.labels.slice();
           values = baseData.values.slice();
         } else {
           const days = Number(range) || maxDays;
           const safeDays = Math.min(maxDays, Math.max(1, days));
-          const startIndex = maxDays - safeDays;
+          const startIndex = Math.max(0, maxDays - safeDays);
           labels = baseData.labels.slice(startIndex);
           values = baseData.values.slice(startIndex);
         }
