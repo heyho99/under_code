@@ -18,41 +18,41 @@ export const QuizProgressView = {
           <div class="card__body">
             <div class="progress-summary">
               <div class="progress-summary__left card__body--list">
-                <ul class="list">
-                  <li class="list__item">
+                <ul class="list" id="js-category-list">
+                  <li class="list__item" data-category="syntax">
                     <div class="list__primary">
                       <span class="list__title">基本文法</span>
-                      <span class="list__meta">42 / 100 問完了 ・ 完了率 42%</span>
+                      <span class="list__meta">0 / 0 問完了 ・ 完了率 0%</span>
                     </div>
                     <div class="progress">
-                      <div class="progress__bar" style="width: 42%"></div>
+                      <div class="progress__bar" style="width: 0%"></div>
                     </div>
                   </li>
-                  <li class="list__item">
+                  <li class="list__item" data-category="logic">
                     <div class="list__primary">
                       <span class="list__title">処理</span>
-                      <span class="list__meta">15 / 50 問完了 ・ 完了率 30%</span>
+                      <span class="list__meta">0 / 0 問完了 ・ 完了率 0%</span>
                     </div>
                     <div class="progress">
-                      <div class="progress__bar" style="width: 30%"></div>
+                      <div class="progress__bar" style="width: 0%"></div>
                     </div>
                   </li>
-                  <li class="list__item">
+                  <li class="list__item" data-category="function">
                     <div class="list__primary">
                       <span class="list__title">関数</span>
-                      <span class="list__meta">28 / 40 問完了 ・ 完了率 70%</span>
+                      <span class="list__meta">0 / 0 問完了 ・ 完了率 0%</span>
                     </div>
                     <div class="progress">
-                      <div class="progress__bar" style="width: 70%"></div>
+                      <div class="progress__bar" style="width: 0%"></div>
                     </div>
                   </li>
-                  <li class="list__item">
+                  <li class="list__item" data-category="class">
                     <div class="list__primary">
                       <span class="list__title">クラス・モジュール</span>
-                      <span class="list__meta">5 / 25 問完了 ・ 完了率 20%</span>
+                      <span class="list__meta">0 / 0 問完了 ・ 完了率 0%</span>
                     </div>
                     <div class="progress">
-                      <div class="progress__bar" style="width: 20%"></div>
+                      <div class="progress__bar" style="width: 0%"></div>
                     </div>
                   </li>
                 </ul>

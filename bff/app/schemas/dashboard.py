@@ -8,7 +8,8 @@ class DashboardSummary(BaseModel):
 class CategoryStat(BaseModel):
     category: str
     count: int
-    solved: int = 0 
+    solved: int = 0
+    rate: int = 0
 
 class ActivityStat(BaseModel):
     date: str

@@ -56,6 +56,11 @@ async def get_dashboard_categories(userId: int = Query(..., description="User ID
                 # クイズ側になくて進捗側にあるケースは稀だが一応
                 merged_map[cat] = {"category": cat, "count": 0, "solved": item["solved"]}
         
+        for value in merged_map.values():
+            count = value.get("count") or 0
+            solved = value.get("solved") or 0
+            value["rate"] = int(round((solved / count) * 100)) if count > 0 else 0
+
         return list(merged_map.values())
         
     except Exception as e:
