@@ -14,6 +14,17 @@ class SourceUploadResponse(BaseModel):
     sourceId: int
     message: str
 
+
+class TreeNode(BaseModel):
+    name: str
+    type: str  # "directory" or "file"
+    description: Optional[str] = ""
+    children: List["TreeNode"] = []
+
+
+class AnalysisResponse(BaseModel):
+    root: TreeNode
+
 class ProblemCounts(BaseModel):
     syntax: int = 0
     logic: int = 0
@@ -30,3 +41,6 @@ class GenerateQuizRequest(BaseModel):
 
 class GenerateQuizResponse(BaseModel):
     quizSetId: int
+
+
+TreeNode.model_rebuild()

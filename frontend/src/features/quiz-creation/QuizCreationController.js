@@ -3,49 +3,6 @@ import { navigate } from "../../router/router.js";
 import { updateHeader, activateSection } from "../../ui/MainHeader.js";
 import { quizCreationApi } from "../../core/api/quizCreationApi.js";
 
-const nodeSummaries = {
-  app: {
-    title: "app/",
-    body:
-      "アプリケーション本体のコードが入るルートフォルダの想定です。ルーティングやサービス層などの中心的な構造が配置されます。",
-  },
-  "app/api": {
-    title: "app/api/",
-    body:
-      "エンドポイント定義を置くAPIレイヤの想定です。FastAPI の router やエンドポイントごとのハンドラがまとまります。",
-  },
-  "app/api/router.py": {
-    title: "app/api/router.py",
-    body:
-      "API エンドポイントのルーティング定義を記述するモジュールの想定です。パスやHTTPメソッドごとのハンドラを登録します。",
-  },
-  "app/services": {
-    title: "app/services/",
-    body:
-      "ユースケースやドメインロジックを実装するサービス層の想定です。ビジネスルールをここに集約し、API層から呼び出します。",
-  },
-  "app/services/service.py": {
-    title: "app/services/service.py",
-    body:
-      "アプリケーションのユースケースをまとめて実装するサービスクラスの想定です。認証や業務ロジックをメソッドとして提供します。",
-  },
-  "app/main.py": {
-    title: "app/main.py",
-    body:
-      "アプリケーションのエントリポイントとなるスクリプトの想定です。FastAPI アプリの起動やルーターのマウントなどを担当します。",
-  },
-  tests: {
-    title: "tests/",
-    body:
-      "単体テストや統合テストを配置するテストコード用フォルダの想定です。pytest などで実行されます。",
-  },
-  "tests/test_auth.py": {
-    title: "tests/test_auth.py",
-    body:
-      "認証まわりの振る舞いを検証するテストコードの想定です。正常系・異常系のケースをここで確認します。",
-  },
-};
-
 export const QuizCreationController = {
   mount() {
     const root = QuizCreationView.getRoot();
@@ -61,19 +18,20 @@ export const QuizCreationController = {
     const stepNextButtons = root.querySelectorAll(".js-step-next");
     const stepPrevButtons = root.querySelectorAll(".js-step-prev");
     const openQuizListButtons = root.querySelectorAll(".js-open-quiz-list");
-    const treeFolderRows = root.querySelectorAll(".js-tree-folder");
-    const treeRows = root.querySelectorAll(".tree-node__row");
     const summaryTitleEl = root.querySelector("[data-summary-title]");
     const summaryBodyEl = root.querySelector("[data-summary-body]");
     const quizCounterButtons = root.querySelectorAll(".quiz-counter-btn");
-    const treeCheckboxes = root.querySelectorAll(".tree-node__checkbox");
+    const treeContainer = root.querySelector(".tree-container");
     const generateQuizButton = root.querySelector(".js-generate-quiz");
     const wizardStepItems = root.querySelectorAll(".wizard-step-item");
     const requestTextarea = root.querySelector(".quiz-request-textarea");
     const confirmationCountEls = root.querySelectorAll("[data-summary-count]");
     const confirmationRequestEl = root.querySelector("[data-summary-request]");
+    const projectTreePreviewEl = root.querySelector("[data-project-tree-preview]");
 
     let sourceId = null;
+    let lastAnalysisRoot = null;
+    let analysisNodeMap = {};
 
     function setStep(stepNumber) {
       // 右側のコンテンツ切り替え
@@ -90,7 +48,8 @@ export const QuizCreationController = {
     }
 
     function setActiveTreeRow(row) {
-      treeRows.forEach((r) => r.classList.remove("tree-node__row--active"));
+      const allRows = root.querySelectorAll(".tree-node__row");
+      allRows.forEach((r) => r.classList.remove("tree-node__row--active"));
       if (row) {
         row.classList.add("tree-node__row--active");
       }
@@ -101,10 +60,12 @@ export const QuizCreationController = {
       if (!row) return;
       const key = row.dataset.nodeKey;
       if (!key) return;
-      const summary = nodeSummaries[key];
-      if (!summary) return;
-      summaryTitleEl.textContent = summary.title;
-      summaryBodyEl.textContent = summary.body;
+      const node = analysisNodeMap[key];
+      if (!node) return;
+
+      const title = node.name + (node.type === "directory" ? "/" : "");
+      summaryTitleEl.textContent = title;
+      summaryBodyEl.textContent = node.description || "";
     }
 
     function updateConfirmationSummary() {
@@ -138,6 +99,13 @@ export const QuizCreationController = {
         const text = requestTextarea && requestTextarea.value.trim();
         confirmationRequestEl.textContent = text || "（特に要望は指定されていません）";
       }
+
+      if (projectTreePreviewEl && lastAnalysisRoot) {
+        const treeText = buildProjectTreeText(lastAnalysisRoot);
+        if (treeText) {
+          projectTreePreviewEl.textContent = treeText;
+        }
+      }
     }
 
     async function ensureSourceUploaded() {
@@ -158,6 +126,151 @@ export const QuizCreationController = {
       return null;
     }
 
+    function buildProjectTreeText(rootNode) {
+      if (!rootNode || !rootNode.name) return "";
+
+      const lines = [];
+      lines.push(rootNode.name + (rootNode.type === "directory" ? "/" : ""));
+
+      if (Array.isArray(rootNode.children) && rootNode.children.length > 0) {
+        const lastIndex = rootNode.children.length - 1;
+        rootNode.children.forEach((child, index) => {
+          const isLast = index === lastIndex;
+          buildProjectTreeLines(child, "", isLast, lines);
+        });
+      }
+
+      return lines.join("\n");
+    }
+
+    function buildProjectTreeLines(node, prefix, isLast, lines) {
+      if (!node || !node.name) return;
+
+      const connector = isLast ? "└─ " : "├─ ";
+      const line =
+        prefix +
+        connector +
+        node.name +
+        (node.type === "directory" ? "/" : "");
+      lines.push(line);
+
+      if (!node.children || node.children.length === 0) {
+        return;
+      }
+
+      const childPrefix = prefix + (isLast ? "   " : "│  ");
+      const lastIndex = node.children.length - 1;
+      node.children.forEach((child, index) => {
+        buildProjectTreeLines(child, childPrefix, index === lastIndex, lines);
+      });
+    }
+
+    function createTreeNodeElement(node, parentPath) {
+      if (!node || !node.name) return null;
+
+      const key = parentPath ? `${parentPath}/${node.name}` : node.name;
+      const isDirectory = node.type === "directory" || !!(node.children && node.children.length);
+
+      const li = document.createElement("li");
+      li.classList.add("tree-node");
+      if (isDirectory) {
+        li.classList.add("tree-node--folder", "tree-node--collapsed");
+      }
+
+      const row = document.createElement("div");
+      row.classList.add("tree-node__row");
+      if (isDirectory) {
+        row.classList.add("js-tree-folder");
+      }
+      row.dataset.nodeKey = key;
+
+      if (isDirectory) {
+        const twist = document.createElement("span");
+        twist.className = "tree-node__twist material-symbols-outlined";
+        twist.textContent = "arrow_right";
+        row.appendChild(twist);
+
+        const typeIcon = document.createElement("span");
+        typeIcon.className = "tree-node__type-icon material-symbols-outlined";
+        typeIcon.textContent = "folder";
+        row.appendChild(typeIcon);
+      } else {
+        const indent = document.createElement("span");
+        indent.className = "tree-node__indent";
+        row.appendChild(indent);
+
+        const typeIcon = document.createElement("span");
+        typeIcon.className = "tree-node__type-icon material-symbols-outlined";
+        typeIcon.textContent = "description";
+        row.appendChild(typeIcon);
+      }
+
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.className = "tree-node__checkbox";
+      checkbox.setAttribute("data-node-checkbox", key);
+      row.appendChild(checkbox);
+
+      const label = document.createElement("span");
+      label.className = "tree-node__label";
+      label.textContent = node.name;
+      row.appendChild(label);
+
+      li.appendChild(row);
+
+      if (node.children && node.children.length > 0) {
+        const childrenUl = document.createElement("ul");
+        childrenUl.className = "tree-node__children";
+        node.children.forEach((child) => {
+          const childEl = createTreeNodeElement(child, key);
+          if (childEl) {
+            childrenUl.appendChild(childEl);
+          }
+        });
+        li.appendChild(childrenUl);
+      }
+
+      return li;
+    }
+
+    async function loadAnalysisTree(currentSourceId) {
+      const treeRootEl = root.querySelector("#js-project-tree");
+      if (!treeRootEl) return;
+
+      treeRootEl.innerHTML = "";
+
+      try {
+        const analysis = await quizCreationApi.getAnalysis(currentSourceId);
+        const rootNode = analysis && analysis.root;
+        if (!rootNode || !Array.isArray(rootNode.children)) {
+          return;
+        }
+
+        lastAnalysisRoot = rootNode;
+        analysisNodeMap = {};
+
+        const indexNode = (node, parentPath) => {
+          if (!node || !node.name) return;
+          const key = parentPath ? `${parentPath}/${node.name}` : node.name;
+          analysisNodeMap[key] = node;
+          if (node.children && node.children.length > 0) {
+            node.children.forEach((child) => indexNode(child, key));
+          }
+        };
+
+        indexNode(rootNode, "");
+
+        const rootLi = createTreeNodeElement(rootNode, "");
+        if (rootLi) {
+          treeRootEl.appendChild(rootLi);
+        }
+      } catch (error) {
+        if (typeof window !== "undefined" && window.alert) {
+          window.alert(error.message || "プロジェクトツリーの取得に失敗しました。");
+        }
+      }
+    }
+
     stepNextButtons.forEach((btn) => {
       btn.addEventListener("click", async () => {
         const next = Number(btn.dataset.nextStep);
@@ -167,6 +280,7 @@ export const QuizCreationController = {
           if (!uploadedSourceId) {
             return;
           }
+          await loadAnalysisTree(uploadedSourceId);
         }
         if (next === 4) {
           updateConfirmationSummary();
@@ -189,53 +303,50 @@ export const QuizCreationController = {
       });
     });
 
-    treeRows.forEach((row) => {
-      row.addEventListener("click", (event) => {
+    if (treeContainer) {
+      treeContainer.addEventListener("click", (event) => {
         const target = event.target;
-        if (target instanceof Element && target.closest(".tree-node__checkbox")) {
+        if (!(target instanceof Element)) return;
+
+        const row = target.closest(".tree-node__row");
+        if (!row) return;
+
+        if (target.closest(".tree-node__checkbox")) {
+          return;
+        }
+
+        if (target.closest(".tree-node__twist")) {
+          const node = row.closest(".tree-node--folder");
+          if (!node) return;
+
+          const isOpen = node.classList.contains("tree-node--open");
+          node.classList.remove("tree-node--open", "tree-node--collapsed");
+          const nextIsOpen = !isOpen;
+          node.classList.add(
+            nextIsOpen ? "tree-node--open" : "tree-node--collapsed"
+          );
+
+          const twist = row.querySelector(".tree-node__twist");
+          if (twist) {
+            twist.textContent = nextIsOpen ? "arrow_drop_down" : "arrow_right";
+          }
           return;
         }
 
         setActiveTreeRow(row);
         updateSummaryForNode(row);
       });
-    });
 
-    treeFolderRows.forEach((row) => {
-      row.addEventListener("click", (event) => {
+      treeContainer.addEventListener("change", (event) => {
         const target = event.target;
-        if (target instanceof Element && target.closest(".tree-node__checkbox")) {
-          return;
-        }
+        if (!(target instanceof HTMLInputElement)) return;
+        if (!target.classList.contains("tree-node__checkbox")) return;
 
-        // 三角アイコンをクリックした時以外は開閉しない（サマリ表示のみにする）
-        if (target instanceof Element && !target.closest(".tree-node__twist")) {
-          return;
-        }
-
-        const node = row.closest(".tree-node--folder");
-        if (!node) return;
-
-        const isOpen = node.classList.contains("tree-node--open");
-
-        node.classList.remove("tree-node--open", "tree-node--collapsed");
-        const nextIsOpen = !isOpen;
-        node.classList.add(nextIsOpen ? "tree-node--open" : "tree-node--collapsed");
-
-        const twist = row.querySelector(".tree-node__twist");
-        if (twist) {
-          twist.textContent = nextIsOpen ? "arrow_drop_down" : "arrow_right";
-        }
-      });
-    });
-
-    treeCheckboxes.forEach((checkbox) => {
-      checkbox.addEventListener("change", () => {
-        const treeNode = checkbox.closest(".tree-node");
+        const treeNode = target.closest(".tree-node");
         if (!treeNode) return;
 
         if (treeNode.classList.contains("tree-node--folder")) {
-          const checked = checkbox.checked;
+          const checked = target.checked;
           const descendants = treeNode.querySelectorAll(
             ".tree-node__children .tree-node__checkbox"
           );
@@ -244,7 +355,7 @@ export const QuizCreationController = {
           });
         }
       });
-    });
+    }
 
     quizCounterButtons.forEach((btn) => {
       btn.addEventListener("click", () => {

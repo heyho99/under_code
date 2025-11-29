@@ -51,4 +51,10 @@ export const quizCreationApi = {
 
     return apiClient.post("/quiz-creation/generate", { body });
   },
+
+  async getAnalysis(sourceId) {
+    return apiClient.get("/quiz-creation/analysis", {
+      params: { sourceId },
+    });
+  },
 };
