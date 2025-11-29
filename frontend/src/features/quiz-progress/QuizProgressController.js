@@ -41,6 +41,67 @@ export const QuizProgressController = {
       }
     }
 
+    // タイプ別・カテゴリ別の進捗リスト
+    const categoryList = root && root.querySelector("#js-category-list");
+    if (categoryList) {
+      try {
+        const categories = await dashboardApi.getCategories();
+        const statsByCategory = {};
+
+        categories.forEach((item) => {
+          if (!item || !item.category) return;
+          const total = Number(item.count) || 0;
+          const solved = Number(item.solved) || 0;
+          const rawRate =
+            item.rate !== undefined && item.rate !== null ? Number(item.rate) : null;
+          const rate =
+            rawRate !== null && !Number.isNaN(rawRate)
+              ? Math.max(0, Math.min(100, Math.round(rawRate)))
+              : total > 0
+              ? Math.round((solved / total) * 100)
+              : 0;
+
+          statsByCategory[item.category] = {
+            total,
+            solved,
+            rate,
+          };
+        });
+
+        const items = categoryList.querySelectorAll("[data-category]");
+        items.forEach((li) => {
+          const key = li.getAttribute("data-category");
+          if (!key) return;
+          const stat = statsByCategory[key] || { total: 0, solved: 0, rate: 0 };
+
+          const metaEl = li.querySelector(".list__meta");
+          const barEl = li.querySelector(".progress__bar");
+
+          if (metaEl) {
+            metaEl.textContent = `${stat.solved} / ${stat.total} 問完了 ・ 完了率 ${stat.rate}%`;
+          }
+
+          if (barEl) {
+            barEl.style.width = `${stat.rate}%`;
+          }
+        });
+      } catch (_error) {
+        const items = categoryList.querySelectorAll("[data-category]");
+        items.forEach((li) => {
+          const metaEl = li.querySelector(".list__meta");
+          const barEl = li.querySelector(".progress__bar");
+
+          if (metaEl) {
+            metaEl.textContent = "データを取得できませんでした";
+          }
+
+          if (barEl) {
+            barEl.style.width = "0%";
+          }
+        });
+      }
+    }
+
     // 日毎の取り組み数（直近 N 日分のダミーデータ）
     const canvas = root && root.querySelector("#js-activity-chart");
     const rangeRoot = root && root.querySelector("[data-activity-range]");
