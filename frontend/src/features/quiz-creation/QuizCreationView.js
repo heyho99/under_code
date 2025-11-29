@@ -73,112 +73,7 @@ export const QuizCreationView = {
                 </header>
                 <div class="card__body card__body--no-padding">
                   <div class="tree-container">
-                    <ul class="tree">
-                      <li class="tree-node tree-node--folder tree-node--collapsed">
-                        <div class="tree-node__row js-tree-folder" data-node-key="app">
-                          <span class="tree-node__twist material-symbols-outlined">arrow_right</span>
-                          <span class="tree-node__type-icon material-symbols-outlined">folder</span>
-                          <input
-                            type="checkbox"
-                            class="tree-node__checkbox"
-                            data-node-checkbox="app"
-                          />
-                          <span class="tree-node__label">app</span>
-                        </div>
-                        <ul class="tree-node__children">
-                          <li class="tree-node tree-node--folder tree-node--collapsed">
-                            <div class="tree-node__row js-tree-folder" data-node-key="app/api">
-                              <span class="tree-node__twist material-symbols-outlined">arrow_right</span>
-                              <span class="tree-node__type-icon material-symbols-outlined">folder</span>
-                              <input
-                                type="checkbox"
-                                class="tree-node__checkbox"
-                                data-node-checkbox="app/api"
-                              />
-                              <span class="tree-node__label">api</span>
-                            </div>
-                            <ul class="tree-node__children">
-                              <li class="tree-node">
-                                <div class="tree-node__row" data-node-key="app/api/router.py">
-                                  <span class="tree-node__indent"></span>
-                                  <span class="tree-node__type-icon material-symbols-outlined">description</span>
-                                  <input
-                                    type="checkbox"
-                                    class="tree-node__checkbox"
-                                    data-node-checkbox="app/api/router.py"
-                                  />
-                                  <span class="tree-node__label">router.py</span>
-                                </div>
-                              </li>
-                            </ul>
-                          </li>
-                          <li class="tree-node tree-node--folder tree-node--collapsed">
-                            <div class="tree-node__row js-tree-folder" data-node-key="app/services">
-                              <span class="tree-node__twist material-symbols-outlined">arrow_right</span>
-                              <span class="tree-node__type-icon material-symbols-outlined">folder</span>
-                              <input
-                                type="checkbox"
-                                class="tree-node__checkbox"
-                                data-node-checkbox="app/services"
-                              />
-                              <span class="tree-node__label">services</span>
-                            </div>
-                            <ul class="tree-node__children">
-                              <li class="tree-node">
-                                <div class="tree-node__row" data-node-key="app/services/service.py">
-                                  <span class="tree-node__indent"></span>
-                                  <span class="tree-node__type-icon material-symbols-outlined">description</span>
-                                  <input
-                                    type="checkbox"
-                                    class="tree-node__checkbox"
-                                    data-node-checkbox="app/services/service.py"
-                                  />
-                                  <span class="tree-node__label">service.py</span>
-                                </div>
-                              </li>
-                            </ul>
-                          </li>
-                          <li class="tree-node">
-                            <div class="tree-node__row" data-node-key="app/main.py">
-                              <span class="tree-node__indent"></span>
-                              <span class="tree-node__type-icon material-symbols-outlined">description</span>
-                              <input
-                                type="checkbox"
-                                class="tree-node__checkbox"
-                                data-node-checkbox="app/main.py"
-                              />
-                              <span class="tree-node__label">main.py</span>
-                            </div>
-                          </li>
-                        </ul>
-                      </li>
-                      <li class="tree-node tree-node--folder tree-node--collapsed">
-                        <div class="tree-node__row js-tree-folder" data-node-key="tests">
-                          <span class="tree-node__twist material-symbols-outlined">arrow_right</span>
-                          <span class="tree-node__type-icon material-symbols-outlined">folder</span>
-                          <input
-                            type="checkbox"
-                            class="tree-node__checkbox"
-                            data-node-checkbox="tests"
-                          />
-                          <span class="tree-node__label">tests</span>
-                        </div>
-                        <ul class="tree-node__children">
-                          <li class="tree-node">
-                            <div class="tree-node__row" data-node-key="tests/test_auth.py">
-                              <span class="tree-node__indent"></span>
-                              <span class="tree-node__type-icon material-symbols-outlined">description</span>
-                              <input
-                                type="checkbox"
-                                class="tree-node__checkbox"
-                                data-node-checkbox="tests/test_auth.py"
-                              />
-                              <span class="tree-node__label">test_auth.py</span>
-                            </div>
-                          </li>
-                        </ul>
-                      </li>
-                    </ul>
+                    <ul class="tree" id="js-project-tree"></ul>
                   </div>
                 </div>
               </section>
@@ -414,15 +309,7 @@ export const QuizCreationView = {
                           解析対象プロジェクト
                         </h3>
                         <div class="confirmation-tree-box">
-                          <pre class="project-tree-preview">
-app/
-├─ api/
-│  └─ router.py
-├─ services/
-│  └─ service.py
-└─ main.py
-
-                          </pre>
+                          <pre class="project-tree-preview" data-project-tree-preview></pre>
                         </div>
                       </div>
 
