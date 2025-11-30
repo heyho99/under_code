@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Quiz POC</title>
+</head>
+<body>
+  <h1>Quiz POC</h1>
+
+  <section id="quiz-creator">
+    <h2>クイズ作成</h2>
+    <form id="quiz-form">
+      <label for="question-text">問題文</label>
+      <textarea id="question-text" name="question"></textarea>
+      <label for="answer-text">回答</label>
+      <textarea id="answer-text" name="answer"></textarea>
+      <button type="button" id="save-quiz-button">クイズを保存</button>
+    </form>
+  </section>
+
+  <section id="code-editor-section">
+    <h2>コードエディタ</h2>
+    <div id="editor-container"></div>
+    <button type="button" id="run-code-button">コードを実行</button>
+  </section>
+
+  <section id="console-section">
+    <h2>コンソール</h2>
+    <pre id="console-output"></pre>
+  </section>
+
+  <script src="js/editor.js"></script>
+  <script src="js/run_code.js"></script>
+</body>
+</html>
