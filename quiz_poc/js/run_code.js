@@ -1,8 +1,58 @@
-document.getElementById('run-btn').addEventListener('click', async function() {
+// 実行ボタン押したらコードを実行モジュールに渡して結果を取得するjs
+
+// 実行ボタン: 実行結果のみ表示
+document.getElementById('exec-btn').addEventListener('click', async function() {
     const code = editor.getValue();
     const resultArea = document.getElementById('result-area');
 
     resultArea.innerHTML = "実行中...（数秒かかります）";
+
+    try {
+        const response = await fetch('/execute', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                code: code,
+                language: 'python3',
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error('HTTP error ' + response.status);
+        }
+
+        const data = await response.json();
+
+        let html = "<h3>実行結果</h3>";
+        if (data.error) {
+            html += "<p class='fail'>エラー: " + data.error + "</p>";
+        }
+        if (data.stdout) {
+            html += "<pre>" + data.stdout + "</pre>";
+        }
+        if (data.stderr) {
+            html += "<p class='fail'>stderr:</p><pre>" + data.stderr + "</pre>";
+        }
+
+        if (!data.error && !data.stdout && !data.stderr) {
+            html += "<p>出力はありませんでした。</p>";
+        }
+
+        resultArea.innerHTML = html;
+    } catch (error) {
+        resultArea.innerHTML = "<span class='fail'>通信エラーが発生しました</span>";
+        console.error(error);
+    }
+});
+
+// 提出ボタン: テストケースで判定まで実施
+document.getElementById('submit-btn').addEventListener('click', async function() {
+    const code = editor.getValue();
+    const resultArea = document.getElementById('result-area');
+
+    resultArea.innerHTML = "提出中...（数秒かかります）";
 
     try {
         const response = await fetch('/run', {
@@ -35,7 +85,7 @@ document.getElementById('run-btn').addEventListener('click', async function() {
                 ? "<span class='pass'>OK</span>"
                 : "<span class='fail'>NG</span>";
             html += `<li>ケース ${index + 1}: ${status} <br>
-                     入力: ${res.input} / 期待値: ${res.expected} <br>
+                     sysin: ${res.sysin} / 期待値: ${res.expected} <br>
                      あなたの出力: ${res.output}</li>`;
         });
         html += '</ul>';
