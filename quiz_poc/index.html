@@ -1,35 +1,37 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>Quiz POC</title>
+    <meta charset="UTF-8">
+    <title>Paiza API Quiz App</title>
+    <style>
+        #editor { height: 300px; width: 100%; border: 1px solid #ccc; }
+        .result-box { margin-top: 20px; padding: 10px; background: #f0f0f0; }
+        .pass { color: green; font-weight: bold; }
+        .fail { color: red; font-weight: bold; }
+    </style>
 </head>
 <body>
-  <h1>Quiz POC</h1>
+    <h1>競技プログラミング風アプリ</h1>
 
-  <section id="quiz-creator">
-    <h2>クイズ作成</h2>
-    <form id="quiz-form">
-      <label for="question-text">問題文</label>
-      <textarea id="question-text" name="question"></textarea>
-      <label for="answer-text">回答</label>
-      <textarea id="answer-text" name="answer"></textarea>
-      <button type="button" id="save-quiz-button">クイズを保存</button>
-    </form>
-  </section>
+    <div id="problem-area">
+        <!-- Flaskから渡された問題データを表示 -->
+        <h2>問題: {{ quiz.title }}</h2>
+        <p>{{ quiz.description }}</p>
+    </div>
 
-  <section id="code-editor-section">
-    <h2>コードエディタ</h2>
-    <div id="editor-container"></div>
-    <button type="button" id="run-code-button">コードを実行</button>
-  </section>
+    <div id="editor"></div>
 
-  <section id="console-section">
-    <h2>コンソール</h2>
-    <pre id="console-output"></pre>
-  </section>
+    <button id="run-btn" style="margin-top:10px; padding:10px 20px;">提出・実行</button>
 
-  <script src="js/editor.js"></script>
-  <script src="js/run_code.js"></script>
+    <div id="result-area" class="result-box">
+        ここに実行結果が表示されます...
+    </div>
+
+    <!-- Ace Editor CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js"></script>
+    <!-- モジュールの読み込み -->
+    <!-- Flaskのstaticフォルダ設定に合わせてパスを調整 -->
+    <script src="/js/editor.js"></script>
+    <script src="/js/run_code.js"></script>
 </body>
 </html>
