@@ -6,6 +6,7 @@ class QuizCreator:
                 "title": "足し算",
                 "description": "2つの整数 A, B の和を計算して出力してください。",
                 "sysin_format": "sysin は 2つの整数 (A, B) を要素にもつタプルです。例: (3, 5)",
+                # "quiz_type"は後からプログラムで追加
                 "test_cases": [
                     {"sysin": (3, 5), "expected": 8},  # test case 1
                     {"sysin": (10, 20), "expected": 30},  # test case 2
