@@ -2,7 +2,7 @@ from flask import Flask, jsonify, render_template, request
 
 from .executor import CodeExecutor
 from .grader import Grader
-from .quiz_creator import QuizCreator
+from .quiz_repository import QuizRepository
 
 
 def build_source_with_sysin(user_source, sysin_value):
@@ -20,7 +20,7 @@ app = Flask(
 
 @app.route("/")
 def index():
-    quiz_data = QuizCreator().get_quiz(1)
+    quiz_data = QuizRepository().get_quiz(1)
     if not quiz_data:
         return "Quiz not found", 404
     return render_template("index.html", quiz=quiz_data)
@@ -80,8 +80,8 @@ def run_code():
     language = data.get("language", "python3")
     quiz_id = 1
 
-    quiz_creator = QuizCreator()
-    quiz_data = quiz_creator.get_quiz(quiz_id)
+    quiz_repo = QuizRepository()
+    quiz_data = quiz_repo.get_quiz(quiz_id)
     if not quiz_data:
         return jsonify({"error": "quiz not found"}), 404
 
