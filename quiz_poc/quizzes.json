@@ -1,15 +1,59 @@
 {
-  "quizzes": [
-    {
-      "id": 1,
-      "title": "足し算",
-      "description": "2つの整数 A, B の和を計算して出力してください。",
-      "sysin_format": "sysin は 2つの整数 (A, B) を要素にもつタプルです。例: (3, 5)",
-      "test_cases": [
-        {"sysin": [3, 5], "expected": 8},
-        {"sysin": [10, 20], "expected": 30},
-        {"sysin": [-1, 1], "expected": 0}
-      ]
-    }
-  ]
+    "quizzes": [
+        {
+            "id": 1,
+            "title": "リストの再帰的処理の模倣",
+            "description": "変数 `sysin` に整数のリストが渡されます。\n対象コードの `_prepare_response_content` 関数内にある、「リスト内の各要素に対して処理を行い、新しいリストを作成する」ロジックを模倣してください。\n\nリスト内包表記を使用し、`sysin` の各要素を **2倍** にした新しいリストを作成し、`print()` で出力してください。",
+            "sysin_format": "整数のリスト (例: [1, 2, 3])",
+            "test_cases": [
+                {"sysin": [1, 2, 3], "expected": "[2, 4, 6]"},
+                {"sysin": [0, -5, 10], "expected": "[0, -10, 20]"},
+                {"sysin": [], "expected": "[]"}
+            ]
+        },
+        {
+            "id": 2,
+            "title": "辞書の安全なマージ処理",
+            "description": "変数 `sysin` に `nested` と `original` というキーを持つ辞書が渡されます。それぞれの値は「辞書」または「None」です。\n対象コードの `_merge_lifespan_context` 関数内にあるロジックを参考に、2つの辞書をマージしてください。\n\n**ルール:**\n1. 値が `None` の場合は空の辞書 `{}` として扱ってください（`or {}` を使用）。\n2. `nested` の内容を `original` の内容で上書きする順序でマージしてください（`{**nested, **original}` の順序）。\n3. 結果を `print()` で出力してください。",
+            "sysin_format": "{\"nested\": dict|None, \"original\": dict|None}",
+            "test_cases": [
+                {"sysin": {"nested": {"a": 1}, "original": {"b": 2}}, "expected": "{'a': 1, 'b': 2}"},
+                {"sysin": {"nested": {"a": 1}, "original": {"a": 99}}, "expected": "{'a': 99}"},
+                {"sysin": {"nested": null, "original": {"c": 3}}, "expected": "{'c': 3}"}
+            ]
+        },
+        {
+            "id": 3,
+            "title": "エラーリストの結合ロジック",
+            "description": "変数 `sysin` に `errors` (リスト) と `new_error` (リスト、文字列、または None) が渡されます。\n対象コードの `serialize_response` 関数内にあるエラーハンドリングのロジックを再現してください。\n\n以下のロジックで `errors` リストを更新し、最終的なリストを `print()` してください：\n1. `new_error` がリスト型(`list`)の場合: `errors` に `extend` して結合する。\n2. `new_error` がそれ以外の真となる値の場合: `errors` に `append` して追加する。\n3. それ以外（Noneや空など）の場合: 何もしない。",
+            "sysin_format": "{\"errors\": List[str], \"new_error\": List[str] | str | None}",
+            "test_cases": [
+                {"sysin": {"errors": ["E1"], "new_error": ["E2", "E3"]}, "expected": "['E1', 'E2', 'E3']"},
+                {"sysin": {"errors": ["E1"], "new_error": "E2"}, "expected": "['E1', 'E2']"},
+                {"sysin": {"errors": ["E1"], "new_error": null}, "expected": "['E1']"}
+            ]
+        },
+        {
+            "id": 4,
+            "title": "型による処理の分岐",
+            "description": "変数 `sysin` に任意のデータが渡されます。\n対象コードの `_prepare_response_content` 関数のように、データの型によって処理を分岐させてください。\n\n以下の条件に従って文字列を `print()` してください：\n1. `sysin` がリスト(`list`)の場合: `\"Is List\"`\n2. `sysin` が辞書(`dict`)の場合: `\"Is Dict\"`\n3. それ以外の場合: `\"Is Value\"`",
+            "sysin_format": "任意のデータ (リスト、辞書、数値など)",
+            "test_cases": [
+                {"sysin": [1, 2], "expected": "Is List"},
+                {"sysin": {"key": "val"}, "expected": "Is Dict"},
+                {"sysin": 100, "expected": "Is Value"}
+            ]
+        },
+        {
+            "id": 5,
+            "title": "バージョン比較ロジック",
+            "description": "変数 `sysin` に `[major, minor]` 形式の整数のリストが渡されます（例: `[3, 10]`）。これをPythonのバージョン情報と見なします。\n対象コード冒頭にある `sys.version_info` の比較ロジックを再現してください。\n\n`sysin` をタプルに変換し、その値が `(3, 13)` 以上であれば `\"New\"`、そうでなければ `\"Old\"` と `print()` してください。",
+            "sysin_format": "[int, int] 形式のリスト",
+            "test_cases": [
+                {"sysin": [3, 14], "expected": "New"},
+                {"sysin": [3, 13], "expected": "New"},
+                {"sysin": [3, 12], "expected": "Old"}
+            ]
+        }
+    ]
 }
