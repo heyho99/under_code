@@ -2,57 +2,62 @@
     "quizzes": [
         {
             "id": 1,
-            "title": "リストの再帰的処理の模倣",
-            "description": "変数 `sysin` に整数のリストが渡されます。\n対象コードの `_prepare_response_content` 関数内にある、「リスト内の各要素に対して処理を行い、新しいリストを作成する」ロジックを模倣してください。\n\nリスト内包表記を使用し、`sysin` の各要素を **2倍** にした新しいリストを作成し、`print()` で出力してください。",
-            "sysin_format": "整数のリスト (例: [1, 2, 3])",
+            "title": "バージョン比較分岐",
+            "description": "対象コード冒頭の `sys.version_info` による分岐ロジックを再現します。\n変数 `sysin` に「メジャーバージョン」と「マイナーバージョン」の2つの整数を持つリストが代入されます。\nこれをタプルとして扱い、`(3, 13)` 以上であれば `New version`、そうでなければ `Old version` と標準出力してください。",
+            "sysin_format": "[int, int] （例: [3, 10]）",
+            "sample_code": "version = tuple(sysin)\nif version >= (3, 13):\n    print(\"New version\")\nelse:\n    print(\"Old version\")",
             "test_cases": [
-                {"sysin": [1, 2, 3], "expected": "[2, 4, 6]"},
-                {"sysin": [0, -5, 10], "expected": "[0, -10, 20]"},
-                {"sysin": [], "expected": "[]"}
+                {"sysin": [3, 13], "expected": "New version"},
+                {"sysin": [3, 12], "expected": "Old version"},
+                {"sysin": [3, 14], "expected": "New version"}
             ]
         },
         {
             "id": 2,
-            "title": "辞書の安全なマージ処理",
-            "description": "変数 `sysin` に `nested` と `original` というキーを持つ辞書が渡されます。それぞれの値は「辞書」または「None」です。\n対象コードの `_merge_lifespan_context` 関数内にあるロジックを参考に、2つの辞書をマージしてください。\n\n**ルール:**\n1. 値が `None` の場合は空の辞書 `{}` として扱ってください（`or {}` を使用）。\n2. `nested` の内容を `original` の内容で上書きする順序でマージしてください（`{**nested, **original}` の順序）。\n3. 結果を `print()` で出力してください。",
-            "sysin_format": "{\"nested\": dict|None, \"original\": dict|None}",
+            "title": "リスト内包表記による変換",
+            "description": "対象コードの `_prepare_response_content` 関数内にある `[... for item in res]` の処理を参考にします。\n変数 `sysin` に文字列のリストが代入されます。\nリスト内包表記を使用して、リスト内の全ての文字列を「大文字」に変換した新しいリストを作成し、それを標準出力してください。",
+            "sysin_format": "[str, str, ...] （文字列のリスト）",
+            "sample_code": "result = [item.upper() for item in sysin]\nprint(result)",
             "test_cases": [
-                {"sysin": {"nested": {"a": 1}, "original": {"b": 2}}, "expected": "{'a': 1, 'b': 2}"},
-                {"sysin": {"nested": {"a": 1}, "original": {"a": 99}}, "expected": "{'a': 99}"},
-                {"sysin": {"nested": null, "original": {"c": 3}}, "expected": "{'c': 3}"}
+                {"sysin": ["apple", "banana"], "expected": "['APPLE', 'BANANA']"},
+                {"sysin": ["hello"], "expected": "['HELLO']"},
+                {"sysin": [], "expected": "[]"}
             ]
         },
         {
             "id": 3,
-            "title": "エラーリストの結合ロジック",
-            "description": "変数 `sysin` に `errors` (リスト) と `new_error` (リスト、文字列、または None) が渡されます。\n対象コードの `serialize_response` 関数内にあるエラーハンドリングのロジックを再現してください。\n\n以下のロジックで `errors` リストを更新し、最終的なリストを `print()` してください：\n1. `new_error` がリスト型(`list`)の場合: `errors` に `extend` して結合する。\n2. `new_error` がそれ以外の真となる値の場合: `errors` に `append` して追加する。\n3. それ以外（Noneや空など）の場合: 何もしない。",
-            "sysin_format": "{\"errors\": List[str], \"new_error\": List[str] | str | None}",
+            "title": "辞書内包表記による値の加工",
+            "description": "対象コードの `_prepare_response_content` 関数内にある `{k: ... for k, v in res.items()}` の処理を参考にします。\n変数 `sysin` に辞書が代入されます。\n辞書内包表記を使用して、元の辞書の「値 (value)」をすべて文字列型に変換した新しい辞書を作成し、それを標準出力してください。",
+            "sysin_format": "{key: value, ...} （辞書）",
+            "sample_code": "result = {k: str(v) for k, v in sysin.items()}\nprint(result)",
             "test_cases": [
-                {"sysin": {"errors": ["E1"], "new_error": ["E2", "E3"]}, "expected": "['E1', 'E2', 'E3']"},
-                {"sysin": {"errors": ["E1"], "new_error": "E2"}, "expected": "['E1', 'E2']"},
-                {"sysin": {"errors": ["E1"], "new_error": null}, "expected": "['E1']"}
+                {"sysin": {"a": 1, "b": 2}, "expected": "{'a': '1', 'b': '2'}"},
+                {"sysin": {"x": 10.5, "y": "True"}, "expected": "{'x': '10.5', 'y': 'True'}"},
+                {"sysin": {}, "expected": "{}"}
             ]
         },
         {
             "id": 4,
-            "title": "型による処理の分岐",
-            "description": "変数 `sysin` に任意のデータが渡されます。\n対象コードの `_prepare_response_content` 関数のように、データの型によって処理を分岐させてください。\n\n以下の条件に従って文字列を `print()` してください：\n1. `sysin` がリスト(`list`)の場合: `\"Is List\"`\n2. `sysin` が辞書(`dict`)の場合: `\"Is Dict\"`\n3. それ以外の場合: `\"Is Value\"`",
-            "sysin_format": "任意のデータ (リスト、辞書、数値など)",
+            "title": "辞書の結合とデフォルト値",
+            "description": "対象コードの `_merge_lifespan_context` 関数内にある `{**(maybe_nested_state or {}), **(maybe_original_state or {})}` のロジックを再現します。\n変数 `sysin` に2つの要素を持つリストが代入されます。各要素は「辞書」または「None」です。\nこれら2つのデータを辞書として結合（マージ）してください。\n\n**ルール**:\n1. 要素が `None` の場合は空の辞書 `{}` として扱ってください（`or {}` のロジック）。\n2. 2番目の要素の内容が、1番目の要素の内容を上書きするように結合してください。\n3. 結果の辞書を標準出力してください。",
+            "sysin_format": "[dict | None, dict | None]",
+            "sample_code": "state1 = sysin[0]\nstate2 = sysin[1]\n\n# アンパッキング演算子 ** を使用して結合\nmerged = {**(state1 or {}), **(state2 or {})}\nprint(merged)",
             "test_cases": [
-                {"sysin": [1, 2], "expected": "Is List"},
-                {"sysin": {"key": "val"}, "expected": "Is Dict"},
-                {"sysin": 100, "expected": "Is Value"}
+                {"sysin": [{"a": 1}, {"b": 2}], "expected": "{'a': 1, 'b': 2}"},
+                {"sysin": [{"a": 1}, null], "expected": "{'a': 1}"},
+                {"sysin": [{"a": 1}, {"a": 99}], "expected": "{'a': 99}"}
             ]
         },
         {
             "id": 5,
-            "title": "バージョン比較ロジック",
-            "description": "変数 `sysin` に `[major, minor]` 形式の整数のリストが渡されます（例: `[3, 10]`）。これをPythonのバージョン情報と見なします。\n対象コード冒頭にある `sys.version_info` の比較ロジックを再現してください。\n\n`sysin` をタプルに変換し、その値が `(3, 13)` 以上であれば `\"New\"`、そうでなければ `\"Old\"` と `print()` してください。",
-            "sysin_format": "[int, int] 形式のリスト",
+            "title": "リストへの追加分岐（extend vs append）",
+            "description": "対象コードの `serialize_response` 関数内にあるエラーリストへの追加ロジックを再現します。\n変数 `sysin` は辞書で、`base_list`（リスト）と `new_data`（任意の値）を持っています。\n\n以下のルールに従って `base_list` に `new_data` を追加してください：\n1. `new_data` が **リスト型** の場合: `extend` メソッドを使って要素を結合する。\n2. それ以外の場合: `append` メソッドを使って要素として追加する。\n\n最終的な `base_list` を標準出力してください。",
+            "sysin_format": "{\"base_list\": list, \"new_data\": Any}",
+            "sample_code": "errors = sysin[\"base_list\"]\nnew_item = sysin[\"new_data\"]\n\nif isinstance(new_item, list):\n    errors.extend(new_item)\nelse:\n    errors.append(new_item)\n\nprint(errors)",
             "test_cases": [
-                {"sysin": [3, 14], "expected": "New"},
-                {"sysin": [3, 13], "expected": "New"},
-                {"sysin": [3, 12], "expected": "Old"}
+                {"sysin": {"base_list": [1, 2], "new_data": [3, 4]}, "expected": "[1, 2, 3, 4]"},
+                {"sysin": {"base_list": [1, 2], "new_data": 3}, "expected": "[1, 2, 3]"},
+                {"sysin": {"base_list": [], "new_data": "error"}, "expected": "['error']"}
             ]
         }
     ]

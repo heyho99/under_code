@@ -31,6 +31,12 @@
         </ul>
     </div>
 
+    <div class="result-box" style="margin-top: 10px;">
+        <h3>模範解答コード</h3>
+        <button id="show-answer-btn" style="padding:8px 16px;">答えを見る</button>
+        <pre id="sample-code" style="display:none; margin-top:10px;">{{ quiz.sample_code }}</pre>
+    </div>
+
     <button id="exec-btn" style="margin-top:10px; padding:10px 20px;">実行</button>
     <button id="submit-btn" style="margin-top:10px; padding:10px 20px;">提出</button>
 
@@ -44,5 +50,20 @@
     <!-- Flaskのstaticフォルダ設定に合わせてパスを調整 -->
     <script src="/js/editor.js"></script>
     <script src="/js/run_code.js"></script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const btn = document.getElementById('show-answer-btn');
+        const pre = document.getElementById('sample-code');
+        if (!btn || !pre) return;
+
+        btn.addEventListener('click', function () {
+            const isHidden = pre.style.display === 'none' || pre.style.display === '';
+            pre.style.display = isHidden ? 'block' : 'none';
+            btn.textContent = isHidden ? '答えを隠す' : '答えを見る';
+        });
+    });
+    </script>
+
 </body>
 </html>
