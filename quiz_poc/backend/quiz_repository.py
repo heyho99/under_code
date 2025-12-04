@@ -34,7 +34,7 @@ class QuizRepository:
         return sorted(self._quiz_by_id.values(), key=lambda q: q.get("id"))
 
     def _load_quizzes_from_json(self):
-        base_dir = os.path.dirname(__file__)
+        base_dir = os.path.join(os.path.dirname(__file__), "data")
         json_path = os.path.join(base_dir, "quizzes.json")
 
         with open(json_path, "r", encoding="utf-8") as f:
