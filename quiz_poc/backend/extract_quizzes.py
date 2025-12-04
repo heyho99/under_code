@@ -108,8 +108,9 @@ def build_quiz_from_block(block: Dict[str, Any]) -> Dict[str, Any]:
 
 def main() -> None:
     base_dir = Path(__file__).resolve().parent
-    md_path = base_dir / "quizzes.md"
-    out_path = base_dir / "quizzes.json"
+    data_dir = base_dir / "data"
+    md_path = data_dir / "quizzes.md"
+    out_path = data_dir / "quizzes.json"
 
     text = md_path.read_text(encoding="utf-8")
     blocks = extract_python_blocks(text)
