@@ -1,5 +1,15 @@
 import json
 import os
+import ast
+
+
+def _from_repr_or_raw(value):
+    if not isinstance(value, str):
+        return value
+    try:
+        return ast.literal_eval(value)
+    except Exception:
+        return value
 
 
 class QuizRepository:
@@ -33,9 +43,17 @@ class QuizRepository:
             if quiz_id is None:
                 continue
 
+            title = _from_repr_or_raw(quiz.get("title"))
+            description = _from_repr_or_raw(quiz.get("description"))
+            sysin_format = _from_repr_or_raw(quiz.get("sysin_format"))
+            sample_code = _from_repr_or_raw(quiz.get("sample_code"))
+
+            raw_testcases = quiz.get("testcases", quiz.get("test_cases", []))
+
             test_cases = []
-            for tc in quiz.get("test_cases", []):
-                sysin_val = tc.get("sysin")
+            for tc in raw_testcases or []:
+                sysin_val = _from_repr_or_raw(tc.get("sysin"))
+                expected_val = _from_repr_or_raw(tc.get("expected"))
                 # JSON ではリストだが、クイズ側ではタプルとして扱う
                 if isinstance(sysin_val, list):
                     sysin_val = tuple(sysin_val)
@@ -43,12 +61,17 @@ class QuizRepository:
                 test_cases.append(
                     {
                         "sysin": sysin_val,
-                        "expected": tc.get("expected"),
+                        "expected": expected_val,
                     }
                 )
 
-            quiz_dict = dict(quiz)
-            quiz_dict["test_cases"] = test_cases
-            quizzes[quiz_id] = quiz_dict
+            quizzes[quiz_id] = {
+                "id": quiz_id,
+                "title": title,
+                "description": description,
+                "sysin_format": sysin_format,
+                "sample_code": sample_code,
+                "test_cases": test_cases,
+            }
 
         return quizzes
