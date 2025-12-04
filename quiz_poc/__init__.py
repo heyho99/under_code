@@ -20,7 +20,14 @@ app = Flask(
 
 @app.route("/")
 def index():
-    quiz_data = QuizRepository().get_quiz(1)
+    quiz_repo = QuizRepository()
+    quizzes = quiz_repo.get_all_quizzes()
+    return render_template("quiz_list.html", quizzes=quizzes)
+
+
+@app.route("/quiz/<int:quiz_id>")
+def show_quiz(quiz_id):
+    quiz_data = QuizRepository().get_quiz(quiz_id)
     if not quiz_data:
         return "Quiz not found", 404
     return render_template("index.html", quiz=quiz_data)
@@ -78,7 +85,7 @@ def run_code():
     data = request.get_json() or {}
     source_code = data.get("code")
     language = data.get("language", "python3")
-    quiz_id = 1
+    quiz_id = data.get("quiz_id", 1)
 
     quiz_repo = QuizRepository()
     quiz_data = quiz_repo.get_quiz(quiz_id)
