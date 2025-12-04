@@ -1,191 +1,294 @@
-Pythonの教育専門家として、提供された `fastapi` 関連のコードから、基本的な文法やデータ処理ロジックを抽出したクイズを5問作成しました。
-
-レベル1（基本文法・処理）に合わせて、関数定義は行わず、与えられた変数 `sysin` を加工して `print` する形式で統一しています。
-
 ```python:1
-title = "ステータスコードの判定ロジック"
+title = "文字列からパスパラメータ名の集合を取得する"
 description = """
-対象コードの `is_body_allowed_for_status_code` 関数内にある判定ロジックを再現します。
-変数 `sysin` にステータスコード（整数または文字列）が代入されます。
+対象コードの `get_path_param_names` 関数にある
 
-以下のルールに従って、Body（レスポンス本文）が許可されるかどうかを判定し、許可される場合は `True`、許可されない場合は `False` を標準出力してください。
+    return set(re.findall("{(.*?)}", path))
 
-1. 値が `None` の場合は `True`。
-2. 値が文字列セット `{"default", "1XX", "2XX", "3XX", "4XX", "5XX"}` のいずれかに含まれる場合は `True`。
-3. それ以外の場合、値を整数に変換し、以下の条件の**いずれか**に当てはまる場合は `False`（許可されない）、それ以外は `True`。
-    * 値が 200 未満
-    * 値が `{204, 205, 304}` のセットに含まれる
+の処理を参考にします。
 
-※ `sysin` は数値変換可能な文字列や整数、あるいは `None` が与えられる前提とします。
+変数 `sysin` にはパス文字列が代入されます。
+このパス文字列の中から、`{...}` で囲まれている部分をすべて正規表現で抽出し、
+それらを要素とする `set` を作成して、標準出力してください。
+
+ヒント:
+- `import re` を行ってください
+- `re.findall` を使って `{}` の中身をすべて取り出してください
+- 結果は `set` 型のまま `print` して構いません
 """
-
-sysin_format = "200, '404', '2XX', None など"
+sysin_format = '"/items/{item_id}/users/{user_id}" のようなパス文字列'
 
 sample_code = """
-if sysin is None:
-    print(True)
-elif str(sysin) in {"default", "1XX", "2XX", "3XX", "4XX", "5XX"}:
-    print(True)
-else:
-    code = int(sysin)
-    if code < 200 or code in {204, 205, 304}:
-        print(False)
-    else:
-        print(True)
+import re
+
+path = sysin
+names = set(re.findall(r"{(.*?)}", path))
+print(names)
 """
 
-test_case_1 = {"sysin": "2XX", "expected": "True"}
-test_case_2 = {"sysin": 204, "expected": "False"}
-test_case_3 = {"sysin": 404, "expected": "True"}
+test_case_1 = {
+    "sysin": "/items/{item_id}/users/{user_id}",
+    "expected": {"item_id", "user_id"},
+}
+test_case_2 = {
+    "sysin": "/no/params/here",
+    "expected": set(),
+}
+test_case_3 = {
+    "sysin": "/{one}/{two}/{one}",
+    "expected": {"one", "two"},
+}
 ```
 
 ```python:2
-title = "正規表現によるパスパラメータの抽出"
+title = "HTTPステータスコードでレスポンスボディが許可されるか判定する"
 description = """
-対象コードの `get_path_param_names` 関数内にある `re.findall` を使用した処理を再現します。
-変数 `sysin` に、APIのパスを表す文字列（例: `"/items/{item_id}/detail"`）が代入されます。
+対象コードの `is_body_allowed_for_status_code` 関数の先頭付近にある
 
-正規表現を用いて、波括弧 `{}` で囲まれた部分（パスパラメータ名）をすべて抽出してください。
-抽出したパラメータ名は重複を排除し（セット化）、結果の確認のため **アルファベット順にソートしたリスト** として標準出力してください。
+    if status_code is None:
+        return True
 
-ヒント: `import re` が必要です。正規表現パターンは `{(.*?)}` が利用できます。
+および
+
+    if status_code in {
+        "default",
+        "1XX",
+        "2XX",
+        "3XX",
+        "4XX",
+        "5XX",
+    }:
+        return True
+
+さらに
+
+    current_status_code = int(status_code)
+    return not (current_status_code < 200 or current_status_code in {204, 205, 304})
+
+という処理を参考にします。
+
+変数 `sysin` には、`int`, `str`, もしくは `None` が代入されます。
+この値を HTTP ステータスコードとして解釈し、
+レスポンスボディが「許可される場合」は `True`、「許可されない場合」は `False` を標準出力してください。
+
+条件:
+- `sysin` が `None` のときは `True`
+- `sysin` が `"default"`, `"1XX"`, `"2XX"`, `"3XX"`, `"4XX"`, `"5XX"` のいずれかの文字列のときは `True`
+- それ以外は `int(sysin)` で整数に変換し、
+  - 200 未満、または `204`, `205`, `304` のときは `False`
+  - それ以外は `True`
 """
-
-sysin_format = "\"/users/{user_id}/posts/{post_id}\" （文字列）"
+sysin_format = "None または HTTPステータスコード (int もしくは str)"
 
 sample_code = """
-import re
+status_code = sysin
 
-params = set(re.findall(r"{(.*?)}", sysin))
-print(sorted(list(params)))
+if status_code is None:
+    print(True)
+elif status_code in {"default", "1XX", "2XX", "3XX", "4XX", "5XX"}:
+    print(True)
+else:
+    current_status_code = int(status_code)
+    result = not (current_status_code < 200 or current_status_code in {204, 205, 304})
+    print(result)
 """
 
-test_case_1 = {"sysin": "/items/{item_id}", "expected": "['item_id']"}
-test_case_2 = {"sysin": "/users/{user_id}/posts/{post_id}", "expected": "['post_id', 'user_id']"}
-test_case_3 = {"sysin": "/files/{file_path}/action/{file_path}", "expected": "['file_path']"}
+test_case_1 = {
+    "sysin": 200,
+    "expected": True,
+}
+test_case_2 = {
+    "sysin": 204,
+    "expected": False,
+}
+test_case_3 = {
+    "sysin": "1XX",
+    "expected": True,
+}
 ```
 
 ```python:3
-title = "ID生成のための文字列正規化"
+title = "正規表現で操作IDを生成する"
 description = """
-対象コードの `generate_unique_id` 関数などで使われている `re.sub` による文字列置換処理を再現します。
-変数 `sysin` に、操作IDの元となる文字列が代入されます。
+対象コードの `generate_operation_id_for_path` 関数内にある
 
-以下の処理を行ってください。
-1. 文字列内の「英数字以外の文字（非単語文字）」をすべてアンダースコア `_` に置換する。
-   （ヒント: 正規表現 `\\W` を使用します）
-2. 置換後の文字列をすべて小文字 (`lower()`) に変換する。
-3. 結果を標準出力する。
+    operation_id = f"{name}{path}"
+    operation_id = re.sub(r"\\W", "_", operation_id)
+    operation_id = f"{operation_id}_{method.lower()}"
 
-ヒント: `import re` が必要です。
+という処理を参考にします。
+
+変数 `sysin` には、`(name, path, method)` の3要素からなるタプルが代入されます。
+この3つの値を用いて、次の手順で文字列 `operation_id` を生成し、標準出力してください。
+
+1. `name` と `path` を連結して 1 つの文字列にする
+2. その文字列中の「英数字とアンダースコア以外」の文字を、正規表現 `re.sub(r"\\W", "_", ...)` を使って `_` に置き換える
+3. 末尾に `_` と `method` を小文字にした文字列を連結する
+
+ヒント:
+- `import re` を行ってください
+- タプルの要素は `name, path, method = sysin` のように取り出せます
 """
-
-sysin_format = "\"Use:Name-Example\" （文字列）"
+sysin_format = '("関数名", "/path/{param}", "HTTPメソッド") の3要素タプル'
 
 sample_code = """
 import re
 
-operation_id = re.sub(r"\\W", "_", sysin)
-print(operation_id.lower())
+name, path, method = sysin
+operation_id = f"{name}{path}"
+operation_id = re.sub(r"\\W", "_", operation_id)
+operation_id = f"{operation_id}_{method.lower()}"
+print(operation_id)
 """
 
-test_case_1 = {"sysin": "Get:Items", "expected": "get_items"}
-test_case_2 = {"sysin": "User-Create-V1", "expected": "user_create_v1"}
-test_case_3 = {"sysin": "Hello World!", "expected": "hello_world_"}
+test_case_1 = {
+    "sysin": ("read_item", "/items/{item_id}", "GET"),
+    "expected": "read_item_items__item_id__get",
+}
+test_case_2 = {
+    "sysin": ("create-user", "/users/", "POST"),
+    "expected": "create_user_users__post",
+}
+test_case_3 = {
+    "sysin": ("op", "/a/b?x=1", "DELETE"),
+    "expected": "op_a_b_x_1_delete",
+}
 ```
 
 ```python:4
-title = "辞書内のリスト結合による更新"
+title = "二つの辞書を再帰的にマージする（deep_dict_update の条件分岐）"
 description = """
-対象コードの `deep_dict_update` 関数の一部（リストの結合ロジック）を参考にします。
-変数 `sysin` に、`main` と `update` という2つの辞書を含む辞書が代入されます。
+対象コードの `deep_dict_update` 関数にある次の部分を参考にします。
 
-`update` 辞書の内容を使って `main` 辞書を更新してください。ただし、更新ルールは以下の通りとします。
+    for key, value in update_dict.items():
+        if (
+            key in main_dict
+            and isinstance(main_dict[key], dict)
+            and isinstance(value, dict)
+        ):
+            deep_dict_update(main_dict[key], value)
+        elif (
+            key in main_dict
+            and isinstance(main_dict[key], list)
+            and isinstance(update_dict[key], list)
+        ):
+            main_dict[key] = main_dict[key] + update_dict[key]
+        else:
+            main_dict[key] = value
 
-1. `update` のキーが `main` に既に存在し、かつ、**両方の値がリスト(list)** である場合：
-   `main` のリストの後ろに `update` のリストを結合 (`+`) します。
-2. それ以外の場合：
-   `main` の値を `update` の値で単純に上書き（または新規追加）します。
+変数 `sysin` には `(main_dict, update_dict)` の2要素タプルが代入されます。
+この2つの辞書を上記ロジックどおりにマージした結果の `main_dict` を標準出力してください。
 
-処理完了後の `main` 辞書を標準出力してください。
+仕様:
+- 同じキーに対して両方とも値が辞書であれば、再帰的にマージする
+- 同じキーに対して両方とも値がリストであれば、`main_dict[key] + update_dict[key]` で連結する
+- それ以外の場合は、`update_dict` 側の値で上書きする
+
+ヒント:
+- 実装は関数にしてもしなくても構いません
+- もとの `main_dict` を直接更新して構いません
 """
-
-sysin_format = "{\"main\": {...}, \"update\": {...}}"
+sysin_format = "({ ... } , { ... }) の2つの辞書からなるタプル"
 
 sample_code = """
-main_dict = sysin["main"]
-update_dict = sysin["update"]
+def deep_dict_update(main_dict, update_dict):
+    for key, value in update_dict.items():
+        if (
+            key in main_dict
+            and isinstance(main_dict[key], dict)
+            and isinstance(value, dict)
+        ):
+            deep_dict_update(main_dict[key], value)
+        elif (
+            key in main_dict
+            and isinstance(main_dict[key], list)
+            and isinstance(update_dict[key], list)
+        ):
+            main_dict[key] = main_dict[key] + update_dict[key]
+        else:
+            main_dict[key] = value
 
-for key, value in update_dict.items():
-    if (
-        key in main_dict
-        and isinstance(main_dict[key], list)
-        and isinstance(value, list)
-    ):
-        main_dict[key] = main_dict[key] + value
-    else:
-        main_dict[key] = value
-
+main_dict, update_dict = sysin
+deep_dict_update(main_dict, update_dict)
 print(main_dict)
 """
 
 test_case_1 = {
-    "sysin": {
-        "main": {"tags": ["a"], "name": "old"},
-        "update": {"tags": ["b"], "name": "new"}
-    },
-    "expected": "{'tags': ['a', 'b'], 'name': 'new'}"
+    "sysin": (
+        {"a": 1, "b": {"x": 1}},
+        {"b": {"y": 2}, "c": 3},
+    ),
+    "expected": {"a": 1, "b": {"x": 1, "y": 2}, "c": 3},
 }
 test_case_2 = {
-    "sysin": {
-        "main": {"scores": [1, 2]},
-        "update": {"scores": [3], "extra": "data"}
-    },
-    "expected": "{'scores': [1, 2, 3], 'extra': 'data'}"
+    "sysin": (
+        {"lst": [1, 2], "v": 10},
+        {"lst": [3], "v": 20},
+    ),
+    "expected": {"lst": [1, 2, 3], "v": 20},
 }
 test_case_3 = {
-    "sysin": {
-        "main": {"x": 10},
-        "update": {"x": [20]}
-    },
-    "expected": "{'x': [20]}"
+    "sysin": (
+        {"d": {"k": [1]}},
+        {"d": {"k": [2]}, "e": {}},
+    ),
+    "expected": {"d": {"k": [1, 2]}, "e": {}},
 }
 ```
 
 ```python:5
-title = "有効な値の優先取得"
+title = "優先順位付きでデフォルト値を選ぶ"
 description = """
-対象コードの `get_value_or_default` 関数を簡略化したロジックを作成します。
-変数 `sysin` に、値のリストが代入されます。このリストは優先順位順に並んでいます。
+対象コードの `get_value_or_default` 関数にある
 
-リストの先頭から順に要素を確認し、**`None` ではない最初の値** を見つけて標準出力してください。
-もしリストの全ての要素が `None` であれば、`None` を出力してください。
+    items = (first_item,) + extra_items
+    for item in items:
+        if not isinstance(item, DefaultPlaceholder):
+            return item
+    return first_item
 
-対象コードでは `DefaultPlaceholder` という特別な型で判定していますが、この問題では `None` を「デフォルト（無効な値）」とみなします。
+のロジックを、より単純な型で再現します。
+
+ここでは `DefaultPlaceholder` の代わりに、文字列 `"DEFAULT"` を使います。
+変数 `sysin` には、1個以上の要素を持つタプルが代入され、
+各要素は任意の値か文字列 `"DEFAULT"` です。
+
+仕様:
+- 左から順に要素を見ていき、最初に `"DEFAULT"` ではない要素があれば、それを選ぶ
+- すべて `"DEFAULT"` の場合は、最初の要素（=`"DEFAULT"`）を選ぶ
+- 選ばれた値を標準出力してください
+
+ヒント:
+- タプルをそのまま `for` でループできます
+- `all(...)` を使う必要はありません
 """
-
-sysin_format = "[None, None, 'Target', 'Ignored'] （リスト）"
+sysin_format = '("DEFAULT", "DEFAULT", 3) のような複数要素タプル'
 
 sample_code = """
-result = None
-for item in sysin:
-    if item is not None:
-        result = item
-        break
-print(result)
+items = sysin
 
-# または対象コードに近い書き方:
-# items = sysin
-# for item in items:
-#     if item is not None:
-#         print(item)
-#         break
-# else:
-#     print(items[0] if items else None) 
-# ただし単純な探索で十分正解とします。
+chosen = None
+for item in items:
+    if item != "DEFAULT":
+        chosen = item
+        break
+
+if chosen is None:
+    chosen = items[0]
+
+print(chosen)
 """
 
-test_case_1 = {"sysin": [None, "Found", None], "expected": "Found"}
-test_case_2 = {"sysin": [None, None, None], "expected": "None"}
-test_case_3 = {"sysin": ["First", "Second"], "expected": "First"}
+test_case_1 = {
+    "sysin": ("DEFAULT", "DEFAULT", 3),
+    "expected": 3,
+}
+test_case_2 = {
+    "sysin": ("DEFAULT", "x", "y"),
+    "expected": "x",
+}
+test_case_3 = {
+    "sysin": ("DEFAULT", "DEFAULT"),
+    "expected": "DEFAULT",
+}
 ```

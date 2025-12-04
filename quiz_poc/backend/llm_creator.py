@@ -1,6 +1,7 @@
 from pathlib import Path
 import os
 
+from dotenv import load_dotenv
 import requests
 
 
@@ -8,6 +9,9 @@ BASE_DIR = Path(__file__).resolve().parent
 DATA_DIR = BASE_DIR / "data"
 SOURCE_CODE_PATH = DATA_DIR / "test_py_code.txt"
 OUTPUT_PATH = DATA_DIR / "quizzes.md"
+
+# backend/.env を読み込んで OPENAI_API_KEY などを環境変数に流し込む
+load_dotenv(BASE_DIR / ".env")
 
 PLACEHOLDER = "(ここにクイズの元となるソースコードを入力してください)"
 
@@ -121,24 +125,33 @@ def build_prompt(source_code: str) -> str:
 
 
 def call_llm(prompt: str) -> str:
+    """OpenAI Responses API を使って GPT-5.1 にプロンプトを投げる。
+
+    openaiapi.md の仕様に合わせて /v1/responses エンドポイントを使用し、
+    model/input/reasoning/text を含む payload を送信する。
+    """
+
     api_key = os.environ.get("OPENAI_API_KEY")
     if not api_key:
         raise RuntimeError("OPENAI_API_KEY is not set")
 
-    model = os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
+    # モデルは gpt-5.1 に固定
+    model = "gpt-5.1"
     base_url = os.environ.get("OPENAI_API_BASE", "https://api.openai.com/v1")
 
-    url = f"{base_url.rstrip('/')}/chat/completions"
+    reasoning_effort = os.environ.get("OPENAI_REASONING_EFFORT", "none")   # none/low/medium/high
+    text_verbosity = os.environ.get("OPENAI_TEXT_VERBOSITY", "medium")     # low/medium/high
+
+    url = f"{base_url.rstrip('/')}/responses"
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",
     }
     payload = {
         "model": model,
-        "messages": [
-            {"role": "user", "content": prompt},
-        ],
-        "temperature": 0.3,
+        "input": prompt,
+        "reasoning": {"effort": reasoning_effort},
+        "text": {"verbosity": text_verbosity},
     }
 
     try:
@@ -148,10 +161,22 @@ def call_llm(prompt: str) -> str:
         raise RuntimeError(f"LLM API request failed: {exc}") from exc
 
     data = response.json()
-    try:
-        return data["choices"][0]["message"]["content"]
-    except (KeyError, IndexError, TypeError) as exc:
-        raise RuntimeError(f"Unexpected LLM API response: {data}") from exc
+
+    # openaiapi.md にある "output" 構造から output_text を集約する
+    texts = []
+    for item in data.get("output", []):
+        if item.get("type") != "message":
+            continue
+        for content in item.get("content", []):
+            if content.get("type") == "output_text":
+                text = content.get("text")
+                if isinstance(text, str):
+                    texts.append(text)
+
+    if not texts:
+        raise RuntimeError(f"Unexpected LLM API response (no output_text): {data}")
+
+    return "\n".join(texts)
 
 
 def generate_quizzes_from_file() -> str:

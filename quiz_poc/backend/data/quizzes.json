@@ -2,106 +2,106 @@
   "quizzes": [
     {
       "id": 1,
-      "title": "'ステータスコードの判定ロジック'",
-      "description": "'\\n対象コードの `is_body_allowed_for_status_code` 関数内にある判定ロジックを再現します。\\n変数 `sysin` にステータスコード（整数または文字列）が代入されます。\\n\\n以下のルールに従って、Body（レスポンス本文）が許可されるかどうかを判定し、許可される場合は `True`、許可されない場合は `False` を標準出力してください。\\n\\n1. 値が `None` の場合は `True`。\\n2. 値が文字列セット `{\"default\", \"1XX\", \"2XX\", \"3XX\", \"4XX\", \"5XX\"}` のいずれかに含まれる場合は `True`。\\n3. それ以外の場合、値を整数に変換し、以下の条件の**いずれか**に当てはまる場合は `False`（許可されない）、それ以外は `True`。\\n    * 値が 200 未満\\n    * 値が `{204, 205, 304}` のセットに含まれる\\n\\n※ `sysin` は数値変換可能な文字列や整数、あるいは `None` が与えられる前提とします。\\n'",
-      "sysin_format": "\"200, '404', '2XX', None など\"",
-      "sample_code": "'\\nif sysin is None:\\n    print(True)\\nelif str(sysin) in {\"default\", \"1XX\", \"2XX\", \"3XX\", \"4XX\", \"5XX\"}:\\n    print(True)\\nelse:\\n    code = int(sysin)\\n    if code < 200 or code in {204, 205, 304}:\\n        print(False)\\n    else:\\n        print(True)\\n'",
+      "title": "'文字列からパスパラメータ名の集合を取得する'",
+      "description": "'\\n対象コードの `get_path_param_names` 関数にある\\n\\n    return set(re.findall(\"{(.*?)}\", path))\\n\\nの処理を参考にします。\\n\\n変数 `sysin` にはパス文字列が代入されます。\\nこのパス文字列の中から、`{...}` で囲まれている部分をすべて正規表現で抽出し、\\nそれらを要素とする `set` を作成して、標準出力してください。\\n\\nヒント:\\n- `import re` を行ってください\\n- `re.findall` を使って `{}` の中身をすべて取り出してください\\n- 結果は `set` 型のまま `print` して構いません\\n'",
+      "sysin_format": "'\"/items/{item_id}/users/{user_id}\" のようなパス文字列'",
+      "sample_code": "'\\nimport re\\n\\npath = sysin\\nnames = set(re.findall(r\"{(.*?)}\", path))\\nprint(names)\\n'",
       "testcases": [
         {
-          "sysin": "'2XX'",
-          "expected": "'True'"
+          "sysin": "'/items/{item_id}/users/{user_id}'",
+          "expected": "{'user_id', 'item_id'}"
         },
         {
-          "sysin": "204",
-          "expected": "'False'"
+          "sysin": "'/no/params/here'",
+          "expected": "set()"
         },
         {
-          "sysin": "404",
-          "expected": "'True'"
+          "sysin": "'/{one}/{two}/{one}'",
+          "expected": "{'two', 'one'}"
         }
       ]
     },
     {
       "id": 2,
-      "title": "'正規表現によるパスパラメータの抽出'",
-      "description": "'\\n対象コードの `get_path_param_names` 関数内にある `re.findall` を使用した処理を再現します。\\n変数 `sysin` に、APIのパスを表す文字列（例: `\"/items/{item_id}/detail\"`）が代入されます。\\n\\n正規表現を用いて、波括弧 `{}` で囲まれた部分（パスパラメータ名）をすべて抽出してください。\\n抽出したパラメータ名は重複を排除し（セット化）、結果の確認のため **アルファベット順にソートしたリスト** として標準出力してください。\\n\\nヒント: `import re` が必要です。正規表現パターンは `{(.*?)}` が利用できます。\\n'",
-      "sysin_format": "'\"/users/{user_id}/posts/{post_id}\" （文字列）'",
-      "sample_code": "'\\nimport re\\n\\nparams = set(re.findall(r\"{(.*?)}\", sysin))\\nprint(sorted(list(params)))\\n'",
+      "title": "'HTTPステータスコードでレスポンスボディが許可されるか判定する'",
+      "description": "'\\n対象コードの `is_body_allowed_for_status_code` 関数の先頭付近にある\\n\\n    if status_code is None:\\n        return True\\n\\nおよび\\n\\n    if status_code in {\\n        \"default\",\\n        \"1XX\",\\n        \"2XX\",\\n        \"3XX\",\\n        \"4XX\",\\n        \"5XX\",\\n    }:\\n        return True\\n\\nさらに\\n\\n    current_status_code = int(status_code)\\n    return not (current_status_code < 200 or current_status_code in {204, 205, 304})\\n\\nという処理を参考にします。\\n\\n変数 `sysin` には、`int`, `str`, もしくは `None` が代入されます。\\nこの値を HTTP ステータスコードとして解釈し、\\nレスポンスボディが「許可される場合」は `True`、「許可されない場合」は `False` を標準出力してください。\\n\\n条件:\\n- `sysin` が `None` のときは `True`\\n- `sysin` が `\"default\"`, `\"1XX\"`, `\"2XX\"`, `\"3XX\"`, `\"4XX\"`, `\"5XX\"` のいずれかの文字列のときは `True`\\n- それ以外は `int(sysin)` で整数に変換し、\\n  - 200 未満、または `204`, `205`, `304` のときは `False`\\n  - それ以外は `True`\\n'",
+      "sysin_format": "'None または HTTPステータスコード (int もしくは str)'",
+      "sample_code": "'\\nstatus_code = sysin\\n\\nif status_code is None:\\n    print(True)\\nelif status_code in {\"default\", \"1XX\", \"2XX\", \"3XX\", \"4XX\", \"5XX\"}:\\n    print(True)\\nelse:\\n    current_status_code = int(status_code)\\n    result = not (current_status_code < 200 or current_status_code in {204, 205, 304})\\n    print(result)\\n'",
       "testcases": [
         {
-          "sysin": "'/items/{item_id}'",
-          "expected": "\"['item_id']\""
+          "sysin": "200",
+          "expected": "True"
         },
         {
-          "sysin": "'/users/{user_id}/posts/{post_id}'",
-          "expected": "\"['post_id', 'user_id']\""
+          "sysin": "204",
+          "expected": "False"
         },
         {
-          "sysin": "'/files/{file_path}/action/{file_path}'",
-          "expected": "\"['file_path']\""
+          "sysin": "'1XX'",
+          "expected": "True"
         }
       ]
     },
     {
       "id": 3,
-      "title": "'ID生成のための文字列正規化'",
-      "description": "'\\n対象コードの `generate_unique_id` 関数などで使われている `re.sub` による文字列置換処理を再現します。\\n変数 `sysin` に、操作IDの元となる文字列が代入されます。\\n\\n以下の処理を行ってください。\\n1. 文字列内の「英数字以外の文字（非単語文字）」をすべてアンダースコア `_` に置換する。\\n   （ヒント: 正規表現 `\\\\W` を使用します）\\n2. 置換後の文字列をすべて小文字 (`lower()`) に変換する。\\n3. 結果を標準出力する。\\n\\nヒント: `import re` が必要です。\\n'",
-      "sysin_format": "'\"Use:Name-Example\" （文字列）'",
-      "sample_code": "'\\nimport re\\n\\noperation_id = re.sub(r\"\\\\W\", \"_\", sysin)\\nprint(operation_id.lower())\\n'",
+      "title": "'正規表現で操作IDを生成する'",
+      "description": "'\\n対象コードの `generate_operation_id_for_path` 関数内にある\\n\\n    operation_id = f\"{name}{path}\"\\n    operation_id = re.sub(r\"\\\\W\", \"_\", operation_id)\\n    operation_id = f\"{operation_id}_{method.lower()}\"\\n\\nという処理を参考にします。\\n\\n変数 `sysin` には、`(name, path, method)` の3要素からなるタプルが代入されます。\\nこの3つの値を用いて、次の手順で文字列 `operation_id` を生成し、標準出力してください。\\n\\n1. `name` と `path` を連結して 1 つの文字列にする\\n2. その文字列中の「英数字とアンダースコア以外」の文字を、正規表現 `re.sub(r\"\\\\W\", \"_\", ...)` を使って `_` に置き換える\\n3. 末尾に `_` と `method` を小文字にした文字列を連結する\\n\\nヒント:\\n- `import re` を行ってください\\n- タプルの要素は `name, path, method = sysin` のように取り出せます\\n'",
+      "sysin_format": "'(\"関数名\", \"/path/{param}\", \"HTTPメソッド\") の3要素タプル'",
+      "sample_code": "'\\nimport re\\n\\nname, path, method = sysin\\noperation_id = f\"{name}{path}\"\\noperation_id = re.sub(r\"\\\\W\", \"_\", operation_id)\\noperation_id = f\"{operation_id}_{method.lower()}\"\\nprint(operation_id)\\n'",
       "testcases": [
         {
-          "sysin": "'Get:Items'",
-          "expected": "'get_items'"
+          "sysin": "('read_item', '/items/{item_id}', 'GET')",
+          "expected": "'read_item_items__item_id__get'"
         },
         {
-          "sysin": "'User-Create-V1'",
-          "expected": "'user_create_v1'"
+          "sysin": "('create-user', '/users/', 'POST')",
+          "expected": "'create_user_users__post'"
         },
         {
-          "sysin": "'Hello World!'",
-          "expected": "'hello_world_'"
+          "sysin": "('op', '/a/b?x=1', 'DELETE')",
+          "expected": "'op_a_b_x_1_delete'"
         }
       ]
     },
     {
       "id": 4,
-      "title": "'辞書内のリスト結合による更新'",
-      "description": "'\\n対象コードの `deep_dict_update` 関数の一部（リストの結合ロジック）を参考にします。\\n変数 `sysin` に、`main` と `update` という2つの辞書を含む辞書が代入されます。\\n\\n`update` 辞書の内容を使って `main` 辞書を更新してください。ただし、更新ルールは以下の通りとします。\\n\\n1. `update` のキーが `main` に既に存在し、かつ、**両方の値がリスト(list)** である場合：\\n   `main` のリストの後ろに `update` のリストを結合 (`+`) します。\\n2. それ以外の場合：\\n   `main` の値を `update` の値で単純に上書き（または新規追加）します。\\n\\n処理完了後の `main` 辞書を標準出力してください。\\n'",
-      "sysin_format": "'{\"main\": {...}, \"update\": {...}}'",
-      "sample_code": "'\\nmain_dict = sysin[\"main\"]\\nupdate_dict = sysin[\"update\"]\\n\\nfor key, value in update_dict.items():\\n    if (\\n        key in main_dict\\n        and isinstance(main_dict[key], list)\\n        and isinstance(value, list)\\n    ):\\n        main_dict[key] = main_dict[key] + value\\n    else:\\n        main_dict[key] = value\\n\\nprint(main_dict)\\n'",
+      "title": "'二つの辞書を再帰的にマージする（deep_dict_update の条件分岐）'",
+      "description": "'\\n対象コードの `deep_dict_update` 関数にある次の部分を参考にします。\\n\\n    for key, value in update_dict.items():\\n        if (\\n            key in main_dict\\n            and isinstance(main_dict[key], dict)\\n            and isinstance(value, dict)\\n        ):\\n            deep_dict_update(main_dict[key], value)\\n        elif (\\n            key in main_dict\\n            and isinstance(main_dict[key], list)\\n            and isinstance(update_dict[key], list)\\n        ):\\n            main_dict[key] = main_dict[key] + update_dict[key]\\n        else:\\n            main_dict[key] = value\\n\\n変数 `sysin` には `(main_dict, update_dict)` の2要素タプルが代入されます。\\nこの2つの辞書を上記ロジックどおりにマージした結果の `main_dict` を標準出力してください。\\n\\n仕様:\\n- 同じキーに対して両方とも値が辞書であれば、再帰的にマージする\\n- 同じキーに対して両方とも値がリストであれば、`main_dict[key] + update_dict[key]` で連結する\\n- それ以外の場合は、`update_dict` 側の値で上書きする\\n\\nヒント:\\n- 実装は関数にしてもしなくても構いません\\n- もとの `main_dict` を直接更新して構いません\\n'",
+      "sysin_format": "'({ ... } , { ... }) の2つの辞書からなるタプル'",
+      "sample_code": "'\\ndef deep_dict_update(main_dict, update_dict):\\n    for key, value in update_dict.items():\\n        if (\\n            key in main_dict\\n            and isinstance(main_dict[key], dict)\\n            and isinstance(value, dict)\\n        ):\\n            deep_dict_update(main_dict[key], value)\\n        elif (\\n            key in main_dict\\n            and isinstance(main_dict[key], list)\\n            and isinstance(update_dict[key], list)\\n        ):\\n            main_dict[key] = main_dict[key] + update_dict[key]\\n        else:\\n            main_dict[key] = value\\n\\nmain_dict, update_dict = sysin\\ndeep_dict_update(main_dict, update_dict)\\nprint(main_dict)\\n'",
       "testcases": [
         {
-          "sysin": "{'main': {'tags': ['a'], 'name': 'old'}, 'update': {'tags': ['b'], 'name': 'new'}}",
-          "expected": "\"{'tags': ['a', 'b'], 'name': 'new'}\""
+          "sysin": "({'a': 1, 'b': {'x': 1}}, {'b': {'y': 2}, 'c': 3})",
+          "expected": "{'a': 1, 'b': {'x': 1, 'y': 2}, 'c': 3}"
         },
         {
-          "sysin": "{'main': {'scores': [1, 2]}, 'update': {'scores': [3], 'extra': 'data'}}",
-          "expected": "\"{'scores': [1, 2, 3], 'extra': 'data'}\""
+          "sysin": "({'lst': [1, 2], 'v': 10}, {'lst': [3], 'v': 20})",
+          "expected": "{'lst': [1, 2, 3], 'v': 20}"
         },
         {
-          "sysin": "{'main': {'x': 10}, 'update': {'x': [20]}}",
-          "expected": "\"{'x': [20]}\""
+          "sysin": "({'d': {'k': [1]}}, {'d': {'k': [2]}, 'e': {}})",
+          "expected": "{'d': {'k': [1, 2]}, 'e': {}}"
         }
       ]
     },
     {
       "id": 5,
-      "title": "'有効な値の優先取得'",
-      "description": "'\\n対象コードの `get_value_or_default` 関数を簡略化したロジックを作成します。\\n変数 `sysin` に、値のリストが代入されます。このリストは優先順位順に並んでいます。\\n\\nリストの先頭から順に要素を確認し、**`None` ではない最初の値** を見つけて標準出力してください。\\nもしリストの全ての要素が `None` であれば、`None` を出力してください。\\n\\n対象コードでは `DefaultPlaceholder` という特別な型で判定していますが、この問題では `None` を「デフォルト（無効な値）」とみなします。\\n'",
-      "sysin_format": "\"[None, None, 'Target', 'Ignored'] （リスト）\"",
-      "sample_code": "'\\nresult = None\\nfor item in sysin:\\n    if item is not None:\\n        result = item\\n        break\\nprint(result)\\n\\n# または対象コードに近い書き方:\\n# items = sysin\\n# for item in items:\\n#     if item is not None:\\n#         print(item)\\n#         break\\n# else:\\n#     print(items[0] if items else None) \\n# ただし単純な探索で十分正解とします。\\n'",
+      "title": "'優先順位付きでデフォルト値を選ぶ'",
+      "description": "'\\n対象コードの `get_value_or_default` 関数にある\\n\\n    items = (first_item,) + extra_items\\n    for item in items:\\n        if not isinstance(item, DefaultPlaceholder):\\n            return item\\n    return first_item\\n\\nのロジックを、より単純な型で再現します。\\n\\nここでは `DefaultPlaceholder` の代わりに、文字列 `\"DEFAULT\"` を使います。\\n変数 `sysin` には、1個以上の要素を持つタプルが代入され、\\n各要素は任意の値か文字列 `\"DEFAULT\"` です。\\n\\n仕様:\\n- 左から順に要素を見ていき、最初に `\"DEFAULT\"` ではない要素があれば、それを選ぶ\\n- すべて `\"DEFAULT\"` の場合は、最初の要素（=`\"DEFAULT\"`）を選ぶ\\n- 選ばれた値を標準出力してください\\n\\nヒント:\\n- タプルをそのまま `for` でループできます\\n- `all(...)` を使う必要はありません\\n'",
+      "sysin_format": "'(\"DEFAULT\", \"DEFAULT\", 3) のような複数要素タプル'",
+      "sample_code": "'\\nitems = sysin\\n\\nchosen = None\\nfor item in items:\\n    if item != \"DEFAULT\":\\n        chosen = item\\n        break\\n\\nif chosen is None:\\n    chosen = items[0]\\n\\nprint(chosen)\\n'",
       "testcases": [
         {
-          "sysin": "[None, 'Found', None]",
-          "expected": "'Found'"
+          "sysin": "('DEFAULT', 'DEFAULT', 3)",
+          "expected": "3"
         },
         {
-          "sysin": "[None, None, None]",
-          "expected": "'None'"
+          "sysin": "('DEFAULT', 'x', 'y')",
+          "expected": "'x'"
         },
         {
-          "sysin": "['First', 'Second']",
-          "expected": "'First'"
+          "sysin": "('DEFAULT', 'DEFAULT')",
+          "expected": "'DEFAULT'"
         }
       ]
     }
