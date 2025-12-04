@@ -131,7 +131,8 @@ def run_code():
         results.append(
             {
                 "sysin": repr(sysin_value),
-                "expected": expected_val,
+                # JSON で返す際は set なども含めて文字列表現にしておく
+                "expected": repr(expected_val),
                 "output": output,
                 "passed": passed,
             }

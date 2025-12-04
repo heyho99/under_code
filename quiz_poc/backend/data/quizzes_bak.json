@@ -1,0 +1,109 @@
+{
+  "quizzes": [
+    {
+      "id": 1,
+      "title": "'ステータスコードの判定ロジック'",
+      "description": "'\\n対象コードの `is_body_allowed_for_status_code` 関数内にある判定ロジックを再現します。\\n変数 `sysin` にステータスコード（整数または文字列）が代入されます。\\n\\n以下のルールに従って、Body（レスポンス本文）が許可されるかどうかを判定し、許可される場合は `True`、許可されない場合は `False` を標準出力してください。\\n\\n1. 値が `None` の場合は `True`。\\n2. 値が文字列セット `{\"default\", \"1XX\", \"2XX\", \"3XX\", \"4XX\", \"5XX\"}` のいずれかに含まれる場合は `True`。\\n3. それ以外の場合、値を整数に変換し、以下の条件の**いずれか**に当てはまる場合は `False`（許可されない）、それ以外は `True`。\\n    * 値が 200 未満\\n    * 値が `{204, 205, 304}` のセットに含まれる\\n\\n※ `sysin` は数値変換可能な文字列や整数、あるいは `None` が与えられる前提とします。\\n'",
+      "sysin_format": "\"200, '404', '2XX', None など\"",
+      "sample_code": "'\\nif sysin is None:\\n    print(True)\\nelif str(sysin) in {\"default\", \"1XX\", \"2XX\", \"3XX\", \"4XX\", \"5XX\"}:\\n    print(True)\\nelse:\\n    code = int(sysin)\\n    if code < 200 or code in {204, 205, 304}:\\n        print(False)\\n    else:\\n        print(True)\\n'",
+      "testcases": [
+        {
+          "sysin": "'2XX'",
+          "expected": "'True'"
+        },
+        {
+          "sysin": "204",
+          "expected": "'False'"
+        },
+        {
+          "sysin": "404",
+          "expected": "'True'"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "'正規表現によるパスパラメータの抽出'",
+      "description": "'\\n対象コードの `get_path_param_names` 関数内にある `re.findall` を使用した処理を再現します。\\n変数 `sysin` に、APIのパスを表す文字列（例: `\"/items/{item_id}/detail\"`）が代入されます。\\n\\n正規表現を用いて、波括弧 `{}` で囲まれた部分（パスパラメータ名）をすべて抽出してください。\\n抽出したパラメータ名は重複を排除し（セット化）、結果の確認のため **アルファベット順にソートしたリスト** として標準出力してください。\\n\\nヒント: `import re` が必要です。正規表現パターンは `{(.*?)}` が利用できます。\\n'",
+      "sysin_format": "'\"/users/{user_id}/posts/{post_id}\" （文字列）'",
+      "sample_code": "'\\nimport re\\n\\nparams = set(re.findall(r\"{(.*?)}\", sysin))\\nprint(sorted(list(params)))\\n'",
+      "testcases": [
+        {
+          "sysin": "'/items/{item_id}'",
+          "expected": "\"['item_id']\""
+        },
+        {
+          "sysin": "'/users/{user_id}/posts/{post_id}'",
+          "expected": "\"['post_id', 'user_id']\""
+        },
+        {
+          "sysin": "'/files/{file_path}/action/{file_path}'",
+          "expected": "\"['file_path']\""
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "'ID生成のための文字列正規化'",
+      "description": "'\\n対象コードの `generate_unique_id` 関数などで使われている `re.sub` による文字列置換処理を再現します。\\n変数 `sysin` に、操作IDの元となる文字列が代入されます。\\n\\n以下の処理を行ってください。\\n1. 文字列内の「英数字以外の文字（非単語文字）」をすべてアンダースコア `_` に置換する。\\n   （ヒント: 正規表現 `\\\\W` を使用します）\\n2. 置換後の文字列をすべて小文字 (`lower()`) に変換する。\\n3. 結果を標準出力する。\\n\\nヒント: `import re` が必要です。\\n'",
+      "sysin_format": "'\"Use:Name-Example\" （文字列）'",
+      "sample_code": "'\\nimport re\\n\\noperation_id = re.sub(r\"\\\\W\", \"_\", sysin)\\nprint(operation_id.lower())\\n'",
+      "testcases": [
+        {
+          "sysin": "'Get:Items'",
+          "expected": "'get_items'"
+        },
+        {
+          "sysin": "'User-Create-V1'",
+          "expected": "'user_create_v1'"
+        },
+        {
+          "sysin": "'Hello World!'",
+          "expected": "'hello_world_'"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "'辞書内のリスト結合による更新'",
+      "description": "'\\n対象コードの `deep_dict_update` 関数の一部（リストの結合ロジック）を参考にします。\\n変数 `sysin` に、`main` と `update` という2つの辞書を含む辞書が代入されます。\\n\\n`update` 辞書の内容を使って `main` 辞書を更新してください。ただし、更新ルールは以下の通りとします。\\n\\n1. `update` のキーが `main` に既に存在し、かつ、**両方の値がリスト(list)** である場合：\\n   `main` のリストの後ろに `update` のリストを結合 (`+`) します。\\n2. それ以外の場合：\\n   `main` の値を `update` の値で単純に上書き（または新規追加）します。\\n\\n処理完了後の `main` 辞書を標準出力してください。\\n'",
+      "sysin_format": "'{\"main\": {...}, \"update\": {...}}'",
+      "sample_code": "'\\nmain_dict = sysin[\"main\"]\\nupdate_dict = sysin[\"update\"]\\n\\nfor key, value in update_dict.items():\\n    if (\\n        key in main_dict\\n        and isinstance(main_dict[key], list)\\n        and isinstance(value, list)\\n    ):\\n        main_dict[key] = main_dict[key] + value\\n    else:\\n        main_dict[key] = value\\n\\nprint(main_dict)\\n'",
+      "testcases": [
+        {
+          "sysin": "{'main': {'tags': ['a'], 'name': 'old'}, 'update': {'tags': ['b'], 'name': 'new'}}",
+          "expected": "\"{'tags': ['a', 'b'], 'name': 'new'}\""
+        },
+        {
+          "sysin": "{'main': {'scores': [1, 2]}, 'update': {'scores': [3], 'extra': 'data'}}",
+          "expected": "\"{'scores': [1, 2, 3], 'extra': 'data'}\""
+        },
+        {
+          "sysin": "{'main': {'x': 10}, 'update': {'x': [20]}}",
+          "expected": "\"{'x': [20]}\""
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "'有効な値の優先取得'",
+      "description": "'\\n対象コードの `get_value_or_default` 関数を簡略化したロジックを作成します。\\n変数 `sysin` に、値のリストが代入されます。このリストは優先順位順に並んでいます。\\n\\nリストの先頭から順に要素を確認し、**`None` ではない最初の値** を見つけて標準出力してください。\\nもしリストの全ての要素が `None` であれば、`None` を出力してください。\\n\\n対象コードでは `DefaultPlaceholder` という特別な型で判定していますが、この問題では `None` を「デフォルト（無効な値）」とみなします。\\n'",
+      "sysin_format": "\"[None, None, 'Target', 'Ignored'] （リスト）\"",
+      "sample_code": "'\\nresult = None\\nfor item in sysin:\\n    if item is not None:\\n        result = item\\n        break\\nprint(result)\\n\\n# または対象コードに近い書き方:\\n# items = sysin\\n# for item in items:\\n#     if item is not None:\\n#         print(item)\\n#         break\\n# else:\\n#     print(items[0] if items else None) \\n# ただし単純な探索で十分正解とします。\\n'",
+      "testcases": [
+        {
+          "sysin": "[None, 'Found', None]",
+          "expected": "'Found'"
+        },
+        {
+          "sysin": "[None, None, None]",
+          "expected": "'None'"
+        },
+        {
+          "sysin": "['First', 'Second']",
+          "expected": "'First'"
+        }
+      ]
+    }
+  ]
+}
