@@ -4,6 +4,8 @@
 document.getElementById('exec-btn').addEventListener('click', async function() {
     const code = editor.getValue();
     const resultArea = document.getElementById('result-area');
+    const quizIdInput = document.getElementById('quiz-id');
+    const quizId = quizIdInput ? parseInt(quizIdInput.value, 10) : 1;
 
     resultArea.innerHTML = "実行中...（数秒かかります）";
 
@@ -16,6 +18,7 @@ document.getElementById('exec-btn').addEventListener('click', async function() {
             body: JSON.stringify({
                 code: code,
                 language: 'python3',
+                quiz_id: quizId,
             }),
         });
 
@@ -51,6 +54,8 @@ document.getElementById('exec-btn').addEventListener('click', async function() {
 document.getElementById('submit-btn').addEventListener('click', async function() {
     const code = editor.getValue();
     const resultArea = document.getElementById('result-area');
+    const quizIdInput = document.getElementById('quiz-id');
+    const quizId = quizIdInput ? parseInt(quizIdInput.value, 10) : 1;
 
     resultArea.innerHTML = "提出中...（数秒かかります）";
 
@@ -63,6 +68,7 @@ document.getElementById('submit-btn').addEventListener('click', async function()
             body: JSON.stringify({
                 code: code,
                 language: 'python3',
+                quiz_id: quizId,
             }),
         });
 

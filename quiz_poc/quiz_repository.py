@@ -30,6 +30,9 @@ class QuizRepository:
         quiz = self.get_quiz(quiz_id)
         return quiz["test_cases"] if quiz else []
 
+    def get_all_quizzes(self):
+        return sorted(self._quiz_by_id.values(), key=lambda q: q.get("id"))
+
     def _load_quizzes_from_json(self):
         base_dir = os.path.dirname(__file__)
         json_path = os.path.join(base_dir, "quizzes.json")
