@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, render_template, request
+import markdown
 
 from .executor import CodeExecutor
 from .grader import Grader
@@ -30,7 +31,13 @@ def show_quiz(quiz_id):
     quiz_data = QuizRepository().get_quiz(quiz_id)
     if not quiz_data:
         return "Quiz not found", 404
-    return render_template("index.html", quiz=quiz_data)
+
+    description_md = quiz_data.get("description") or ""
+    description_html = markdown.markdown(description_md)
+    quiz_with_html = dict(quiz_data)
+    quiz_with_html["description_html"] = description_html
+
+    return render_template("index.html", quiz=quiz_with_html)
 
 
 @app.route("/execute", methods=["POST"])

@@ -8,6 +8,15 @@
         .result-box { margin-top: 20px; padding: 10px; background: #f0f0f0; }
         .pass { color: green; font-weight: bold; }
         .fail { color: red; font-weight: bold; }
+        code {
+            font-family: Consolas, "Courier New", monospace;
+            background-color: #f5f5f5;
+            padding: 1px 4px;
+            border-radius: 3px;
+        }
+        strong code {
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -17,7 +26,9 @@
     <div id="problem-area">
         <!-- Flaskから渡された問題データを表示 -->
         <h2>問題: {{ quiz.title }}</h2>
-        <p>{{ quiz.description }}</p>
+        <div>
+            {{ quiz.description_html | safe }}
+        </div>
     </div>
 
     <div id="editor"></div>
