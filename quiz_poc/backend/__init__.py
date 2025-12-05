@@ -1,3 +1,11 @@
+"""Flask アプリケーション本体とクイズ実行 API を定義するモジュール。
+
+- `/`         : クイズ一覧ページ
+- `/quiz/<id>`: 個別クイズ画面
+- `/execute`  : サンプルコードの実行のみを行うエンドポイント
+- `/run`      : テストケース付きで提出コードを採点するエンドポイント
+"""
+
 from flask import Flask, jsonify, render_template, request
 import markdown
 
@@ -6,6 +14,7 @@ from .grader import Grader
 from .quiz_repository import QuizRepository
 
 
+# テストケース用の値を sysin 変数としてユーザコードの先頭に埋め込んだソースコードを組み立てる
 def build_source_with_sysin(user_source, sysin_value):
     sysin_literal = repr(sysin_value)
     return f"sysin = {sysin_literal}\n\n" + (user_source or "")
@@ -40,6 +49,7 @@ def show_quiz(quiz_id):
     return render_template("index.html", quiz=quiz_with_html)
 
 
+# TODO: 空のinputを渡すのはおかしいので、inputを渡さない実装にすべき
 @app.route("/execute", methods=["POST"])
 def execute_code():
     """実行ボタン用エンドポイント。
