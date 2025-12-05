@@ -1,8 +1,14 @@
+"""
+quizzes.json からクイズ定義を読み込み、Python オブジェクトとして扱いやすい形に変換するリポジトリモジュール
+リポジトリとは、データ保管場所にアクセスするクライアントを指す
+"""
+
 import json
 import os
 import ast
 
 
+# JSON 内に repr 形式で保存されている値を Python オブジェクトに戻すヘルパー関数
 def _from_repr_or_raw(value):
     if not isinstance(value, str):
         return value
@@ -33,6 +39,7 @@ class QuizRepository:
     def get_all_quizzes(self):
         return sorted(self._quiz_by_id.values(), key=lambda q: q.get("id"))
 
+    # quizzes.json を読み込み、内部で扱いやすい dict 形式に変換する
     def _load_quizzes_from_json(self):
         base_dir = os.path.join(os.path.dirname(__file__), "data")
         json_path = os.path.join(base_dir, "quizzes.json")

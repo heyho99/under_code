@@ -1,3 +1,10 @@
+"""
+Markdown の quizzes.md からクイズ定義を抽出し、quizzes.json を生成するスクリプト。
+
+- ```python:n``` 形式のコードブロックを走査して各クイズ定義を取り出し、
+- exec で title/description/test_case_n などを評価して JSON に変換する。
+"""
+
 from __future__ import annotations
 
 import json
@@ -10,6 +17,7 @@ BLOCK_START_RE = re.compile(r"\s*```python(?::\s*(\d+))?\s*$")
 BLOCK_END_RE = re.compile(r"\s*```+\s*$")
 
 
+# コードブロックの id を整理し、明示的な id が無いブロックには空き番号を自動採番する
 def _assign_ids(blocks: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     used_ids = {b["id"] for b in blocks if b["id"] is not None}
     next_auto_id = 1
@@ -53,7 +61,10 @@ def extract_python_blocks(text: str) -> List[Dict[str, Any]]:
     return _assign_ids(blocks)
 
 
+# 1つのコードブロックから title/description/test_case_n などを取り出し、
+# quizzes.json の 1 クイズ分に相当する dict に組み立てる
 def build_quiz_from_block(block: Dict[str, Any]) -> Dict[str, Any]:
+    """1つのコードブロックからクイズ定義を取り出し、dict に組み立てる"""
     namespace: Dict[str, Any] = {}
     code = block["code"]
 

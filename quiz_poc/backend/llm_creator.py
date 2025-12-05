@@ -1,3 +1,10 @@
+"""
+LLM を用いて Python コードからクイズ問題 (quizzes.md) を生成するユーティリティモジュール。
+
+- test_py_code.txt に書かれた対象コードからプロンプトを構築し、
+- OpenAI Responses API に投げて quizzes.md 形式のクイズ定義を生成する。
+"""
+
 from pathlib import Path
 import os
 
