@@ -1,91 +1,66 @@
 flask --app quiz_poc run --debug
 
 
-原因は set の「順番違い」を文字列として比較しているから です。
+## 処理フロー
 
-今の採点ロジックは 
-Grader.judge
- でこうしています:
+1. LLM によるクイズ生成（オフライン前処理）
+   - `backend/llm_creator.py` を実行
+   - `data/test_py_code.txt` のコードをもとにプロンプトを組み立てて LLM を呼び出し、
+   - `data/quizzes.md`（Markdown 形式のクイズ定義）を生成する。
 
-user_output（あなたの print(names) の標準出力）を文字列化して strip()
-expected_output（テストケースの expected、ここでは {"item_id", "user_id"} など）も str() して strip()
-その 2 つの文字列を 完全一致で比較 しています。
-何が起きているか
-ケース1を例にすると:
+2. Markdown から JSON への変換
+   - `backend/extract_quizzes.py` を実行
+   - `data/quizzes.md` 内の ```python:n ブロックを走査して各クイズ定義を exec し、
+   - `data/quizzes.json`（アプリが読む疑似 DB）を生成する。
 
-あなたのコード:
-python
-names = set(re.findall(r"{(.*?)}", path))
-print(names)
-→ 出力: {'item_id', 'user_id'}
-テストケース側の expected:
-python
-{"user_id", "item_id"}
-→ Python 内部での str(expected) が "{'user_id', 'item_id'}" になっている
-set 自体の中身は同じでも、
+3. アプリ起動
+   - `flask --app quiz_poc run --debug` で Flask アプリを起動する。
+   - 起動時に `QuizRepository` が `data/quizzes.json` を読み込み、クイズ一覧をメモリに載せる。
 
-期待値: "{'user_id', 'item_id'}"
-あなたの出力: "{'item_id', 'user_id'}"
-という 「文字列としての違い」 があるので、
-Grader.judge
- が False を返して WA になります。
+4. クイズ一覧表示
+   - ブラウザで `/` にアクセスすると `backend/__init__.py` の `index` が呼ばれ、
+   - `QuizRepository.get_all_quizzes()` の結果を `frontend/quiz_list.html` でレンダリングする。
 
-ケース3も同じ理由です。
+5. 個別クイズ画面表示
+   - `/quiz/<id>` にアクセスすると `show_quiz` が呼ばれ、
+   - 指定 ID のクイズを取得して `description` を Markdown → HTML に変換し、
+   - `frontend/index.html` を使って問題画面を表示する。
 
-期待値: {'two', 'one'}
-出力: {'one', 'two'}
-中身は同じ集合だけど、文字列表現の順番が違うので不一致になります。
+6. 「実行」ボタン（/execute）
+   - 画面上のエディタのコードを `backend/executor.py` の `CodeExecutor` に渡し、
+   - paiza.io API を通じてコードを実行する。
+   - テストケースや `sysin` は使わず、標準入力は常に空文字列。
 
-どうするのが良いか
-設計としては、set を文字列で比較しない 方が自然なので、どちらかの方向に寄せる必要があります:
-
-Grader 側で set を特別扱いする
-expected_output が set のときは:
-user_output を ast.literal_eval() などで Python オブジェクトに変換して
-set(パース結果) == expected_output で比較する
-こうすると順番に依存しなくなります。
-クイズ側の仕様を「順序付き」に変える
-クイズの expected を set ではなく、例えばソート済みリストにする:
-python
-"expected": ["item_id", "user_id"]
-あなたのコードも print(sorted(names)) のように出力をリストに揃える。
-ただしこの場合は 
-quizzes.md
- / 
-extract_quizzes.py
- / 
-quizzes.json
- 側のデータ定義を変更する必要があります。
-この POC だと、1 をやって Grader を少し賢くするのが一番筋が良さそうです。
-
-いまの状態の答え
-なぜ WA なのか
-
-集合の中身は正しい が、
-set の文字列表現の「順番違い」が原因で、Grader が不一致と判定している
-というのが理由です。
+7. 「提出」ボタン（/run）
+   - `QuizRepository` から対象クイズの `test_cases` を取得する。
+   - 各テストケースについて:
+     - `build_source_with_sysin` で `sysin = <テスト入力>` をコード先頭に埋め込んだソースを生成し、
+     - `CodeExecutor.run()` で外部実行して標準出力を取得し、
+     - `Grader.judge(stdout, expected)` で期待値と比較して正誤判定する。
+   - すべてのテストに通れば AC、それ以外は WA として結果を JSON で返す。
 
 
+## ディレクトリツリー
 
 quiz_poc/
-  backend/                 # POC の「サービス側」 (将来 generator/quiz/executor に分離)
-    __init__.py           # 今の Flask アプリ (API 兼 デモ用 HTML 出力)
-    executor.py
-    grader.py
-    quiz_repository.py
-    extract_quizzes.py
-    llm_creator.py        # ← ここに prompt_test.md をハードコード
-    data/
-      quizzes.json        # 疑似 DB（本番では quiz-db のテーブル）
-      quizzes.md          # LLM 出力ログ（本番では基本は使わない）
-      test_py_code.txt    # 対象コード（本番では quiz_source_data テーブルなど）
-    .env                  # API キー等 (必要に応じて)
-
-  frontend/               # POC の「画面側」 (将来 frontend/ に統合)
-    index.html            # 問題画面 (今の index.html)
-    quiz_list.html        # 一覧画面
-    js/
-      editor.js
-      run_code.js
-
-  README.md               # POC の起動方法など
+├─ backend/                     # POC の「サービス側」(将来 generator/quiz/executor に分離)
+│  ├─ __init__.py               # Flask アプリ本体 (API 兼 デモ用 HTML 出力)
+│  ├─ executor.py               # paiza.io API を叩いてコードを実行するラッパ
+│  ├─ grader.py                 # ユーザ出力と期待値を比較して採点するロジック
+│  ├─ quiz_repository.py        # quizzes.json を読み込んでクイズオブジェクトを提供
+│  ├─ extract_quizzes.py        # quizzes.md から quizzes.json を生成するスクリプト
+│  ├─ llm_creator.py            # LLM を使って quizzes.md を生成するユーティリティ
+│  ├─ data/
+│  │  ├─ quizzes.json           # 疑似 DB（本番では quiz-db のテーブル想定）
+│  │  ├─ quizzes.md             # LLM 出力ログ（本番では基本は使わない想定）
+│  │  └─ test_py_code.txt       # 対象コード（本番では quiz_source_data テーブルなど）
+│  └─ .env                      # API キー等 (必要に応じて)
+│
+├─ frontend/                    # POC の「画面側」(将来 frontend/ に統合)
+│  ├─ index.html                # 問題画面
+│  ├─ quiz_list.html            # 一覧画面
+│  └─ js/
+│     ├─ editor.js
+│     └─ run_code.js
+│
+└─ README.md                    # POC の起動方法・構成など
