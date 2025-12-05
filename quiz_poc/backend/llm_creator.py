@@ -23,7 +23,8 @@ load_dotenv(BASE_DIR / ".env")
 PLACEHOLDER = "(ここにクイズの元となるソースコードを入力してください)"
 
 
-PROMPT_TEMPLATE_MD = '''# Pythonコード読解・実装クイズ生成プロンプト（レベル1：基本文法・処理）
+PROMPT_TEMPLATE_MD = '''
+# Pythonコード読解・実装クイズ生成プロンプト（レベル1：基本文法・処理）
 
 あなたはPythonのプログラミング教育の専門家です。
 後述する【対象コード】を分析し、コード再現クイズを5問作成してください
@@ -51,8 +52,6 @@ PROMPT_TEMPLATE_MD = '''# Pythonコード読解・実装クイズ生成プロン
 
 title = "辞書内包表記による値の加工"
 description = """
-対象コードの `_prepare_response_content` 関数内にある `{k: ... for k, v in res.items()}` の処理を参考にします。
-変数 `sysin` に辞書が代入されます。
 辞書内包表記を使用して、元の辞書の「値 (value)」をすべて文字列型に変換した新しい辞書を作成し、それを標準出力してください。
 """
 
@@ -62,6 +61,7 @@ sample_code = """
 result = {k: str(v) for k, v in sysin.items()}
 print(result)
 """
+
 test_case_1 = {"sysin": {"a": 1, "b": 2}, "expected": {'a': '1', 'b': '2'}}
 test_case_2 = {"sysin": {"x": 10.5, "y": True}, "expected": {'x': '10.5', 'y': 'True'}}
 test_case_3 = {"sysin": {}, "expected": "{}"}
@@ -113,10 +113,9 @@ test_case_3 = {"sysin": {}, "expected": "{}"}
     *   **型**: 文字列、数値、リスト、辞書など（Pythonで扱える任意の型）
 
 *   **`expected`**:
-    *   **説明**: ユーザーのコードが `print()` した結果と一致すべき**出力結果**
-    *   **型**: 文字列 (String) または、`print()` された際に文字列表現として一致する値
-    *   **注意**: 採点システムはこの値と標準出力を比較します
-
+    *   **説明**: ユーザーのコードが `print()` した結果として期待される値（Pythonオブジェクト）
+    *   **型**: 文字列、数値、リスト、辞書、集合など（Pythonで扱える任意の型）
+    *   **注意**: 期待値が文字列の場合は標準出力を文字列として比較し、それ以外の型の場合は標準出力を Python リテラルとして解釈してオブジェクト同士を比較します
 
 ## 【対象コード】
 ```python
