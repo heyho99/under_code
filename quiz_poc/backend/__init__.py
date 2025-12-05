@@ -10,7 +10,7 @@ from flask import Flask, jsonify, render_template, request
 import markdown
 
 from .executor import CodeExecutor
-from .grader import Grader
+from .grader import Grader, GradingError
 from .quiz_repository import QuizRepository
 
 
@@ -133,7 +133,18 @@ def run_code():
             )
         else:
             output = exec_result.get("stdout")
-            passed = Grader.judge(output, expected_val)
+            try:
+                passed = Grader.judge(output, expected_val)
+            except GradingError as e:
+                app.logger.error(
+                    "Grading error (quiz_id=%s, sysin=%r, expected=%r): %s",
+                    quiz_id,
+                    sysin_value,
+                    expected_val,
+                    e,
+                )
+                passed = False
+                output = f"[採点エラー] {e}"
 
         if not passed:
             all_passed = False
