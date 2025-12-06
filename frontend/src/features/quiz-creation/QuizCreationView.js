@@ -46,7 +46,13 @@ export const QuizCreationView = {
                   <div class="dropzone__content">
                     <div class="dropzone__hint-main">ここにファイルをドラッグ＆ドロップ</div>
                     <div class="dropzone__hint-sub">または</div>
-                    <button class="primary-btn primary-btn--outline">参照して選択...</button>
+                    <button class="primary-btn primary-btn--outline" data-file-select-button>参照して選択...</button>
+                    <input
+                      type="file"
+                      multiple
+                      data-file-input
+                      style="display: none;"
+                    />
                   </div>
                 </div>
               </section>
@@ -62,40 +68,26 @@ export const QuizCreationView = {
               <section class="card">
                 <header class="card__header">
                   <h2 class="card__title">クイズ作成方針</h2>
-                  <p class="card__subtitle">基本文法の出題数を設定してください。</p>
+                  <p class="card__subtitle">クイズセットのタイトルと説明を入力してください。</p>
                 </header>
                 <div class="card__body">
-                  <div class="quiz-settings-list">
-                    <div class="quiz-setting-item quiz-type-row" data-quiz-type="basic">
-                      <div class="quiz-setting-item__icon basic">
-                        <span class="material-symbols-outlined">code</span>
-                      </div>
-                      <div class="quiz-setting-item__info">
-                        <div class="quiz-setting-item__name">基本文法</div>
-                        <div class="quiz-setting-item__desc">変数、型、制御構文などの基礎的な問題</div>
-                      </div>
-                      <div class="quiz-setting-item__control">
-                        <div class="quiz-counter">
-                          <button
-                            class="quiz-counter-btn quiz-counter-btn--minus"
-                            type="button"
-                            data-delta="-10"
-                            aria-label="基本文法を減らす"
-                          >
-                            <span class="material-symbols-outlined">remove</span>
-                          </button>
-                          <span class="quiz-counter-value" data-count="0">0問</span>
-                          <button
-                            class="quiz-counter-btn quiz-counter-btn--plus"
-                            type="button"
-                            data-delta="10"
-                            aria-label="基本文法を増やす"
-                          >
-                            <span class="material-symbols-outlined">add</span>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
+                  <div class="login-form__field">
+                    <label class="login-form__label">クイズセットのタイトル</label>
+                    <input
+                      type="text"
+                      class="login-form__input"
+                      placeholder="例: React基礎クイズ"
+                      data-quiz-title
+                    >
+                  </div>
+                  <div class="login-form__field">
+                    <label class="login-form__label">説明 (オプション)</label>
+                    <textarea
+                      class="quiz-request-textarea"
+                      placeholder="このクイズセットに関するメモや説明を入力..."
+                      data-quiz-description
+                      style="min-height: 80px;"
+                    ></textarea>
                   </div>
                 </div>
               </section>
@@ -119,7 +111,12 @@ export const QuizCreationView = {
                     <div class="confirmation-header__left">
                       <div class="login-form__field">
                         <label class="login-form__label">クイズセットのタイトル</label>
-                        <input type="text" class="login-form__input" placeholder="例: React基礎クイズ" data-quiz-title>
+                        <input
+                          type="text"
+                          class="login-form__input"
+                          data-quiz-title-review
+                          readonly
+                        >
                       </div>
                     </div>
                     <div class="confirmation-header__right">
@@ -141,27 +138,12 @@ export const QuizCreationView = {
                   <div class="confirmation-description-row">
                     <div class="login-form__field">
                       <label class="login-form__label">説明 (オプション)</label>
-                      <textarea class="quiz-request-textarea" placeholder="このクイズセットに関するメモや説明を入力..." data-quiz-description style="min-height: 80px;"></textarea>
-                    </div>
-                  </div>
-
-                  <div class="confirmation-grid">
-                    <div class="confirmation-col">
-                      <div class="confirmation-section">
-                        <h3 class="confirmation-section__title">
-                          <span class="material-symbols-outlined">category</span>
-                          出題タイプ別の内訳
-                        </h3>
-                        <ul class="confirmation-list">
-                          <li class="confirmation-list__item">
-                            <div class="confirmation-list__info">
-                              <span class="confirmation-list__label">基本文法</span>
-                              <span class="confirmation-list__desc">変数、型、制御構文など</span>
-                            </div>
-                            <span class="confirmation-list__value" data-summary-count="basic">0問</span>
-                          </li>
-                        </ul>
-                      </div>
+                      <textarea
+                        class="quiz-request-textarea"
+                        data-quiz-description-review
+                        style="min-height: 80px;"
+                        readonly
+                      ></textarea>
                     </div>
                   </div>
                 </div>

@@ -31,13 +31,13 @@ export const quizCreationApi = {
     return apiClient.post("/quiz-creation/upload", { body });
   },
 
-  async generateQuiz({ sourceId, title, problemCounts }) {
+  async generateQuiz({ title, files, problemCounts }) {
     const userId = getCurrentUserId() ?? 1;
 
     const body = {
       userId,
-      sourceId,
       title,
+      files,
       problemCounts,
     };
 
