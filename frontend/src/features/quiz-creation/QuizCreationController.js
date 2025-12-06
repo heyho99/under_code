@@ -25,7 +25,7 @@ export const QuizCreationController = {
     const fileInput = root.querySelector("[data-file-input]");
     const fileSelectButton = root.querySelector("[data-file-select-button]");
 
-    let uploadedFileContents = [];
+    let uploadedFiles = [];
 
     function setStep(stepNumber) {
       // 右側のコンテンツ切り替え
@@ -65,8 +65,8 @@ export const QuizCreationController = {
       if (!files || files.length === 0) {
         return 0;
       }
-      return files.reduce((sum, content) => {
-        return sum + calculateQuestionsFromContent(content);
+      return files.reduce((sum, file) => {
+        return sum + calculateQuestionsFromContent(file.content);
       }, 0);
     }
 
@@ -90,13 +90,18 @@ export const QuizCreationController = {
     async function handleFilesSelected(fileList) {
       const files = Array.from(fileList || []);
       if (files.length === 0) {
-        uploadedFileContents = [];
+        uploadedFiles = [];
         return;
       }
 
       try {
         const contents = await Promise.all(files.map((file) => readFileAsText(file)));
-        uploadedFileContents = contents;
+        uploadedFiles = files.map((file, index) => {
+          return {
+            fileName: file.name || `file-${index + 1}`,
+            content: contents[index] || "",
+          };
+        });
       } catch (error) {
         if (typeof window !== "undefined" && window.alert) {
           window.alert(error.message || "ファイルの読み込みに失敗しました。");
@@ -113,7 +118,7 @@ export const QuizCreationController = {
       fileInput.addEventListener("change", (event) => {
         const target = event.target;
         if (!target || !target.files) {
-          uploadedFileContents = [];
+          uploadedFiles = [];
           return;
         }
         handleFilesSelected(target.files);
@@ -124,7 +129,7 @@ export const QuizCreationController = {
         const next = Number(btn.dataset.nextStep);
         if (!next) return;
         if (next === 2) {
-          if (!uploadedFileContents || uploadedFileContents.length === 0) {
+          if (!uploadedFiles || uploadedFiles.length === 0) {
             if (typeof window !== "undefined" && window.alert) {
               window.alert("ファイルを選択してください。");
             }
@@ -148,7 +153,7 @@ export const QuizCreationController = {
             descriptionReview.value = descriptionInput.value || "";
           }
 
-          const totalCount = calculateTotalQuestionsFromFiles(uploadedFileContents);
+          const totalCount = calculateTotalQuestionsFromFiles(uploadedFiles);
           const totalCountEl = root.querySelector("[data-total-count]");
           if (totalCountEl) {
             totalCountEl.textContent = String(totalCount);
@@ -186,21 +191,28 @@ export const QuizCreationController = {
           (titleInput && titleInput.value && titleInput.value.trim()) ||
           "Untitled Quiz";
 
-        const syntaxCount = calculateTotalQuestionsFromFiles(uploadedFileContents);
+        const syntaxCount = calculateTotalQuestionsFromFiles(uploadedFiles);
         if (syntaxCount <= 0) {
           if (typeof window !== "undefined" && window.alert) {
             window.alert("有効なファイルが選択されていません。");
           }
           return;
         }
+        const filesForApi = uploadedFiles.map((file) => {
+          const perFileSyntaxCount = calculateQuestionsFromContent(file.content);
+          return {
+            fileName: file.fileName,
+            content: file.content,
+            problemCounts: {
+              syntax: perFileSyntaxCount,
+            },
+          };
+        });
 
         try {
           await quizCreationApi.generateQuiz({
             title,
-            files: uploadedFileContents,
-            problemCounts: {
-              syntax: syntaxCount,
-            },
+            files: filesForApi,
           });
           navigate("#/quiz-set-list");
         } catch (error) {
