@@ -3,12 +3,6 @@ erDiagram
     users ||--o{ quiz_sets : "作成・所有"
     users ||--o{ submissions : "解答履歴"
     
-    %% --- 新規追加: ユーザーはソースデータをアップロードする ---
-    users ||--o{ quiz_source_data : "アップロード"
-
-    %% --- 変更: クイズセットはソースデータから作られる（手動作成の場合はNULLなので0以上） ---
-    quiz_source_data ||--o{ quiz_sets : "生成元"
-
     quiz_sets ||--|{ problems : "包含"
     problems ||--o{ submissions : "解答対象"
 
@@ -23,19 +17,9 @@ erDiagram
         timestamptz updated_at "アカウント情報の最終更新日時"
     }
 
-    %% --- 新規テーブル: ファイル群の中身と構造をJSONで一元管理 ---
-    quiz_source_data {
-        int source_id PK "ソースデータID"
-        int user_id FK "アップロードしたユーザーID"
-        varchar project_name "プロジェクト名（ルートフォルダ名）"
-        jsonb file_content "パスと中身のリスト [{path: 'src/main.js', content: '...'}]"
-        timestamptz created_at "アップロード日時"
-    }
-
     quiz_sets {
         int quiz_set_id PK "クイズセットID"
         int created_by FK "作成者のユーザーID"
-        int source_id FK "元になったソースデータのID (NULL許容)" 
         varchar title "クイズセットのタイトル"
         text description "このセットの説明文"
         timestamptz created_at "作成日時"

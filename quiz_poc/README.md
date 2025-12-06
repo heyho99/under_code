@@ -53,7 +53,7 @@ quiz_poc/
 │  ├─ data/
 │  │  ├─ quizzes.json           # 疑似 DB（本番では quiz-db のテーブル想定）
 │  │  ├─ quizzes.md             # LLM 出力ログ（本番では基本は使わない想定）
-│  │  └─ test_py_code.txt       # 対象コード（本番では quiz_source_data テーブルなど）
+│  │  └─ test_py_code.txt       # 対象コード（本番ではBFFが受け取るアップロードファイルに相当）
 │  └─ .env                      # API キー等 (必要に応じて)
 │
 ├─ frontend/                    # POC の「画面側」(将来 frontend/ に統合)

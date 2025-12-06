@@ -175,8 +175,7 @@ quiz-service/
 │   ├── api/
 │   │   └── v1/
 │   │       ├── endpoints_quiz_sets.py
-│   │       ├── endpoints_problems.py
-│   │       └── endpoints_source_data.py
+│   │       └── endpoints_problems.py
 │   ├── core/
 │   │   ├── config.py
 │   │   └── logging.py
@@ -185,15 +184,12 @@ quiz-service/
 │   ├── repositories/                # 【新規】SQL記述層
 │   │   ├── quiz_set_repository.py
 │   │   ├── problem_repository.py
-│   │   └── source_data_repository.py
 │   ├── schemas/                     # Pydanticモデル
 │   │   ├── quiz_set.py
 │   │   ├── problem.py
-│   │   └── quiz_source_data.py
 │   ├── services/
 │   │   ├── quiz_set_service.py
 │   │   ├── problem_service.py
-│   │   └── source_data_service.py
 │   └── main.py
 ├── migrations/                      # 【変更】SQLマイグレーションファイル
 │   └── 001_create_quiz_tables.sql
