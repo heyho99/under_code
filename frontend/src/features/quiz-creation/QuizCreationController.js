@@ -19,16 +19,11 @@ export const QuizCreationController = {
     const stepPrevButtons = root.querySelectorAll(".js-step-prev");
     const openQuizListButtons = root.querySelectorAll(".js-open-quiz-list");
     const quizCounterButtons = root.querySelectorAll(".quiz-counter-btn");
-    const treeContainer = root.querySelector(".tree-container");
     const generateQuizButton = root.querySelector(".js-generate-quiz");
     const wizardStepItems = root.querySelectorAll(".wizard-step-item");
-    const requestTextarea = root.querySelector(".quiz-request-textarea");
     const confirmationCountEls = root.querySelectorAll("[data-summary-count]");
-    const confirmationRequestEl = root.querySelector("[data-summary-request]");
-    const projectTreePreviewEl = root.querySelector("[data-project-tree-preview]");
 
     let sourceId = null;
-    let lastAnalysisRoot = null;
 
     function setStep(stepNumber) {
       // 右側のコンテンツ切り替え
@@ -78,18 +73,6 @@ export const QuizCreationController = {
       if (totalCountEl) {
         totalCountEl.textContent = String(totalCount);
       }
-
-      if (confirmationRequestEl) {
-        const text = requestTextarea && requestTextarea.value.trim();
-        confirmationRequestEl.textContent = text || "（特に要望は指定されていません）";
-      }
-
-      if (projectTreePreviewEl && lastAnalysisRoot) {
-        const treeText = buildProjectTreeText(lastAnalysisRoot);
-        if (treeText) {
-          projectTreePreviewEl.textContent = treeText;
-        }
-      }
     }
 
     async function ensureSourceUploaded() {
@@ -109,140 +92,6 @@ export const QuizCreationController = {
       }
       return null;
     }
-
-    function buildProjectTreeText(rootNode) {
-      if (!rootNode || !rootNode.name) return "";
-
-      const lines = [];
-      lines.push(rootNode.name + (rootNode.type === "directory" ? "/" : ""));
-
-      if (Array.isArray(rootNode.children) && rootNode.children.length > 0) {
-        const lastIndex = rootNode.children.length - 1;
-        rootNode.children.forEach((child, index) => {
-          const isLast = index === lastIndex;
-          buildProjectTreeLines(child, "", isLast, lines);
-        });
-      }
-
-      return lines.join("\n");
-    }
-
-    function buildProjectTreeLines(node, prefix, isLast, lines) {
-      if (!node || !node.name) return;
-
-      const connector = isLast ? "└─ " : "├─ ";
-      const line =
-        prefix +
-        connector +
-        node.name +
-        (node.type === "directory" ? "/" : "");
-      lines.push(line);
-
-      if (!node.children || node.children.length === 0) {
-        return;
-      }
-
-      const childPrefix = prefix + (isLast ? "   " : "│  ");
-      const lastIndex = node.children.length - 1;
-      node.children.forEach((child, index) => {
-        buildProjectTreeLines(child, childPrefix, index === lastIndex, lines);
-      });
-    }
-
-    function createTreeNodeElement(node, parentPath) {
-      if (!node || !node.name) return null;
-
-      const key = parentPath ? `${parentPath}/${node.name}` : node.name;
-      const isDirectory = node.type === "directory" || !!(node.children && node.children.length);
-
-      const li = document.createElement("li");
-      li.classList.add("tree-node");
-      if (isDirectory) {
-        li.classList.add("tree-node--folder", "tree-node--collapsed");
-      }
-
-      const row = document.createElement("div");
-      row.classList.add("tree-node__row");
-      if (isDirectory) {
-        row.classList.add("js-tree-folder");
-      }
-      row.dataset.nodeKey = key;
-
-      if (isDirectory) {
-        const twist = document.createElement("span");
-        twist.className = "tree-node__twist material-symbols-outlined";
-        twist.textContent = "arrow_right";
-        row.appendChild(twist);
-
-        const typeIcon = document.createElement("span");
-        typeIcon.className = "tree-node__type-icon material-symbols-outlined";
-        typeIcon.textContent = "folder";
-        row.appendChild(typeIcon);
-      } else {
-        const indent = document.createElement("span");
-        indent.className = "tree-node__indent";
-        row.appendChild(indent);
-
-        const typeIcon = document.createElement("span");
-        typeIcon.className = "tree-node__type-icon material-symbols-outlined";
-        typeIcon.textContent = "description";
-        row.appendChild(typeIcon);
-      }
-
-      const checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
-      checkbox.className = "tree-node__checkbox";
-      checkbox.setAttribute("data-node-checkbox", key);
-      row.appendChild(checkbox);
-
-      const label = document.createElement("span");
-      label.className = "tree-node__label";
-      label.textContent = node.name;
-      row.appendChild(label);
-
-      li.appendChild(row);
-
-      if (node.children && node.children.length > 0) {
-        const childrenUl = document.createElement("ul");
-        childrenUl.className = "tree-node__children";
-        node.children.forEach((child) => {
-          const childEl = createTreeNodeElement(child, key);
-          if (childEl) {
-            childrenUl.appendChild(childEl);
-          }
-        });
-        li.appendChild(childrenUl);
-      }
-
-      return li;
-    }
-
-    async function loadAnalysisTree(currentSourceId) {
-      const treeRootEl = root.querySelector("#js-project-tree");
-      if (!treeRootEl) return;
-
-      treeRootEl.innerHTML = "";
-
-      try {
-        const analysis = await quizCreationApi.getAnalysis(currentSourceId);
-        const rootNode = analysis && analysis.root;
-        if (!rootNode || !Array.isArray(rootNode.children)) {
-          return;
-        }
-
-        lastAnalysisRoot = rootNode;
-
-        const rootLi = createTreeNodeElement(rootNode, "");
-        if (rootLi) {
-          treeRootEl.appendChild(rootLi);
-        }
-      } catch (error) {
-        if (typeof window !== "undefined" && window.alert) {
-          window.alert(error.message || "プロジェクトツリーの取得に失敗しました。");
-        }
-      }
-    }
-
     stepNextButtons.forEach((btn) => {
       btn.addEventListener("click", async () => {
         const next = Number(btn.dataset.nextStep);
@@ -252,9 +101,8 @@ export const QuizCreationController = {
           if (!uploadedSourceId) {
             return;
           }
-          await loadAnalysisTree(uploadedSourceId);
         }
-        if (next === 4) {
+        if (next === 3) {
           updateConfirmationSummary();
         }
         setStep(next);
@@ -274,59 +122,6 @@ export const QuizCreationController = {
         navigate("#/quiz-set-list");
       });
     });
-
-    if (treeContainer) {
-      treeContainer.addEventListener("click", (event) => {
-        const target = event.target;
-        if (!(target instanceof Element)) return;
-
-        const row = target.closest(".tree-node__row");
-        if (!row) return;
-
-        if (target.closest(".tree-node__checkbox")) {
-          return;
-        }
-
-        if (target.closest(".tree-node__twist")) {
-          const node = row.closest(".tree-node--folder");
-          if (!node) return;
-
-          const isOpen = node.classList.contains("tree-node--open");
-          node.classList.remove("tree-node--open", "tree-node--collapsed");
-          const nextIsOpen = !isOpen;
-          node.classList.add(
-            nextIsOpen ? "tree-node--open" : "tree-node--collapsed"
-          );
-
-          const twist = row.querySelector(".tree-node__twist");
-          if (twist) {
-            twist.textContent = nextIsOpen ? "arrow_drop_down" : "arrow_right";
-          }
-          return;
-        }
-
-        setActiveTreeRow(row);
-      });
-
-      treeContainer.addEventListener("change", (event) => {
-        const target = event.target;
-        if (!(target instanceof HTMLInputElement)) return;
-        if (!target.classList.contains("tree-node__checkbox")) return;
-
-        const treeNode = target.closest(".tree-node");
-        if (!treeNode) return;
-
-        if (treeNode.classList.contains("tree-node--folder")) {
-          const checked = target.checked;
-          const descendants = treeNode.querySelectorAll(
-            ".tree-node__children .tree-node__checkbox"
-          );
-          descendants.forEach((childCheckbox) => {
-            childCheckbox.checked = checked;
-          });
-        }
-      });
-    }
 
     quizCounterButtons.forEach((btn) => {
       btn.addEventListener("click", () => {
@@ -363,9 +158,6 @@ export const QuizCreationController = {
 
         const typeRows = root.querySelectorAll(".quiz-type-row");
         let syntaxCount = 0;
-        let logicCount = 0;
-        let functionCount = 0;
-        let classCount = 0;
 
         typeRows.forEach((row) => {
           const type = row.dataset.quizType;
@@ -374,16 +166,8 @@ export const QuizCreationController = {
           const count = Number(valueEl.dataset.count || "0");
           if (type === "basic") {
             syntaxCount = count;
-          } else if (type === "process") {
-            logicCount = count;
-          } else if (type === "function") {
-            functionCount = count;
-          } else if (type === "class-module") {
-            classCount = count;
           }
         });
-
-        const requestText = requestTextarea && requestTextarea.value.trim();
 
         try {
           await quizCreationApi.generateQuiz({
@@ -391,12 +175,7 @@ export const QuizCreationController = {
             title,
             problemCounts: {
               syntax: syntaxCount,
-              logic: logicCount,
-              function: functionCount,
-              class: classCount,
             },
-            customInstruction: requestText || null,
-            excludePaths: [],
           });
           navigate("#/quiz-set-list");
         } catch (error) {

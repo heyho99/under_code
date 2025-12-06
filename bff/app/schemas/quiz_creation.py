@@ -1,14 +1,10 @@
-from pydantic import BaseModel, Field
-from typing import List, Optional
-
-class FileContent(BaseModel):
-    path: str
-    content: str
+from pydantic import BaseModel
+from typing import List
 
 class SourceUploadRequest(BaseModel):
     userId: int
     project_name: str
-    files: List[FileContent]
+    files: List[str]
 
 class SourceUploadResponse(BaseModel):
     sourceId: int
@@ -26,17 +22,12 @@ class AnalysisResponse(BaseModel):
 
 class ProblemCounts(BaseModel):
     syntax: int = 0
-    logic: int = 0
-    function: int = 0
-    class_: int = Field(0, alias="class")
 
 class GenerateQuizRequest(BaseModel):
     userId: int
     sourceId: int
     title: str
     problemCounts: ProblemCounts
-    customInstruction: Optional[str] = None
-    excludePaths: Optional[List[str]] = []
 
 class GenerateQuizResponse(BaseModel):
     quizSetId: int

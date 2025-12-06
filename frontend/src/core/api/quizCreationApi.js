@@ -23,21 +23,15 @@ export const quizCreationApi = {
       userId,
       project_name: "my-react-app",
       files: [
-        {
-          path: "src/App.js",
-          content: "// mock source file content for quiz creation",
-        },
-        {
-          path: "package.json",
-          content: '{"name": "my-react-app", "version": "1.0.0"}',
-        },
+        "// mock source file content for quiz creation",
+        '{"name": "my-react-app", "version": "1.0.0"}',
       ],
     };
 
     return apiClient.post("/quiz-creation/upload", { body });
   },
 
-  async generateQuiz({ sourceId, title, problemCounts, customInstruction, excludePaths }) {
+  async generateQuiz({ sourceId, title, problemCounts }) {
     const userId = getCurrentUserId() ?? 1;
 
     const body = {
@@ -45,16 +39,8 @@ export const quizCreationApi = {
       sourceId,
       title,
       problemCounts,
-      customInstruction,
-      excludePaths,
     };
 
     return apiClient.post("/quiz-creation/generate", { body });
-  },
-
-  async getAnalysis(sourceId) {
-    return apiClient.get("/quiz-creation/analysis", {
-      params: { sourceId },
-    });
   },
 };
