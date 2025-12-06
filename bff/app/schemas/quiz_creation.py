@@ -25,8 +25,8 @@ class ProblemCounts(BaseModel):
 
 class GenerateQuizRequest(BaseModel):
     userId: int
-    sourceId: int
     title: str
+    files: List[str]
     problemCounts: ProblemCounts
 
 class GenerateQuizResponse(BaseModel):

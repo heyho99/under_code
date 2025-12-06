@@ -3,6 +3,8 @@ import { navigate } from "../../router/router.js";
 import { updateHeader, activateSection } from "../../ui/MainHeader.js";
 import { quizCreationApi } from "../../core/api/quizCreationApi.js";
 
+const CHARS_PER_QUESTION = 500;
+
 export const QuizCreationController = {
   mount() {
     const root = QuizCreationView.getRoot();
@@ -18,12 +20,12 @@ export const QuizCreationController = {
     const stepNextButtons = root.querySelectorAll(".js-step-next");
     const stepPrevButtons = root.querySelectorAll(".js-step-prev");
     const openQuizListButtons = root.querySelectorAll(".js-open-quiz-list");
-    const quizCounterButtons = root.querySelectorAll(".quiz-counter-btn");
     const generateQuizButton = root.querySelector(".js-generate-quiz");
     const wizardStepItems = root.querySelectorAll(".wizard-step-item");
-    const confirmationCountEls = root.querySelectorAll("[data-summary-count]");
+    const fileInput = root.querySelector("[data-file-input]");
+    const fileSelectButton = root.querySelector("[data-file-select-button]");
 
-    let sourceId = null;
+    let uploadedFileContents = [];
 
     function setStep(stepNumber) {
       // 右側のコンテンツ切り替え
@@ -47,63 +49,110 @@ export const QuizCreationController = {
       }
     }
 
-    function updateConfirmationSummary() {
-      let totalCount = 0;
+    function calculateQuestionsFromContent(content) {
+      if (!content) {
+        return 0;
+      }
+      const length = content.length;
+      if (length <= 0) {
+        return 0;
+      }
+      const questions = Math.ceil(length / CHARS_PER_QUESTION);
+      return questions < 1 ? 1 : questions;
+    }
 
-      if (confirmationCountEls.length > 0) {
-        const typeRows = root.querySelectorAll(".quiz-type-row");
-        typeRows.forEach((row) => {
-          const type = row.dataset.quizType;
-          const valueEl = row.querySelector(".quiz-counter-value");
-          if (!type || !valueEl) return;
-          const count = Number(valueEl.dataset.count || "0");
-          
-          // 合計に加算
-          totalCount += count;
+    function calculateTotalQuestionsFromFiles(files) {
+      if (!files || files.length === 0) {
+        return 0;
+      }
+      return files.reduce((sum, content) => {
+        return sum + calculateQuestionsFromContent(content);
+      }, 0);
+    }
 
-          const targetEl = root.querySelector(`[data-summary-count="${type}"]`);
-          if (targetEl) {
-            targetEl.textContent = `${count}問`;
+    function readFileAsText(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          if (typeof reader.result === "string") {
+            resolve(reader.result);
+          } else {
+            resolve("");
           }
-        });
+        };
+        reader.onerror = () => {
+          reject(reader.error || new Error("ファイルの読み込みに失敗しました。"));
+        };
+        reader.readAsText(file);
+      });
+    }
+
+    async function handleFilesSelected(fileList) {
+      const files = Array.from(fileList || []);
+      if (files.length === 0) {
+        uploadedFileContents = [];
+        return;
       }
 
-      // 合計数を表示更新
-      const totalCountEl = root.querySelector("[data-total-count]");
-      if (totalCountEl) {
-        totalCountEl.textContent = String(totalCount);
+      try {
+        const contents = await Promise.all(files.map((file) => readFileAsText(file)));
+        uploadedFileContents = contents;
+      } catch (error) {
+        if (typeof window !== "undefined" && window.alert) {
+          window.alert(error.message || "ファイルの読み込みに失敗しました。");
+        }
       }
     }
 
-    async function ensureSourceUploaded() {
-      if (sourceId !== null) {
-        return sourceId;
-      }
-      try {
-        const res = await quizCreationApi.uploadMockSource();
-        if (res && typeof res.sourceId === "number") {
-          sourceId = res.sourceId;
-          return sourceId;
+    if (fileSelectButton && fileInput) {
+      fileSelectButton.addEventListener("click", (event) => {
+        event.preventDefault();
+        fileInput.click();
+      });
+
+      fileInput.addEventListener("change", (event) => {
+        const target = event.target;
+        if (!target || !target.files) {
+          uploadedFileContents = [];
+          return;
         }
-      } catch (error) {
-        if (typeof window !== "undefined" && window.alert) {
-          window.alert(error.message || "プロジェクトのアップロードに失敗しました。");
-        }
-      }
-      return null;
+        handleFilesSelected(target.files);
+      });
     }
     stepNextButtons.forEach((btn) => {
       btn.addEventListener("click", async () => {
         const next = Number(btn.dataset.nextStep);
         if (!next) return;
         if (next === 2) {
-          const uploadedSourceId = await ensureSourceUploaded();
-          if (!uploadedSourceId) {
+          if (!uploadedFileContents || uploadedFileContents.length === 0) {
+            if (typeof window !== "undefined" && window.alert) {
+              window.alert("ファイルを選択してください。");
+            }
             return;
           }
         }
         if (next === 3) {
-          updateConfirmationSummary();
+          const titleInput = root.querySelector("[data-quiz-title]");
+          const descriptionInput = root.querySelector("[data-quiz-description]");
+          const titleReview = root.querySelector("[data-quiz-title-review]");
+          const descriptionReview = root.querySelector("[data-quiz-description-review]");
+
+          const rawTitle =
+            (titleInput && titleInput.value && titleInput.value.trim()) || "";
+          const safeTitle = rawTitle || "Untitled Quiz";
+
+          if (titleReview) {
+            titleReview.value = safeTitle;
+          }
+          if (descriptionReview && descriptionInput) {
+            descriptionReview.value = descriptionInput.value || "";
+          }
+
+          const totalCount = calculateTotalQuestionsFromFiles(uploadedFileContents);
+          const totalCountEl = root.querySelector("[data-total-count]");
+          if (totalCountEl) {
+            totalCountEl.textContent = String(totalCount);
+          }
         }
         setStep(next);
       });
@@ -123,32 +172,13 @@ export const QuizCreationController = {
       });
     });
 
-    quizCounterButtons.forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const row = btn.closest(".quiz-type-row");
-        if (!row) return;
-        const valueEl = row.querySelector(".quiz-counter-value");
-        if (!valueEl) return;
-
-        const current = Number(valueEl.dataset.count || "0");
-        const delta = Number(btn.dataset.delta || "0");
-        let next = current + delta;
-        if (next < 0) {
-          next = 0;
-        }
-
-        valueEl.dataset.count = String(next);
-        valueEl.textContent = `${next}問`;
-      });
-    });
-
     if (generateQuizButton) {
       generateQuizButton.addEventListener("click", async () => {
-        if (sourceId === null) {
-          const uploadedSourceId = await ensureSourceUploaded();
-          if (!uploadedSourceId) {
-            return;
+        if (!uploadedFileContents || uploadedFileContents.length === 0) {
+          if (typeof window !== "undefined" && window.alert) {
+            window.alert("ファイルが選択されていません。");
           }
+          return;
         }
 
         const titleInput = root.querySelector("[data-quiz-title]");
@@ -156,23 +186,18 @@ export const QuizCreationController = {
           (titleInput && titleInput.value && titleInput.value.trim()) ||
           "Untitled Quiz";
 
-        const typeRows = root.querySelectorAll(".quiz-type-row");
-        let syntaxCount = 0;
-
-        typeRows.forEach((row) => {
-          const type = row.dataset.quizType;
-          const valueEl = row.querySelector(".quiz-counter-value");
-          if (!type || !valueEl) return;
-          const count = Number(valueEl.dataset.count || "0");
-          if (type === "basic") {
-            syntaxCount = count;
+        const syntaxCount = calculateTotalQuestionsFromFiles(uploadedFileContents);
+        if (syntaxCount <= 0) {
+          if (typeof window !== "undefined" && window.alert) {
+            window.alert("有効なファイルが選択されていません。");
           }
-        });
+          return;
+        }
 
         try {
           await quizCreationApi.generateQuiz({
-            sourceId,
             title,
+            files: uploadedFileContents,
             problemCounts: {
               syntax: syntaxCount,
             },
