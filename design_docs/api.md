@@ -322,11 +322,23 @@
         "header": "Content-Type: application/json",
         "body": {
           "userId": 101,
-          "sourceId": 5001,
           "title": "React基礎クイズ",
-          "problemCounts": {
-            "syntax": 30
-          }
+          "files": [
+            {
+              "fileName": "src/App.jsx",
+              "content": "// source file content 1",
+              "problemCounts": {
+                "syntax": 2
+              }
+            },
+            {
+              "fileName": "src/index.jsx",
+              "content": "// source file content 2",
+              "problemCounts": {
+                "syntax": 1
+              }
+            }
+          ]
         },
         "response": {
           "status": 201,
