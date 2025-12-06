@@ -53,7 +53,6 @@ graph TD
 	    quiz-db-port["quiz-db:5432<br/>dev(5502:5432)"]
         quiz_sets
         problems
-        quiz_source_data["quiz_source_data<br/>(JSONB: ファイル群データ)"]
     end
     
     subgraph progress-db [学習履歴DB]
@@ -83,7 +82,6 @@ graph TD
     quiz-service <--> quiz-db
     quiz-db-port <--> quiz_sets
     quiz-db-port <--> problems
-    quiz-db-port <--> quiz_source_data
     
     progress-service <--> progress-db
     progress-db-port <--> submissions
