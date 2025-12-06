@@ -323,6 +323,7 @@
         "body": {
           "userId": 101,
           "title": "React基礎クイズ",
+          "description": "React の props / state / コンポーネント分割の基礎を確認するクイズセットです。",
           "files": [
             {
               "fileName": "src/App.jsx",
@@ -398,6 +399,7 @@
           "body": {
             "userId": 101,
             "title": "React基礎クイズ",
+            "description": "React の props / state / コンポーネント分割の基礎を確認するクイズセットです。",
             "problems": [
               {
                 "title": "...",

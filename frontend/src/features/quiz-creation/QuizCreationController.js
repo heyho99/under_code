@@ -132,17 +132,20 @@ export const QuizCreationController = {
 
     if (generateQuizButton) {
       generateQuizButton.addEventListener("click", async () => {
-        if (!uploadedFileContents || uploadedFileContents.length === 0) {
+        if (!uploadedFiles || uploadedFiles.length === 0) {
           if (typeof window !== "undefined" && window.alert) {
             window.alert("ファイルが選択されていません。");
           }
           return;
         }
-
         const titleInput = root.querySelector("[data-quiz-title]");
+        const descriptionInput = root.querySelector("[data-quiz-description]");
         const title =
           (titleInput && titleInput.value && titleInput.value.trim()) ||
           "Untitled Quiz";
+        const description =
+          (descriptionInput && descriptionInput.value && descriptionInput.value.trim()) ||
+          "";
 
         const syntaxCount = calculateTotalQuestionsFromFiles(uploadedFiles);
         if (syntaxCount <= 0) {
@@ -156,6 +159,7 @@ export const QuizCreationController = {
         try {
           await quizCreationApi.generateQuiz({
             title,
+            description,
             files: filesForApi,
           });
           navigate("#/quiz-set-list");
