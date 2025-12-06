@@ -272,46 +272,6 @@
 
 ### /#/quiz-creation
 
-- POST `/api/v1/quiz-creation/upload`
-    - **Frontend to BFF**
-
-      ```json
-      {
-        "description": "ソースファイル群アップロード（フロント→BFF）",
-        "request": "POST /api/v1/quiz-creation/upload",
-        "header": "Content-Type: application/json",
-        "body": {
-          "userId": 101,
-          "project_name": "my-react-app",
-          "files": [
-            "// source file content 1",
-            "// source file content 2"
-          ]
-        },
-        "response": {
-          "status": 201,
-          "body": {
-            "sourceId": 5001,
-            "message": "Upload successful"
-          }
-        }
-      }
-      ```
-
-    - **BFF to Services**
-        - 処理：アップロードファイルの一時保持（メモリ）
-        - サービス：なし（BFF内で完結）
-    
-        ```markdown
-        1. BFFがファイル群とパス情報を受け取る
-        2. BFF内のサーバ変数（アップロードセッション）として一時的に保持する
-        3. レスポンスの`sourceId`は、このセッションID（メモリ上のみ有効）として扱う
-        4. DBには保存しない
-        ```
-    
-- GET `/api/v1/quiz-creation/analysis` （v1では未使用・廃止）
-    - アップロード済みソースのツリー構造取得機能は提供しない
-
 - POST `/api/v1/quiz-creation/generate`
     - **Frontend to BFF**
 
@@ -356,9 +316,9 @@
         - サービス：[Generator, Quiz Service]
     
         ```markdown
-        1. BFFがリクエストボディとアップロードセッション(sourceId)から、対象ソースコード群を特定する
+        1. BFFがリクエストボディの `files` から対象ソースコード群と出題数(problemCounts.syntax など)を読み取る
         2. BFFが Generator Service に {files, problemCounts.syntax, ...} を渡し、問題(problems)を生成させる
-        3. BFFが Quiz Service に {userId, title, problems} を渡し、Quiz Set / Problems をDBに保存する
+        3. BFFが Quiz Service に {userId, title, description, problems} を渡し、Quiz Set / Problems をDBに保存する
         ```
 
         ```json

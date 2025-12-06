@@ -16,21 +16,6 @@ function getCurrentUserId() {
 }
 
 export const quizCreationApi = {
-  async uploadMockSource() {
-    const userId = getCurrentUserId() ?? 1;
-
-    const body = {
-      userId,
-      project_name: "my-react-app",
-      files: [
-        "// mock source file content for quiz creation",
-        '{"name": "my-react-app", "version": "1.0.0"}',
-      ],
-    };
-
-    return apiClient.post("/quiz-creation/upload", { body });
-  },
-
   async generateQuiz({ title, description, files }) {
     const userId = getCurrentUserId() ?? 1;
 
