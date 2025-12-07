@@ -6,7 +6,7 @@
     - **Frontend**: node プロセスが :80 でHTTP待機
     - **BFF**: uvicorn プロセスが :8081 でHTTP待機
     - **Services**: uvicorn プロセスが :800X でHTTP待機
-- 各サービス配下のDockerfile.envにイメージの構成を記述する
+- 各サービス配下のDockerfileにイメージの構成を記述する
 
 ### ルートディレクトリ構造
 
@@ -29,7 +29,6 @@ root/
 ```
 frontend/
 ├─ Dockerfile 
-├─ Dockerfile.env
 ├─ index.html                         # app-shell と <main> / data-view-section="..." を定義
 ├─ styles.css                         # 全体スタイル（レイアウト + コンポーネント）
 ├─ styles-wizard.css                  # クイズ作成ウィザード専用スタイル
@@ -128,7 +127,6 @@ bff/
 │   └── main.py                             # FastAPI アプリ定義 / エントリーポイント
 ├── tests/
 ├── requirements.txt
-├── Dockerfile.env
 └── Dockerfile
 
 ```
@@ -163,7 +161,6 @@ user-service/
 │   └── 002_add_columns.sql
 ├── tests/
 ├── requirements.txt
-├── Dockerfile.env
 └── Dockerfile
 ```
 
@@ -195,7 +192,6 @@ quiz-service/
 │   └── 001_create_quiz_tables.sql
 ├── tests/
 ├── requirements.txt
-├── Dockerfile.env
 └── Dockerfile
 ```
 
@@ -226,7 +222,6 @@ progress-service/
 │   └── 001_create_progress_tables.sql
 ├── tests/
 ├── requirements.txt
-├── Dockerfile.env
 └── Dockerfile
 ```
 
@@ -257,7 +252,6 @@ generator-service/
 ├── prompts/                            # プロンプトテンプレート(JSON/Markdown)
 ├── tests/
 ├── requirements.txt
-├── Dockerfile.env
 └── Dockerfile
 
 ```
@@ -282,7 +276,6 @@ executor-service/
 ├── templates/                          # 言語別実行テンプレート (Dockerfile/スクリプト)
 ├── tests/
 ├── requirements.txt
-├── Dockerfile.env
 └── Dockerfile
 
 ```
@@ -307,6 +300,5 @@ validator-service/
 │   └── main.py                         # FastAPI アプリ定義
 ├── tests/
 ├── requirements.txt
-├── Dockerfile.env
 └── Dockerfile
 ```
