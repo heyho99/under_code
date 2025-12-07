@@ -58,9 +58,17 @@
 
     <!-- Ace Editor CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js"></script>
-    <!-- モジュールの読み込み -->
-    <!-- Flaskのstaticフォルダ設定に合わせてパスを調整 -->
-    <script src="/js/editor.js"></script>
+
+    <!-- Monaco Editor loader (VSCode ベースのエディタ)
+         CodeMirror 利用時は AMD の define が競合するため読み込まないこと -->
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.33.0/min/vs/loader.min.js"></script> -->
+
+    <!-- エディタ実装（どれか1つだけ有効にする） -->
+    <!-- <script src="/js/editors/ace.js"></script> -->
+    <!-- <script src="/js/editors/monaco.js"></script> -->
+    <script type="module" src="/js/editors/codemirror6.js"></script>
+
+    <!-- 実行・提出ロジック -->
     <script src="/js/run_code.js"></script>
 
     <script>

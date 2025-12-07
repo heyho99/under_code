@@ -1,0 +1,34 @@
+import { EditorView } from "https://esm.sh/@codemirror/view";
+
+const initialValue = [
+  "# ここにコードを書いて実行ボタンで試してください",
+  "# 提出時、システムが各テストケースごとに sysin に値を代入します。",
+  "# sysinの受け取り方例：a, b = sysin",
+  "",
+  "",
+].join("\n");
+
+const container = document.getElementById("editor");
+if (!container) {
+  console.error("editor element not found");
+} else {
+  const view = new EditorView({
+    doc: initialValue,
+    parent: container,
+  });
+
+  window.editorAdapter = {
+    getValue: function () {
+      return view.state.doc.toString();
+    },
+    setValue: function (code) {
+      if (typeof code !== "string") return;
+      view.dispatch({
+        changes: { from: 0, to: view.state.doc.length, insert: code },
+      });
+    },
+    focus: function () {
+      view.focus();
+    },
+  };
+}
