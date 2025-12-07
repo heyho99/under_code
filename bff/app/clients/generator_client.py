@@ -1,6 +1,7 @@
 import httpx
 from app.core.config import settings
 
+
 class GeneratorClient:
     def __init__(self):
         self.base_url = settings.GENERATOR_SERVICE_URL
@@ -12,6 +13,6 @@ class GeneratorClient:
     
     async def generate_problems(self, data: dict):
         async with httpx.AsyncClient(timeout=60.0) as client: # LLMは時間がかかるのでタイムアウト長め
-            response = await client.post(f"{self.base_url}/generator/generate", json=data)
+            response = await client.post(f"{self.base_url}/api/v1/generate", json=data)
             response.raise_for_status()
             return response.json()
