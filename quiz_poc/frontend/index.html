@@ -61,12 +61,21 @@
 
     <!-- Monaco Editor loader (VSCode ベースのエディタ)
          CodeMirror 利用時は AMD の define が競合するため読み込まないこと -->
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.33.0/min/vs/loader.min.js"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.33.0/min/vs/loader.min.js"></script>
+
+    <!-- CodeMirror 6 import map (deno codemirror_esm) -->
+    <script type="importmap">
+      {
+        "imports": {
+          "codemirror/": "https://deno.land/x/codemirror_esm@v6.0.1/esm/"
+        }
+      }
+    </script>
 
     <!-- エディタ実装（どれか1つだけ有効にする） -->
     <!-- <script src="/js/editors/ace.js"></script> -->
-    <!-- <script src="/js/editors/monaco.js"></script> -->
-    <script type="module" src="/js/editors/codemirror6.js"></script>
+    <script src="/js/editors/monaco.js"></script>
+    <!-- <script type="module" src="/js/editors/codemirror6.js"></script> -->
 
     <!-- 実行・提出ロジック -->
     <script src="/js/run_code.js"></script>
