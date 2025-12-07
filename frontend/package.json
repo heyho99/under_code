@@ -8,6 +8,13 @@
     "build": "vite build",
     "preview": "vite preview"
   },
+  "dependencies": {
+    "codemirror": "*",
+    "@codemirror/lang-python": "*",
+    "@codemirror/theme-one-dark": "*",
+    "@codemirror/view": "*",
+    "monaco-editor": "*"
+  },
   "devDependencies": {
     "vite": "^5.0.0"
   }

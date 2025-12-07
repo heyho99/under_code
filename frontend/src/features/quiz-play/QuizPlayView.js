@@ -41,14 +41,7 @@ export const QuizPlayView = {
               </div>
             </div>
             <div class="code-editor-mock__body">
-              <div class="code-editor-mock__gutter">
-                <span>1</span>
-                <span>2</span>
-                <span>3</span>
-                <span>4</span>
-                <span>5</span>
-              </div>
-              <textarea class="code-editor-mock__textarea" placeholder="ここに回答用のコードを記述"></textarea>
+              <div class="code-editor-container" data-code-editor></div>
             </div>
             <div class="code-editor-mock__footer">
               Python 3.11 / FastAPI / uvicorn

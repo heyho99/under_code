@@ -2,6 +2,7 @@ import { QuizPlayView } from "./QuizPlayView.js";
 import { navigate } from "../../router/router.js";
 import { updateHeader, activateSection } from "../../ui/MainHeader.js";
 import { quizPlayApi } from "../../core/api/quizPlayApi.js";
+import { createEditor } from "../../ui/components/CodeEditor/CodeEditorFactory.js";
 
 function getSelectedProblemId() {
   try {
@@ -20,6 +21,7 @@ function getSelectedProblemId() {
 }
 
 export const QuizPlayController = {
+  _editor: null,
   async mount() {
     const root = QuizPlayView.getRoot();
     QuizPlayView.render(root);
@@ -38,7 +40,7 @@ export const QuizPlayController = {
 
     const quizOutputEl = root.querySelector("[data-quiz-output]");
     const quizFeedbackEl = root.querySelector("[data-quiz-feedback]");
-    const answerTextarea = root.querySelector(".code-editor-mock__textarea");
+    const editorContainer = root.querySelector("[data-code-editor]");
 
     const titleEl = root.querySelector("[data-quiz-title]");
     const descriptionEl = root.querySelector("[data-quiz-description]");
@@ -46,6 +48,15 @@ export const QuizPlayController = {
     const markdownEl = root.querySelector("[data-quiz-markdown]");
 
     const problemId = getSelectedProblemId();
+
+    // エディタの初期化
+    if (editorContainer) {
+      this._editor = createEditor({
+        container: editorContainer,
+        initialCode: "",
+        // type: "cm6", // 必要に応じて "monaco" に変更
+      });
+    }
 
     if (!problemId) {
       if (titleEl) titleEl.textContent = "問題が選択されていません";
@@ -107,7 +118,7 @@ export const QuizPlayController = {
 
         if (quizFeedbackEl) quizFeedbackEl.style.display = "none";
 
-        const code = answerTextarea ? answerTextarea.value.trim() : "";
+        const code = this._editor ? this._editor.getValue().trim() : "";
         if (!code) {
           quizOutputEl.textContent =
             ">>> 実行しました\n\n※ コードが空のため、出力はありません。";
@@ -147,7 +158,7 @@ export const QuizPlayController = {
 
     submitQuizButtons.forEach((btn) => {
       btn.addEventListener("click", async () => {
-        const code = answerTextarea ? answerTextarea.value.trim() : "";
+        const code = this._editor ? this._editor.getValue().trim() : "";
         if (!problemId) {
           showFeedback(
             "問題が選択されていません",
