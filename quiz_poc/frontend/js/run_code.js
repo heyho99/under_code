@@ -1,8 +1,19 @@
 // 実行ボタン押したらコードを実行モジュールに渡して結果を取得するjs
 
 // 実行ボタン: 実行結果のみ表示
+function getEditorCode() {
+	if (window.editorAdapter && typeof window.editorAdapter.getValue === 'function') {
+		return window.editorAdapter.getValue();
+	}
+	if (typeof editor !== 'undefined' && editor && typeof editor.getValue === 'function') {
+		return editor.getValue();
+	}
+	console.error('Editor adapter is not initialized');
+	return '';
+}
+
 document.getElementById('exec-btn').addEventListener('click', async function() {
-    const code = editor.getValue();
+	const code = getEditorCode();
     const resultArea = document.getElementById('result-area');
     const quizIdInput = document.getElementById('quiz-id');
     const quizId = quizIdInput ? parseInt(quizIdInput.value, 10) : 1;
@@ -52,7 +63,7 @@ document.getElementById('exec-btn').addEventListener('click', async function() {
 
 // 提出ボタン: テストケースで判定まで実施
 document.getElementById('submit-btn').addEventListener('click', async function() {
-    const code = editor.getValue();
+	const code = getEditorCode();
     const resultArea = document.getElementById('result-area');
     const quizIdInput = document.getElementById('quiz-id');
     const quizId = quizIdInput ? parseInt(quizIdInput.value, 10) : 1;
