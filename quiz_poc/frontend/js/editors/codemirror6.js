@@ -1,4 +1,6 @@
-import { EditorView } from "https://esm.sh/@codemirror/view";
+import { EditorView, basicSetup } from "codemirror/codemirror/dist/index.js";
+import { python } from "codemirror/lang-python/dist/index.js";
+import { oneDark } from "codemirror/theme-one-dark/dist/index.js";
 
 const initialValue = [
   "# ここにコードを書いて実行ボタンで試してください",
@@ -14,6 +16,7 @@ if (!container) {
 } else {
   const view = new EditorView({
     doc: initialValue,
+    extensions: [basicSetup, python(), oneDark],
     parent: container,
   });
 
