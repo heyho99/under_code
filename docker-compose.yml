@@ -63,20 +63,19 @@ services:
 #       - user-db
 #     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80", "--reload"]
 
-#   # Quiz Service (Host: 8083 -> Container: 80)
-#   quiz-service:
-#     build:
-#       context: ./quiz-service
-#       dockerfile: Dockerfile.dev
-#     volumes:
-#       - ./quiz-service:/app
-#     ports:
-#       - "8083:80"
-#     environment:
-#       - DATABASE_URL=postgresql://user:password@quiz-db:5432/quiz_db
-#     depends_on:
-#       - quiz-db
-#     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80", "--reload"]
+  # Quiz Service (Host: 8083 -> Container: 80)
+  quiz-service:
+    build:
+      context: ./quiz-service
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./quiz-service:/app
+    ports:
+      - "8083:80"
+    environment:
+      - DATABASE_URL=postgresql://user:password@quiz-db:5432/quiz_db
+    # DB はまだ起動していないので depends_on は一旦外しておく
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80", "--reload"]
 
 #   # Progress Service (Host: 8084 -> Container: 80)
 #   progress-service:
@@ -97,18 +96,18 @@ services:
 #   # Microservices (Function)
 #   # =========================================
 
-#   # Generator Service (Host: 8085 -> Container: 80)
-#   generator-service:
-#     build:
-#       context: ./generator-service
-#       dockerfile: Dockerfile.dev
-#     volumes:
-#       - ./generator-service:/app
-#     ports:
-#       - "8085:80"
-#     environment:
-#       - OPENAI_API_KEY=${OPENAI_API_KEY}
-#     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80", "--reload"]
+  # Generator Service (Host: 8085 -> Container: 80)
+  generator-service:
+    build:
+      context: ./generator-service
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./generator-service:/app
+    ports:
+      - "8085:80"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80", "--reload"]
 
 #   # Executor Service (Host: 8086 -> Container: 80)
 #   executor-service:
