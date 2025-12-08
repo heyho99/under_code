@@ -74,7 +74,8 @@ services:
       - "8083:80"
     environment:
       - DATABASE_URL=postgresql://user:password@quiz-db:5432/quiz_db
-    # DB はまだ起動していないので depends_on は一旦外しておく
+    depends_on:
+      - quiz-db
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80", "--reload"]
 
 #   # Progress Service (Host: 8084 -> Container: 80)
@@ -159,17 +160,17 @@ services:
 #     ports:
 #       - "5501:5432"
 
-#   # Quiz DB (Host: 5502 -> Container: 5432)
-#   quiz-db:
-#     image: postgres:15-alpine
-#     volumes:
-#       - quiz_db_data:/var/lib/postgresql/data
-#     environment:
-#       - POSTGRES_USER=user
-#       - POSTGRES_PASSWORD=password
-#       - POSTGRES_DB=quiz_db
-#     ports:
-#       - "5502:5432"
+  # Quiz DB (Host: 5502 -> Container: 5432)
+  quiz-db:
+    image: postgres:15-alpine
+    volumes:
+      - quiz_db_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=quiz_db
+    ports:
+      - "5502:5432"
 
 #   # Progress DB (Host: 5503 -> Container: 5432)
 #   progress-db:
@@ -183,7 +184,5 @@ services:
 #     ports:
 #       - "5503:5432"
 
-# volumes:
-#   user_db_data:
-#   quiz_db_data:
-#   progress_db_data:
+volumes:
+  quiz_db_data:
