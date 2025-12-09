@@ -46,6 +46,7 @@ export const QuizPlayController = {
     const descriptionEl = root.querySelector("[data-quiz-description]");
     const hintEl = root.querySelector("[data-quiz-hint]");
     const markdownEl = root.querySelector("[data-quiz-markdown]");
+    let sampleAnswer = "";
 
     const problemId = getSelectedProblemId();
 
@@ -79,6 +80,7 @@ export const QuizPlayController = {
           // 簡易的に contentMarkdown をそのままテキストとして表示
           markdownEl.textContent = detail?.contentMarkdown || "";
         }
+        sampleAnswer = detail?.sampleAnswer || "";
       } catch (_error) {
         if (titleEl) titleEl.textContent = "問題を取得できませんでした";
         if (descriptionEl)
@@ -196,6 +198,10 @@ export const QuizPlayController = {
     // v1ではヒント/正解は固定文言のまま簡易に残しておく
     viewAnswerButtons.forEach((btn) => {
       btn.addEventListener("click", () => {
+        if (sampleAnswer) {
+          showFeedback("正解と解説", sampleAnswer, true);
+          return;
+        }
         showFeedback(
           "正解と解説",
           "このバージョンでは模範解答は表示されません。提出結果を参考に改善してみましょう。",
