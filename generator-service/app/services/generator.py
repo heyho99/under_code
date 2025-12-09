@@ -2,6 +2,7 @@ from app.schemas.generator import GenerateRequest, GenerateResponse
 from app.services.prompt_builder import build_prompt_from_request
 from app.clients.llm_client import call_llm
 from app.services.quizzes_parser import parse_quizzes_from_markdown
+from app.services.debug_outputs import save_debug_outputs
 
 
 async def generate_quiz_set(request: GenerateRequest) -> GenerateResponse:
@@ -14,4 +15,5 @@ async def generate_quiz_set(request: GenerateRequest) -> GenerateResponse:
     prompt = build_prompt_from_request(request)
     markdown = await call_llm(prompt)
     quizzes = parse_quizzes_from_markdown(markdown)
+    save_debug_outputs(markdown, quizzes)
     return GenerateResponse(quizzes=quizzes)

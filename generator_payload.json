@@ -1,0 +1,14 @@
+{
+  "userId": 1,
+  "title": "Sample Quiz",
+  "description": "Sample quiz from generator",
+  "files": [
+    {
+      "fileName": "example.py",
+      "content": "def add(a, b):\n    return a + b\n",
+      "problemCounts": {
+        "syntax": 3
+      }
+    }
+  ]
+}

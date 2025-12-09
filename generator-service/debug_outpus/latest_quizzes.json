@@ -1,0 +1,109 @@
+{
+  "quizzes": [
+    {
+      "id": 1,
+      "title": "'整数の最小値制約を満たすか判定して出力する'",
+      "description": "\"\\n変数 sysin には整数が渡されます。\\nこの値について、「0 以上であればそのまま出力し、0 未満であれば 'invalid' という文字列を出力する」処理を実装してください。\\n\\nこれは、対象コード中の `Field(ge=0)` による「0 以上であること」という制約の考え方を、\\nシンプルな if 文による判定ロジックで再現する問題です。\\n\"",
+      "sysin_format": "'整数（int）'",
+      "sample_code": "'\\nvalue = sysin\\n\\nif value >= 0:\\n    print(value)\\nelse:\\n    print(\"invalid\")\\n'",
+      "testcases": [
+        {
+          "sysin": "10",
+          "expected": "10"
+        },
+        {
+          "sysin": "0",
+          "expected": "0"
+        },
+        {
+          "sysin": "-5",
+          "expected": "'invalid'"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "'カテゴリ文字列が許可されたパターンに一致するか判定する'",
+      "description": "'\\n変数 sysin には文字列が渡されます。\\nこの文字列が \\'study\\', \\'creation\\', \\'other\\' のいずれかであれば、その文字列をそのまま出力してください。\\nどれにも当てはまらない場合は、\\'invalid\\' という文字列を出力してください。\\n\\nこれは、対象コード中の\\npattern=r\"^(study|creation|other)$\"\\nという正規表現パターンによる制約を、if 文による単純な一致判定で再現する問題です。\\n'",
+      "sysin_format": "'文字列（str）'",
+      "sample_code": "'\\nvalue = sysin\\n\\nallowed = [\"study\", \"creation\", \"other\"]\\n\\nif value in allowed:\\n    print(value)\\nelse:\\n    print(\"invalid\")\\n'",
+      "testcases": [
+        {
+          "sysin": "'study'",
+          "expected": "'study'"
+        },
+        {
+          "sysin": "'creation'",
+          "expected": "'creation'"
+        },
+        {
+          "sysin": "'game'",
+          "expected": "'invalid'"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "'空文字ならデフォルト値に置き換えて出力する'",
+      "description": "'\\n変数 sysin には文字列が渡されます。\\nこの文字列が空文字（\"\"）であれば、代わりにデフォルト値として空文字のままではなく \\'default\\' という文字列を出力してください。\\n空文字でない場合は、元の文字列をそのまま出力してください。\\n\\nこれは、対象コード中の `Field(default=\"\")` など、\\n値が指定されないときにデフォルト値を用いるという考え方を、\\n単純な条件分岐で再現する問題です。\\n'",
+      "sysin_format": "'文字列（str）'",
+      "sample_code": "'\\nvalue = sysin\\n\\nif value == \"\":\\n    result = \"default\"\\nelse:\\n    result = value\\n\\nprint(result)\\n'",
+      "testcases": [
+        {
+          "sysin": "''",
+          "expected": "'default'"
+        },
+        {
+          "sysin": "'hello'",
+          "expected": "'hello'"
+        },
+        {
+          "sysin": "'task_content'",
+          "expected": "'task_content'"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "'None のときだけデフォルト文字列を使う'",
+      "description": "\"\\n変数 sysin には、文字列または None が渡されます。\\nsysin が None の場合は 'no_comment' という文字列を出力してください。\\nsysin が None 以外（任意の文字列）の場合は、その文字列をそのまま出力してください。\\n\\nこれは、対象コード中の `Optional[str] = None` のように、\\n「値が指定されない（None）ときに特別な扱いをする」というパターンを\\nif 文で再現する問題です。\\n\"",
+      "sysin_format": "'文字列（str）または None'",
+      "sample_code": "'\\nvalue = sysin\\n\\nif value is None:\\n    print(\"no_comment\")\\nelse:\\n    print(value)\\n'",
+      "testcases": [
+        {
+          "sysin": "None",
+          "expected": "'no_comment'"
+        },
+        {
+          "sysin": "'OK'",
+          "expected": "'OK'"
+        },
+        {
+          "sysin": "''",
+          "expected": "''"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "'ステータス文字列が指定された候補に含まれるか判定する'",
+      "description": "'\\n変数 sysin には文字列が渡されます。\\nこの文字列が \\'active\\', \\'completed\\', \\'paused\\', \\'cancelled\\' のいずれかであれば、\\nその文字列をそのまま出力してください。\\n上記以外の文字列であれば、\\'invalid\\' という文字列を出力してください。\\n\\nこれは、対象コード中の\\npattern=r\"^(active|completed|paused|cancelled)$\"\\nという制約の考え方を、リストを使った一致判定で再現する問題です。\\n'",
+      "sysin_format": "'文字列（str）'",
+      "sample_code": "'\\nvalue = sysin\\n\\nallowed_status = [\"active\", \"completed\", \"paused\", \"cancelled\"]\\n\\nif value in allowed_status:\\n    print(value)\\nelse:\\n    print(\"invalid\")\\n'",
+      "testcases": [
+        {
+          "sysin": "'active'",
+          "expected": "'active'"
+        },
+        {
+          "sysin": "'paused'",
+          "expected": "'paused'"
+        },
+        {
+          "sysin": "'done'",
+          "expected": "'invalid'"
+        }
+      ]
+    }
+  ]
+}
