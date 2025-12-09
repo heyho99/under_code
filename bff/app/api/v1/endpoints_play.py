@@ -1,17 +1,21 @@
-from fastapi import APIRouter
+import logging
+
+from fastapi import APIRouter, HTTPException
+
+from app.clients.quiz_client import QuizClient
 from app.schemas.problems import ProblemDetail
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
+quiz_client = QuizClient()
 
 
 @router.get("/{problem_id}", response_model=ProblemDetail)
 async def get_problem_detail(problem_id: int):
-    return ProblemDetail(
-        problemId=problem_id,
-        quizSetId=205,
-        orderIndex=1,
-        title="Mock Problem",
-        description="This is a mock problem for testing.",
-        contentMarkdown="## Mock Problem\nPlease solve this mock problem.",
-        sampleAnswer="Mock sample answer",
-    )
+    try:
+        data = await quiz_client.get_problem(problem_id)
+    except Exception:
+        logger.exception("Failed to fetch problem detail")
+        raise HTTPException(status_code=502, detail="Failed to fetch problem detail")
+
+    return ProblemDetail(**data)
