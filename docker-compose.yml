@@ -110,28 +110,27 @@ services:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80", "--reload"]
 
-#   # Executor Service (Host: 8086 -> Container: 80)
-#   executor-service:
-#     build:
-#       context: ./executor-service
-#       dockerfile: Dockerfile.dev
-#     volumes:
-#       - ./executor-service:/app
-#       - /var/run/docker.sock:/var/run/docker.sock
-#     ports:
-#       - "8086:80"
-#     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80", "--reload"]
+  # Executor Service (Host: 8086 -> Container: 80)
+  executor-service:
+    build:
+      context: ./executor-service
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./executor-service:/app
+    ports:
+      - "8086:80"
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80", "--reload"]
 
-#   # Validator Service (Host: 8087 -> Container: 80)
-#   validator-service:
-#     build:
-#       context: ./validator-service
-#       dockerfile: Dockerfile.dev
-#     volumes:
-#       - ./validator-service:/app
-#     ports:
-#       - "8087:80"
-#     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80", "--reload"]
+  # Validator Service (Host: 8087 -> Container: 80)
+  validator-service:
+    build:
+      context: ./validator-service
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./validator-service:/app
+    ports:
+      - "8087:80"
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80", "--reload"]
 
 #   # Tutor Service (Host: 8089 -> Container: 80)
 #   tutor-service:
