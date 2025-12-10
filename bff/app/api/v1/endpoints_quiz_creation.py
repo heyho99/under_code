@@ -1,5 +1,6 @@
 from typing import Any, Dict, List
 
+import ast
 import logging
 from fastapi import APIRouter, HTTPException, status
 
@@ -17,14 +18,27 @@ generator_client = GeneratorClient()
 quiz_client = QuizClient()
 
 
+def _from_repr_or_raw(value: Any) -> Any:
+    if not isinstance(value, str):
+        return value
+    try:
+        return ast.literal_eval(value)
+    except Exception:
+        return value
+
+
 def _convert_quizzes_to_problems(quizzes: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     problems: List[Dict[str, Any]] = []
     for quiz in quizzes:
-        title = quiz.get("title", "")
-        description = quiz.get("description", "")
-        sysin_format = quiz.get("sysin_format", "")
-        sample_code = quiz.get("sample_code", "")
-        testcases = quiz.get("testcases") or []
+        raw_title = quiz.get("title")
+        raw_description = quiz.get("description")
+        raw_sysin_format = quiz.get("sysin_format")
+        raw_sample_code = quiz.get("sample_code")
+
+        title = _from_repr_or_raw(raw_title) or ""
+        description = _from_repr_or_raw(raw_description) or ""
+        sysin_format = _from_repr_or_raw(raw_sysin_format) or ""
+        sample_code = _from_repr_or_raw(raw_sample_code) or ""
 
         parts: List[str] = []
         if description:
@@ -32,16 +46,6 @@ def _convert_quizzes_to_problems(quizzes: List[Dict[str, Any]]) -> List[Dict[str
         if sysin_format:
             parts.append("\n\n[Input Format]\n")
             parts.append(str(sysin_format))
-        if sample_code:
-            parts.append("\n\n```python\n")
-            parts.append(str(sample_code))
-            parts.append("\n```")
-        if testcases:
-            parts.append("\n\n[Test cases]\n")
-            for tc in testcases:
-                parts.append(
-                    f"- sysin: {tc.get('sysin')}, expected: {tc.get('expected')}"
-                )
 
         content_markdown = "".join(parts) if parts else ""
 
