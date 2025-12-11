@@ -1,5 +1,9 @@
 flask --app quiz_poc run --debug
 
+Python: ast.literal_evalでOK
+JS/TS: vmでOK
+Go: jsonかませないと厳しいか
+→jsonの型にしぼるか、Goだけjsonかませるか。。
 
 ## フロー概要（新仕様）
 
@@ -17,7 +21,12 @@ flask --app quiz_poc run --debug
 - jsonは値として3種類のリテラルを規定している
    - 文字列：`"..."`
    - 配列：`[...]`
-   - 連想配列：`{...}`
+   - オブジェクト：`{...}`
+   - bool：`true/false`
+   - `null`
+- コードやテストケースを含めた各値は、文字列にし、jsonにも文字列として入れて輸送することで、ダンプするだけで解凍が可能
+- `ast.literal_eval`は文字列をPythonとしてパースできる（コードは読み取れない）
+- コードの実行は`paizaio api`に任せるので、`exec`は必要ない
 
 
 ## クイズ作成フロー
@@ -46,42 +55,50 @@ flask --app quiz_poc run --debug
    - BFFからFrontendもそのままのjsonを送信する
 
 3. **jsonの値をFrontendでパースして表示**
-   - json内部の各値はエスケープされた文字列なので、それをjavascriptでDOMに埋め込めばよい
+   - json内部の各値はエスケープされた文字列
    - `response`をそのまま受け取ると、文字列リテラルとして受け取ることになるので、それをDOMに埋め込むと、エスケープ文字も表示される
-   - `response.json`で受け取ると、javascriptオブジェクトとしてパースされるので、エスケープ文字は無い状態で各値を受け取れ、DOMに埋め込んでもエスケープ文字は出ない
+   - `response.json`で受け取ると、javascriptオブジェクトとしてパースされるので、エスケープ文字は無い状態で各値を受け取れ、DOMに埋め込んでもエスケープ文字は出ない（json制約から解放される）
 
 
 ## クイズ実行フロー
 
-1. **アプリ起動**
-   - `flask --app quiz_poc run --debug` で Flask アプリを起動する。
-   - 起動時に `QuizRepository` が `backend/data/quizzes.json` を読み込み、クイズ一覧をメモリに載せる。
+1. **エディタにユーザがコードを入力する**
 
-2. **クイズ一覧表示**
-   - ブラウザで `/` にアクセスすると `backend/__init__.py` の `index()` が呼ばれ、
-   - `QuizRepository.get_all_quizzes()` の結果を `frontend/quiz_list.html` でレンダリングする。
-
-3. **個別クイズ画面表示**
-   - `/quiz/<id>` にアクセスすると `show_quiz()` が呼ばれ、
-   - 指定 ID のクイズを取得して `description`（Markdown 文字列）を `markdown.markdown()` で HTML に変換し、
-   - `frontend/index.html` を使って問題画面を表示する。
+2. **実行ボタンを押す**
+    - 実行ボタンが押されると、入力されたコードが文字列としてjavascriptの変数に格納される
+    - その文字列をjsonにダンプする（エスケープしてjson文字列の値に入れる）
+    - frontend→bff→excutorとjsonを送信
+3. **generatorでパース**
+    - generatorでjsonをパースし、dictに変換（エスケープが解除される）（値はコードの文字列）
+    - `paizaio api`でコードが実行され、出力を取得する
+4. **出力をjsonにダンプし、frontendまで返送する**
 
 
-## クイズ判定フロー（/execute・/run）
+## クイズ判定フロー
 
-1. **「実行」ボタン（/execute）**
-   - 画面上のエディタのコードを `backend/executor.py` の `CodeExecutor` に渡し、
-   - paiza.io API を通じてコードを実行する。
-   - テストケースや `sysin` は使わず、標準入力は常に空文字列として実行する。
+1. **エディタにユーザがコードを入力する**
 
-2. **「提出」ボタン（/run）**
-   - `QuizRepository` から対象クイズの `test_cases` を取得する。
-   - 各テストケースについて:
-     - `build_source_with_sysin()` で `sysin = <テスト入力>` をコード先頭に埋め込んだソースを生成し、
-     - `CodeExecutor.run()` で外部実行して標準出力を取得する。
-     - `backend/grader.py` の `Grader.judge(stdout, expected)` で期待値と比較して正誤判定する。
-       - 期待値が非文字列の場合は、ユーザ出力を `ast.literal_eval()` で Python オブジェクトに変換してから比較する。
-   - すべてのテストに通れば AC、それ以外は WA として結果を JSON で返す。
+2. **提出ボタンを押す**
+    - 提出ボタンが押されると、入力されたコードが文字列としてjavascriptの変数に格納される
+    - その文字列をjsonにダンプする（エスケープしてjson文字列の値に入れる）
+    - frontend→bff→validatorとjsonを送信
+3. **validatorでtestcasesを取得**
+    - bffがquiz-serviceにproblemを要求
+    - quiz-service→bff→validatorとjsonを送信
+    - validatorはjsonからtestcase["expected"]3つを`ast.literal_eval`し、Pythonオブジェクトとして保持する（testcase["sysin"]は文字列のままで良い）
+4. **validatorで、ユーザが入力したコードに、testcaseを入れ実行する**
+    - validatorでユーザ入力コードのjsonをパースし、dictに変換（エスケープが解除される）（値はコードの文字列）
+    - sysin変数に1つ目のtestcase["sysin"]を入れる
+    - `paizaio api`でユーザ入力コードが実行される（ユーザ入力コードにsysinがあれば、sysinに接続できる）
+5. **判定**
+    - 実行された値を取得し、`ast.literal_eval`でPythonオブジェクトとして保持
+    - その実行結果と1つ目のtestcase["expected"]を==で比較
+    - 比較結果がTrueなら良い、Falseならダメ
+6. **結果を返す**
+    - 判定を3回行い結果をまとめる
+    - 全部Trueなら合格、１つでもFalseなら不合格
+    - 3回分の結果と、合否結果をfrontendに返す
+
 
 
 ## ディレクトリツリー
