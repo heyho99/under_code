@@ -51,7 +51,7 @@ flask --app quiz_poc run --debug
    - `response.json`で受け取ると、javascriptオブジェクトとしてパースされるので、エスケープ文字は無い状態で各値を受け取れ、DOMに埋め込んでもエスケープ文字は出ない
 
 
-## クイズ実行フロー（一覧表示・個別画面）
+## クイズ実行フロー
 
 1. **アプリ起動**
    - `flask --app quiz_poc run --debug` で Flask アプリを起動する。
