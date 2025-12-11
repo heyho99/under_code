@@ -1,42 +1,54 @@
 flask --app quiz_poc run --debug
 
 
-## フロー概要
+## フロー概要（新仕様）
 
-この POC の処理は、次の 3 つのフローに分かれます。
+1. クイズ作成フロー（オフライン前処理・構造化 Markdown ベース）
+2. クイズプレイ画面表示フロー
+3. クイズ実行フロー
+4. クイズ判定フロー（採点）
 
-1. クイズ作成フロー（オフライン前処理）
-2. クイズ実行フロー（画面表示）
-3. クイズ判定フロー（採点）
+## 前提知識
+- バックエンドにPythonを使う
+- **ハードコードの制約** と **jsonの制約**  を認識する
+- Pythonが **\*.py 内のリテラル** を処理し、json文字列やrepr文字列を作成する
+- 文字列リテラルを、*.py内のソースコードに、人間が見えるように書こうとすると、クオートが必要になる
+- ハードコードしなければクオートは必要無い
+- jsonは値として3種類のリテラルを規定している
+   - 文字列：`"..."`
+   - 配列：`[...]`
+   - 連想配列：`{...}`
 
 
-## クイズ作成フロー（Markdown → repr → JSON → ast.literal_eval）
+## クイズ作成フロー
 
-1. **LLM によるクイズ定義 Markdown 生成**
-   - `backend/llm_creator.py` を実行する。
-   - `backend/data/test_py_code.txt` のコードをもとにプロンプトを組み立てて LLM を呼び出し、
-   - `backend/data/quizzes.md`（Python コード入りの Markdown）を生成する。
+1. **LLM による構造化 Markdown 生成**
+   - LLMにマークダウンを出力してもらう
 
-2. **Markdown → repr → JSON 変換**
-   - `backend/extract_quizzes.py` を実行する。
-   - `quizzes.md` 内の ```python:n コードブロックを走査し、それぞれを `exec` して
-     `title` / `description` / `sysin_format` / `sample_code` / `test_case_n` などの
-     Python オブジェクトを取得する。
-   - これらの値を `repr()` で **Python リテラル文字列** に変換し、
-     `backend/data/quizzes.json` に JSON として保存する。
+2. **マークダウンからjsonを生成**
+   - マークダウンをfor文で1行ずつ読み、title, description, sysin_format, sample_code, testcasesを探す
+   - それらを文字列としてpythonの変数に格納
+   - python内で、値が格納された各変数を、dictでまとめる
+   - そのdictを、json.dumpsでjson文字列に変換
+      - pythonやその他言語で、jsonオブジェクトは文字列オブジェクトとして扱われる
+      - json.dumpsは、dictの値が文字列の場合、勝手にエスケープしてくれる
+      - 文字列リテラル以外をdictに含んだままjson.dumpsすると、jsonオブジェクトに勝手に変換されてしまう
 
-3. **JSON 読み込みと ast.literal_eval による復元**
-   - Flask アプリ起動時に `QuizRepository` が `quizzes.json` を `json.load()` で読み込む。
-   - 文字列として保存されているフィールド
-     （`title` / `description` / `sysin_format` / `sample_code` / `test_cases[*].sysin` / `test_cases[*].expected`）を
-     `_from_repr_or_raw()` から `ast.literal_eval()` に渡し、元の Python オブジェクトに復元する。
+3. **jsonを、generator→bff→quiz-service→DB と渡して保存する**
 
-4. **変換の全体像（簡潔なまとめ）**
-   - Markdown (`quizzes.md` 内の Python コード)
-     → `exec` で Python オブジェクト化
-     → `repr()` で文字列化して JSON (`quizzes.json`) に保存
-     → 起動時に `ast.literal_eval()` で Python オブジェクトに戻す
-     → 画面表示時に `description` を Markdown → HTML に変換してテンプレートでレンダリング
+
+## クイズプレイ画面表示フロー
+
+1. **frontendでクイズの表示をリクエスト**
+
+2. **Quiz-service→BFF→Frontend**
+   - jsonをBFFまで送信する
+   - BFFからFrontendもそのままのjsonを送信する
+
+3. **jsonの値をFrontendでパースして表示**
+   - json内部の各値はエスケープされた文字列なので、それをjavascriptでDOMに埋め込めばよい
+   - `response`をそのまま受け取ると、文字列リテラルとして受け取ることになるので、それをDOMに埋め込むと、エスケープ文字も表示される
+   - `response.json`で受け取ると、javascriptオブジェクトとしてパースされるので、エスケープ文字は無い状態で各値を受け取れ、DOMに埋め込んでもエスケープ文字は出ない
 
 
 ## クイズ実行フロー（一覧表示・個別画面）
@@ -80,11 +92,11 @@ quiz_poc/
 │  ├─ executor.py               # paiza.io API を叩いてコードを実行するラッパ
 │  ├─ grader.py                 # ユーザ出力と期待値を比較して採点するロジック
 │  ├─ quiz_repository.py        # quizzes.json を読み込んでクイズオブジェクトを提供
-│  ├─ extract_quizzes.py        # quizzes.md から quizzes.json を生成するスクリプト
-│  ├─ llm_creator.py            # LLM を使って quizzes.md を生成するユーティリティ
+│  ├─ extract_quizzes.py        # quizzes_2.md から quizzes.json を生成するスクリプト
+│  ├─ llm_creator.py            # LLM を使って quizzes_2.md を生成するユーティリティ
 │  ├─ data/
 │  │  ├─ quizzes.json           # 疑似 DB（本番では quiz-db のテーブル想定）
-│  │  ├─ quizzes.md             # LLM 出力ログ（本番では基本は使わない想定）
+│  │  ├─ quizzes_2.md           # LLM 出力ログ（構造化 Markdown: #n問目 / ##title ... 形式）
 │  │  └─ test_py_code.txt       # 対象コード（本番ではBFFが受け取るアップロードファイルに相当）
 │  └─ .env                      # API キー等 (必要に応じて)
 │
@@ -95,4 +107,4 @@ quiz_poc/
 │     ├─ editor.js
 │     └─ run_code.js
 │
-└─ README.md                    # POC の起動方法・構成など
+└─ README2.md                   # 新仕様フロー（構造化 Markdown 版）の説明
