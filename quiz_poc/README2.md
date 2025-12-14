@@ -59,17 +59,18 @@ flask --app quiz_poc run --debug
 
     ## sampleCode
     ```python:1
+    import json
     result = {k: str(v) for k, v in sysin.items()}
-    print(result)
+    print(json.dumps(result))
     ```
 
     ## testcases
     ### testcase1
-    `{"sysin": {"a": 1, "b": 2}, "expected": {'a': '1', 'b': '2'}}`
+    `{"sysin": {"a": 1, "b": 2}, "expected": {"a": "1", "b": "2"}}`
     ### testcase2
-    `{"sysin": {"x": 10.5, "y": True}, "expected": {'x': '10.5', 'y': 'True'}}`
+    `{"sysin": {"x": 10.5, "y": 0}, "expected": {"x": "10.5", "y": "0"}}`
     ### testcase3
-    `{"sysin": {}, "expected": "{}"}`
+    `{"sysin": {}, "expected": {}}`
 
     ...
 
@@ -92,11 +93,11 @@ flask --app quiz_poc run --debug
      "title": "辞書内包表記による値の加工",
      "description": "辞書内包表記を使用して、元の辞書の「値 (value)」をすべて文字列型に変換した新しい辞書を作成し、それを標準出力してください。",
      "sysinFormat": "{key: value, ...}",
-     "sampleAnswer": "result = {k: str(v) for k, v in sysin.items()}\nprint(result)\n",
+     "sampleAnswer": "import sys, json\nsysin = json.loads(sys.stdin.read())\nresult = {k: str(v) for k, v in sysin.items()}\nprint(json.dumps(result))\n",
      "testcases": [
        { "sysin": { "a": 1, "b": 2 }, "expected": { "a": "1", "b": "2" } },
-       { "sysin": { "x": 10.5, "y": true }, "expected": { "x": "10.5", "y": "True" } },
-       { "sysin": {}, "expected": "{}" }
+       { "sysin": { "x": 10.5, "y": 0 }, "expected": { "x": "10.5", "y": "0" } },
+       { "sysin": {}, "expected": {} }
      ]
    }
    ```
@@ -123,19 +124,16 @@ flask --app quiz_poc run --debug
 
 1. **エディタにユーザがコードを入力する**
 
-2. **実行ボタンを押す**
+2. **testcase を選び、実行ボタンを押す（案B）**
     - 実行ボタンが押されると、入力されたコードが文字列としてjavascriptの変数に格納される
-    - エディタのコードは starterCode（初期表示テンプレ）+ ユーザ追記 の全体を送る想定
-    - その文字列をそのままjsonにダンプする（エスケープしてjson文字列の値(文字列として)に入れる）
-    - frontend→bff→excutorとjsonを送信
-3. **executorでパース**
-    - executorでjsonをパースし、dictに変換（エスケープが解除される）（値はコードの文字列）
-    - executor-service がコードを実行し、出力を取得する
-4. **出力文字列をfrontendまで返送する**
-    - 出力文字列をjsonに文字列の値としてダンプ
-    - jsonをfrontendまでそのまま送信
-    - frontendで`response.json`でjavascriptオブジェクトとして保持（値は文字列）
-    - DOMに入れて表示
+    - frontend は `problemId` / `language` / `code` / `testcaseIndex` を BFF に送信する
+    - `code` はエディタに入っているソース全体（starterCode + ユーザ追記 でも、完全な1ファイルでも良い）
+3. **BFF が testcaseIndex から stdin(JSON) を選ぶ**
+    - BFF は quiz-service から `testcases`（DBの `problems.testcases`）を取得する
+    - `testcases[testcaseIndex].sysin` を選び、JSON 文字列にして executor-service の stdin として渡す
+4. **executor-service がコードを実行し、stdout/stderr/exitCode を返す**
+5. **Frontend が出力を表示する**
+    - executor-service が返す stdout/stderr は文字列であり、そのまま画面表示に利用できる
 
 
 ## クイズ判定フロー
@@ -145,18 +143,20 @@ flask --app quiz_poc run --debug
 - ユーザは「stdin に渡される JSON を sysin にパース済みの状態で使える」前提で解答コードを書く
 - 言語によって stdin の読み方や変数定義が異なるので、言語ごとにテンプレを用意する必要がある
 - このテンプレは問題ごとに変わらない想定のため、DBには保存せず BFF か Frontend 側で用意してエディタの初期表示に使う
+- **sampleAnswer（模範解答）は starterCode 相当も含めた「完全なソースコード」として保存する**
+    - Go のように `package main` や `main()` が必須の言語でも、そのままコピーして実行できる
+    - フロントで sampleAnswer を反映する場合は「エディタ全体を置き換える」前提にする（下に追記すると壊れる言語がある）
 - sysin に渡される testcase（testcase["sysin"]）は、必ず JSON で表現可能な値が渡される
-- sysin はコードに埋め込まず、paiza の stdin（input）として JSON 文字列を渡し、テンプレ側で JSON パースして sysin 変数を作る
-- Go は単純な追記が難しいため、最初から `package main` を含むテンプレにしてユーザがその中に書く形になる
+- sysin はコードに埋め込まず、executor-service の stdin として JSON 値の文字列を渡し、テンプレ側で JSON パースして sysin 変数を作る
 
-**APIで扱うjson例**
+ **APIで扱うjson例**
 ```json
 {
   "problemId": 1002,
   "title": "a + b[1] を出力する",
   "description": "変数 sysin には {\"a\": number, \"b\": [number, number], \"s\": string} が入ります。a + b[1] を計算し、結果を JSON として1行で出力してください。",
   "sysinFormat": "{\"a\": number, \"b\": [number, number], \"s\": string}",
-  "sampleAnswer": "import json\nanswer = sysin[\"a\"] + sysin[\"b\"][1]\nprint(json.dumps(answer))\n",
+  "sampleAnswer": "import sys, json\nsysin = json.loads(sys.stdin.read())\nanswer = sysin[\"a\"] + sysin[\"b\"][1]\nprint(json.dumps(answer))\n",
   "testcases": [
     {
       "sysin": { "a": 1, "b": [2, 3], "s": "hello" },
@@ -203,7 +203,7 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Println(sysin) // ここから下をユーザが書く
+	// ここから下をユーザが書く
 }
 ```
 
@@ -212,26 +212,19 @@ func main() {
 
 1. **エディタにユーザがコードを入力する**
 
-2. **提出ボタンを押す**
+2. **提出ボタンを押す（採点）**
     - 提出ボタンが押されると、入力されたコードが文字列としてjavascriptの変数に格納される
-    - その文字列をjsonにダンプする（エスケープしてjson文字列の値に入れる）
-    - frontend→bff→validatorとjsonを送信
-3. **validatorでtestcasesを取得**
-    - bffがquiz-serviceにproblemを要求
-    - quiz-service→bff→validatorとjsonを送信
-
-4. **validatorでtestcase["expected"]をパース**
-    - `expected_value = testcase["expected"]` で `expected_value` として保持する（JSONB想定のため json.loads は不要）
-5. **validatorで、ユーザ入力コードを実行する**
-    - validatorでユーザ入力コード文字列を取得
-    - `stdin = json.dumps(testcase["sysin"], ensure_ascii=False) + "\n"` を作る
-    - executor-service に `{ language, code, stdin }` を渡して実行し、stdout/stderr/exitCode を取得する
-6. **判定**
-    - stdout の（最後の）1行を `json.loads` でPythonオブジェクトとして保持する
-    - その実行結果と `expected_value` を `==` で比較する
-7. **結果を返す**
-    - 判定を3回行い結果をまとめる
-    - 全部Trueなら合格、１つでもFalseなら不合格
-    - 3回分の結果と、合否結果をfrontendに返す
-
-
+    - frontend は `problemId` / `language` / `code` を BFF に送信する
+3. **BFFが quiz-service から testcases を取得する**
+    - er-diagram.md の通り、quiz-db の `problems.testcases`（jsonb）に採点用の配列 `[{sysin, expected}, ...]` を保存する
+4. **BFFが testcases を順に executor-service へ実行依頼する**
+    - 各 testcase について、`stdin = json.dumps(sysin)` を作り、executor-service に `language` / `code` / `stdin` を渡す
+    - executor-service から stdout/stderr/exitCode を受け取る
+5. **BFFが validator-service に判定を依頼する**
+    - `expected` と `stdout`（必要なら stderr/exitCode）をまとめて validator-service に送る
+6. **validator-service が判定する**
+    - stdout の「最後の非空行」を JSON として `json.loads` し、パース結果と expected を `==` で比較する
+    - どの言語でも同じ（Go は `encoding/json` で stdin を読み、`json.Marshal`/`Encoder` で stdout 最終行を JSON にする）
+7. **BFFが progress-service に結果を保存する**
+    - service-architecture.md の通り、提出結果は progress-service が progress-db の `submissions` に保存する
+8. **BFFが結果を Frontend に返す**
