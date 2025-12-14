@@ -1,6 +1,7 @@
 ## 画面、BFF API、Service API
 
 - 命名規則：bffは `/api/v1/*` （フロントエンドから見たらただのAPIのため）
+ - 命名規則：API(JSON)は camelCase、DBカラムは snake_case
 
 ### /#/login, /#/signup
 
@@ -544,7 +545,8 @@
             "orderIndex": 1,
             "title": "Propsの受け渡し",
             "description": "親コンポーネントから子コンポーネントへデータを渡す基礎的な問題です。",
-            "contentMarkdown": "## 問題\\n..."
+            "contentMarkdown": "## 問題\\n...",
+            "sampleAnswer": "..."
           }
         }
       }
@@ -561,7 +563,7 @@
 
         ```json
         {
-          "description": "Quiz Service から問題詳細を取得（模範解答は隠蔽）",
+          "description": "Quiz Service から問題詳細を取得（模範解答を含む）",
           "request": "GET /quiz/problems/1002",
           "header": "",
           "body": null,
@@ -664,7 +666,7 @@
         ```markdown
         1. リクエストボディから { userId, problemId, submittedCode } を受け取る
         2. Validator Service を呼び出し、採点を行う
-           (Validator内部で `problems.sample_answer` またはテストケースを取得して判定)
+           (Validator内部で Quiz Service から `problems.testcases` を取得し、テストケースで判定)
         3. 採点結果(isCorrect)を受け取る
         4. Progress Service を呼び出し、`submissions` テーブルに結果を保存する
         5. 結果(isCorrect)と実行ログをクライアントに返す

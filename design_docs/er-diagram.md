@@ -34,6 +34,7 @@ erDiagram
         text description "この問題の説明文"        
         text content_markdown "問題文(Markdown形式)"
         text sample_answer "模範解答コード"
+        jsonb testcases "採点用テストケース配列 [{sysin: any, expected: any}, ...]"
         timestamptz created_at "作成日時"
         timestamptz updated_at "更新日時"
     }

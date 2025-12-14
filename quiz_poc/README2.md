@@ -5,9 +5,11 @@ jsonのオブジェクトをそのままリテラルとして埋め込めない�
 expectedはjsonオブジェクトでpythonでパースして比較すれば良いと思います。
 意味わかります。やりたいことはこうですよね。
 
-**testcase の sysin は「JSON値」**として管理する
+**testcase の sysin は「JSON値」** として管理する
+
 paiza に送るコードは、先頭に
 sysin を “JSON文字列として埋め込む”
+
 その文字列を実行言語側で JSON パースして sysin 変数を作る という処理（prefix）を足してから、ユーザコード本文を連結する
 これなら「JSON を各言語のリテラルに変換して埋め込む」必要がなくなります。
 
@@ -68,7 +70,7 @@ sysin は「JSON文字列をコードに埋め込み → 実行言語側で JSON
 1. **expectedとpaiza io apiの出力を各言語のオブジェクトに変換して等号で判定**
       - 言語のあらゆる型を扱えるので理想
       - 各言語へのオブジェクトの変換が困難な言語がある（一応できるっぽいが）
-2. **expectedをjsonで表現可能なオブジェクトに限定し、expectedとpaiza io apiはjsonパースして各言語のオブジェクトに変換し、等号で判定**
+2. **expectedをjsonで表現可能なオブジェクトに限定し、expectedとpaiza io apiはjsonパースしてpythonオブジェクトに変換し、等号で判定**
       - jsonはあらゆる言語で標準ライブラリで扱える
       - jsonで限定されてしまうので、setやタプル等ができなくなり、とても狭い範囲での出題になってしまいそう
 3. **expectedとpaiza io apiは文字列で保持し、文字列の比較で判定**
@@ -96,8 +98,7 @@ sysin は「JSON文字列をコードに埋め込み → 実行言語側で JSON
    - オブジェクト：`{...}`
    - bool：`true/false`
    - `null`
-- コードやテストケースを含めた各値は、文字列にし、jsonにも文字列として入れて輸送することで、ダンプするだけで解凍が可能
-- **今回はtestcaseはjsonオブジェクト**にし、各言語でパースすれば各言語のオブジェクトに変換できるようにする
+- コードやテストケースを含めた各値は、文字列にし、jsonにも文字列として入れて輸送することで、`json.loads`で解凍できる
 - コードの実行は`paizaio api`に任せる
 
 
@@ -107,13 +108,14 @@ sysin は「JSON文字列をコードに埋め込み → 実行言語側で JSON
    - LLMにマークダウンを出力してもらう
 
 2. **マークダウンからjsonを生成**
-   - マークダウンをfor文で1行ずつ読み、title, description, sysin_format, sample_code, testcasesを探す
+   - マークダウンをfor文で1行ずつ読み、title, description, sysin_format, sample_codeを探す
    - それらを文字列としてpythonの変数に格納
+   - tasetcasesについては、必ずjsonオブジェクトになっているはずなので、`json.loads`でパースしてpythonオブジェクトとして保持
    - python内で、値が格納された各変数を、dictでまとめる
    - そのdictを、json.dumpsでjson文字列に変換
       - pythonやその他言語で、jsonオブジェクトは文字列オブジェクトとして扱われる
-      - json.dumpsは、dictの値が文字列の場合、勝手にエスケープしてくれる
-      - 文字列リテラル以外をdictに含んだままjson.dumpsすると、jsonオブジェクトに勝手に変換されてしまう
+      - json.dumpsは、dictの値が文字列の場合、勝手にエスケープする（json制約対応のため）
+      - （文字列リテラル以外をdictに含んだままjson.dumpsすると、jsonオブジェクトに勝手に変換される）
 
 3. **jsonを、generator→bff→quiz-service→DB と渡して保存する**
 
@@ -138,12 +140,16 @@ sysin は「JSON文字列をコードに埋め込み → 実行言語側で JSON
 
 2. **実行ボタンを押す**
     - 実行ボタンが押されると、入力されたコードが文字列としてjavascriptの変数に格納される
-    - その文字列をjsonにダンプする（エスケープしてjson文字列の値に入れる）
+    - その文字列をそのままjsonにダンプする（エスケープしてjson文字列の値(文字列として)に入れる）
     - frontend→bff→excutorとjsonを送信
-3. **generatorでパース**
-    - generatorでjsonをパースし、dictに変換（エスケープが解除される）（値はコードの文字列）
+3. **executorでパース**
+    - executorでjsonをパースし、dictに変換（エスケープが解除される）（値はコードの文字列）
     - `paizaio api`でコードが実行され、出力を取得する
-4. **出力をjsonにダンプし、frontendまで返送する**
+4. **出力文字列をfrontendまで返送する**
+    - 出力文字列をjsonに文字列の値としてダンプ
+    - jsonをfrontendまでそのまま送信
+    - frontendで`response.json`でjavascriptオブジェクトとして保持（値は文字列）
+    - DOMに入れて表示
 
 
 ## クイズ判定フロー
@@ -157,7 +163,7 @@ sysin は「JSON文字列をコードに埋め込み → 実行言語側で JSON
 3. **validatorでtestcasesを取得**
     - bffがquiz-serviceにproblemを要求
     - quiz-service→bff→validatorとjsonを送信
-    - testcase["sysin"] と testcase["expected"] は **json文字列** として扱う
+    - testcase["sysin"] と testcase["expected"] は **jsonオブジェクト** として扱う
 4. **validatorでtestcase["expected"]をパース**
     - `expected_value = json.loads(testcase["expected"])` でPythonオブジェクトとして保持する
 5. **validatorで、実行コード文字列（prefix + ユーザ入力コード）を組み立てて実行する**
