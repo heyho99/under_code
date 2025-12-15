@@ -343,8 +343,12 @@
                 {
                   "title": "...",
                   "description": "...",
-                  "contentMarkdown": "...",
-                  "sampleAnswer": "..."
+                  "sysinFormat": "{\"a\": number, \"b\": [number, number], \"s\": string}",
+                  "sampleAnswer": "...",
+                  "testcases": [
+                    { "sysin": { "a": 1, "b": [2, 3], "s": "hello" }, "expected": 4 },
+                    { "sysin": { "a": 10, "b": [0, 5], "s": "x" }, "expected": 15 }
+                  ]
                 }
               ]
             }
@@ -365,8 +369,12 @@
               {
                 "title": "...",
                 "description": "...",
-                "contentMarkdown": "...",
-                "sampleAnswer": "..."
+                "sysinFormat": "{\"a\": number, \"b\": [number, number], \"s\": string}",
+                "sampleAnswer": "...",
+                "testcases": [
+                  { "sysin": { "a": 1, "b": [2, 3], "s": "hello" }, "expected": 4 },
+                  { "sysin": { "a": 10, "b": [0, 5], "s": "x" }, "expected": 15 }
+                ]
               }
             ]
           },
@@ -473,8 +481,8 @@
             "quizSetId": 205,
             "title": "apiへのリクエストの方法",
             "problems": [
-              { "problemId": 1001, "title": "...", "description": "", "isSolved": true },
-              { "problemId": 1002, "title": "...", "description": "", "isSolved": true }
+              { "problemId": 1001, "title": "...", "description": "", "defaultLanguage": "python3", "isSolved": true },
+              { "problemId": 1002, "title": "...", "description": "", "defaultLanguage": "python3", "isSolved": true }
             ]
           }
         }
@@ -504,8 +512,8 @@
               "quizSetId": 205,
               "title": "apiへのリクエストの方法",
               "problems": [
-                { "problemId": 1001, "title": "...", "description": "" },
-                { "problemId": 1002, "title": "..." "description": "" }
+                { "problemId": 1001, "title": "...", "description": "", "defaultLanguage": "python3" },
+                { "problemId": 1002, "title": "...", "description": "", "defaultLanguage": "python3" }
               ]
             }
           }
@@ -534,7 +542,7 @@
       ```json
       {
         "description": "問題詳細取得（フロント→BFF）",
-        "request": "GET /api/v1/problems/1002",
+        "request": "GET /api/v1/problems/1002", // languageパラメータがある場合は、その値を採用する（v2）
         "header": "",
         "body": null,
         "response": {
@@ -545,8 +553,14 @@
             "orderIndex": 1,
             "title": "Propsの受け渡し",
             "description": "親コンポーネントから子コンポーネントへデータを渡す基礎的な問題です。",
-            "contentMarkdown": "## 問題\\n...",
-            "sampleAnswer": "..."
+            "defaultLanguage": "python3",
+            "sysinFormat": "{\"a\": number, \"b\": [number, number], \"s\": string}",
+            "starterCode": "import sys, json\\nsysin = json.loads(sys.stdin.read())\\n# ここから下をユーザが書く\\nresult = None\\nprint(json.dumps(result))\\n",
+            "sampleAnswer": "...",
+            "testcases": [
+              { "sysin": { "a": 1, "b": [2, 3], "s": "hello" }, "expected": 4 },
+              { "sysin": { "a": 10, "b": [0, 5], "s": "x" }, "expected": 15 }
+            ]
           }
         }
       }
@@ -558,7 +572,9 @@
 
         ```markdown
         1. パスパラメータ {id} (problemId) を受け取る
-        2. Quiz Service から該当する問題の情報を取得する
+        2. クエリパラメータ language (v2のみ任意) がある場合はその値を採用する
+        3. language が無い場合は Quiz Service から取得した problem の defaultLanguage を採用する
+        4. Quiz Service から該当する問題の情報を取得する
         ```
 
         ```json
@@ -574,9 +590,15 @@
               "quizSetId": 205,
               "orderIndex": 1,
               "title": "Propsの受け渡し",
-              "description": "親コンポーネントから子コンポーネントへデータを渡す基礎的な問題です。"
+              "description": "親コンポーネントから子コンポーネントへデータを渡す基礎的な問題です。",
+              "defaultLanguage": "python3",
               "contentMarkdown": "## 問題\\n親コンポーネントから `name` というpropsを受け取り、`<div>Hello, {name}</div>` と表示するコンポーネントを作成してください...",
-              "sampleAnswer": "..."
+              "sysinFormat": "{\"a\": number, \"b\": [number, number], \"s\": string}",
+              "sampleAnswer": "...",
+              "testcases": [
+                { "sysin": { "a": 1, "b": [2, 3], "s": "hello" }, "expected": 4 },
+                { "sysin": { "a": 10, "b": [0, 5], "s": "x" }, "expected": 15 }
+              ]
             }
           }
         }
@@ -591,8 +613,10 @@
         "request": "POST /api/v1/runner/execute",
         "header": "Content-Type: application/json",
         "body": {
+          "problemId": 1002,
           "language": "javascript",
-          "code": "console.log('Hello');"
+          "code": "console.log('Hello');",
+          "testcaseIndex": 0
         },
         "response": {
           "status": 200,
@@ -607,12 +631,14 @@
 
     - **BFF to Services**
         - 処理：コード実行
-        - サービス：[Executor Service]
+        - サービス：[Quiz Service, Executor Service]
 
         ```markdown
-        1. リクエストボディから { code, language } を受け取る
-        2. Executor Service の実行APIを呼び出す
-        3. 実行結果(stdout, stderr, exitCode)をそのまま返す
+        1. リクエストボディから { problemId, code, language, testcaseIndex } を受け取る
+        2. Quiz Service から対象 problem の testcases を取得する
+        3. testcases[testcaseIndex].sysin を JSON 文字列化して stdin として用意する
+        4. Executor Service の実行APIを { language, code, stdin } で呼び出す
+        5. 実行結果(stdout, stderr, exitCode)をそのまま返す
         ```
 
         ```json
@@ -622,7 +648,8 @@
           "header": "Content-Type: application/json",
           "body": {
             "language": "javascript",
-            "code": "console.log('Hello');"
+            "code": "console.log('Hello');",
+            "stdin": "{\\"a\\":1,\\"b\\":[2,3],\\"s\\":\\"hello\\"}"
           },
           "response": {
             "status": 200,
@@ -646,14 +673,25 @@
         "body": {
           "userId": 101,
           "problemId": 1002,
-          "submittedCode": "function test() {}"
+          "language": "javascript",
+          "code": "function test() {}"
         },
         "response": {
           "status": 200,
           "body": {
             "isCorrect": true,
             "message": "Correct",
-            "executionResult": { "stdout": "Pass", "exitCode": 0 }
+            "details": [
+              {
+                "testcaseIndex": 0,
+                "sysin": {"a": 1, "b": [2, 3], "s": "hello"},
+                "expected": 4,
+                "stdout": "4\\n",
+                "stderr": "",
+                "exitCode": 0,
+                "passed": true
+              }
+            ]
           }
         }
       }
@@ -661,15 +699,16 @@
 
     - **BFF to Services**
         - 処理：コード提出
-        - サービス：[Validator Service, Progress Service (結果保存)]
+        - サービス：[Quiz Service, Executor Service, Validator Service, Progress Service (結果保存)]
 
         ```markdown
-        1. リクエストボディから { userId, problemId, submittedCode } を受け取る
-        2. Validator Service を呼び出し、採点を行う
-           (Validator内部で Quiz Service から `problems.testcases` を取得し、テストケースで判定)
-        3. 採点結果(isCorrect)を受け取る
-        4. Progress Service を呼び出し、`submissions` テーブルに結果を保存する
-        5. 結果(isCorrect)と実行ログをクライアントに返す
+        1. リクエストボディから { userId, problemId, language, code } を受け取る
+        2. Quiz Service から対象 problem の testcases を取得する
+        3. 各 testcase について stdin=json.dumps(sysin) を作り、Executor Service で実行する
+        4. 各 testcase について expected と stdout（必要なら stderr/exitCode）をまとめ、Validator Service に判定依頼する
+        5. 採点結果(isCorrect)を受け取る
+        6. Progress Service を呼び出し、`submissions` テーブルに結果を保存する
+        7. 結果(isCorrect)と詳細(details)をクライアントに返す
         ```
 
         ```json
@@ -678,16 +717,27 @@
           "request": "POST /validator/validate",
           "header": "Content-Type: application/json",
           "body": {
-            "userId": 101,
-            "problemId": 1002,
-            "submittedCode": "function test() {}"
+            "cases": [
+              {
+                "testcaseIndex": 0,
+                "expected": 4,
+                "stdout": "4\\n",
+                "stderr": "",
+                "exitCode": 0
+              }
+            ]
           },
           "response": {
             "status": 200,
             "body": {
               "isCorrect": true,
               "message": "Correct",
-              "executionResult": { "stdout": "Pass", "exitCode": 0 }
+              "details": [
+                {
+                  "testcaseIndex": 0,
+                  "passed": true
+                }
+              ]
             }
           }
         }
