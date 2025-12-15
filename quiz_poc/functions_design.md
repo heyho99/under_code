@@ -17,9 +17,10 @@ README2.md の新仕様に沿って、BFF / Generator / Executor / Validator に
 
 ### クイズ生成
 - `post_quiz_creation_generate(req) -> res`
-  - **入力**: `userId`, `title`, `description`, `files[]`, `problemCounts` など
+  - **入力**: `title`, `description`, `files[]`, `problemCounts` など
   - **処理**:
     - 入力バリデーション（必須項目、ファイル数上限など）
+    - 認証コンテキストから `userId` を取得
     - Generator に生成依頼
     - Quiz-service に保存依頼（quizSet + problems）
   - **出力**: `quizSetId`, `totalProblems` など
@@ -42,8 +43,9 @@ README2.md の新仕様に沿って、BFF / Generator / Executor / Validator に
 
 ### 提出（全 test case を実行して採点）
 - `post_submissions(req) -> res`
-  - **入力**: `userId`, `problemId`, `language`, `code`
+  - **入力**: `problemId`, `language`, `code`
   - **処理**:
+    - 認証コンテキストから `userId` を取得
     - Quiz-service から `testcases` 取得
     - 各 testcase について `stdin=json.dumps(sysin)` を作り Executor-service で実行
     - 実行結果（`stdout/stderr/exitCode`）と `expected` を Validator-service に渡して判定
@@ -103,7 +105,7 @@ README2.md の新仕様に沿って、BFF / Generator / Executor / Validator に
 
 ### 構造化 Markdown -> problems 変換
 - `parse_structured_markdown(md: str) -> list[dict]`
-  - **処理**: `title/description/sysinFormat/sampleAnswer/testcases` を抽出して list 化
+  - **処理**: `title/contentMarkdown/sysinFormat/sampleAnswer/testcases` を抽出して list 化
 - `parse_testcase_json_line(line: str) -> dict`
   - **処理**: `` `{ "sysin": ..., "expected": ... }` `` のような JSON 行を dict にする
 
