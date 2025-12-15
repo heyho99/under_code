@@ -65,7 +65,7 @@
 ## title
 辞書内包表記による値の加工
 
-## description
+## content_markdown
 対象コードの `_prepare_response_content` 関数内にある `{k: ... for k, v in res.items()}` の処理を参考にします。
 変数 `sysin` に辞書が代入されます。
 辞書内包表記を使用して、元の辞書の「値 (value)」をすべて文字列型に変換した新しい辞書を作成し、それを標準出力してください。
