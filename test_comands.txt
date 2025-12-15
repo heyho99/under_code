@@ -15,3 +15,7 @@ curl -X POST http://localhost:8085/api/v1/generate \
   -H "Content-Type: application/json" \
   -d @generator_payload.json
 
+
+やることリスト
+・apiとかをバンバン変更したので、現状でちゃんと動くか見る（クイズ一覧、プレイ、作成以外）
+・README2.mdに従って1つずつ変更し、1つずつ丁寧にテスト
