@@ -318,7 +318,7 @@
     
         ```markdown
         1. BFFがリクエストボディの `files` から対象ソースコード群と出題数(problemCounts.syntax など)を読み取る
-        2. BFFが Generator Service に {files, problemCounts.syntax, ...} を渡し、問題(problems)を生成させる
+        2. BFFが Generator Service に files: [{fileName, content, problemCounts:{...}}, ...] を渡し、問題(problems)を生成させる
         3. BFFが Quiz Service に {userId, title, description, problems} を渡し、Quiz Set / Problems をDBに保存する
         ```
 
@@ -329,12 +329,17 @@
           "header": "Content-Type: application/json",
           "body": {
             "files": [
-              "// source file content 1",
-              "// source file content 2"
-            ],
-            "problemCounts": {
-              "syntax": 30
-            }
+              {
+                "fileName": "src/App.jsx",
+                "content": "// source file content 1",
+                "problemCounts": { "syntax": 2 }
+              },
+              {
+                "fileName": "src/utils.js",
+                "content": "// source file content 2",
+                "problemCounts": { "syntax": 1 }
+              }
+            ]
           },
           "response": {
             "status": 200,
