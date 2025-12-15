@@ -342,7 +342,7 @@
               "problems": [
                 {
                   "title": "...",
-                  "description": "...",
+                  "contentMarkdown": "...",
                   "sysinFormat": "{\"a\": number, \"b\": [number, number], \"s\": string}",
                   "sampleAnswer": "...",
                   "testcases": [
@@ -368,7 +368,7 @@
             "problems": [
               {
                 "title": "...",
-                "description": "...",
+                "contentMarkdown": "...",
                 "sysinFormat": "{\"a\": number, \"b\": [number, number], \"s\": string}",
                 "sampleAnswer": "...",
                 "testcases": [
@@ -481,8 +481,8 @@
             "quizSetId": 205,
             "title": "apiへのリクエストの方法",
             "problems": [
-              { "problemId": 1001, "title": "...", "description": "", "defaultLanguage": "python3", "isSolved": true },
-              { "problemId": 1002, "title": "...", "description": "", "defaultLanguage": "python3", "isSolved": true }
+              { "problemId": 1001, "title": "...", "defaultLanguage": "python3", "isSolved": true },
+              { "problemId": 1002, "title": "...", "defaultLanguage": "python3", "isSolved": true }
             ]
           }
         }
@@ -512,8 +512,8 @@
               "quizSetId": 205,
               "title": "apiへのリクエストの方法",
               "problems": [
-                { "problemId": 1001, "title": "...", "description": "", "defaultLanguage": "python3" },
-                { "problemId": 1002, "title": "...", "description": "", "defaultLanguage": "python3" }
+                { "problemId": 1001, "title": "...", "defaultLanguage": "python3" },
+                { "problemId": 1002, "title": "...", "defaultLanguage": "python3" }
               ]
             }
           }
@@ -552,8 +552,8 @@
             "quizSetId": 205,
             "orderIndex": 1,
             "title": "Propsの受け渡し",
-            "description": "親コンポーネントから子コンポーネントへデータを渡す基礎的な問題です。",
             "defaultLanguage": "python3",
+            "contentMarkdown": "## 問題\\n親コンポーネントから `name` というpropsを受け取り、`<div>Hello, {name}</div>` と表示するコンポーネントを作成してください...",
             "sysinFormat": "{\"a\": number, \"b\": [number, number], \"s\": string}",
             "starterCode": "import sys, json\\nsysin = json.loads(sys.stdin.read())\\n# ここから下をユーザが書く\\nresult = None\\nprint(json.dumps(result))\\n",
             "sampleAnswer": "...",
@@ -590,7 +590,6 @@
               "quizSetId": 205,
               "orderIndex": 1,
               "title": "Propsの受け渡し",
-              "description": "親コンポーネントから子コンポーネントへデータを渡す基礎的な問題です。",
               "defaultLanguage": "python3",
               "contentMarkdown": "## 問題\\n親コンポーネントから `name` というpropsを受け取り、`<div>Hello, {name}</div>` と表示するコンポーネントを作成してください...",
               "sysinFormat": "{\"a\": number, \"b\": [number, number], \"s\": string}",

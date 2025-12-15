@@ -31,7 +31,6 @@ erDiagram
         int quiz_set_id FK "所属するクイズセットのID"
         int order_index "セット内での並び順"
         varchar title "問題のタイトル"
-        text description "この問題の説明文"        
         text content_markdown "問題文(Markdown形式)"
         text sample_answer "模範解答コード"
         jsonb testcases "採点用テストケース配列 [{sysin: any, expected: any}, ...]"
