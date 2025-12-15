@@ -13,7 +13,6 @@ class FileWithProblems(BaseModel):
 
 
 class GenerateQuizRequest(BaseModel):
-    userId: int
     title: str
     description: Optional[str] = None
     files: List[FileWithProblems]  # fils:[{fileName:str, content:str, problemCounts:{}},{}...]

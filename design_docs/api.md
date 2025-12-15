@@ -1,8 +1,9 @@
 ## 画面、BFF API、Service API
-
+ 
 - 命名規則：bffは `/api/v1/*` （フロントエンドから見たらただのAPIのため）
- - 命名規則：API(JSON)は camelCase、DBカラムは snake_case
-
+- 命名規則：API(JSON)は camelCase、DBカラムは snake_case
+- 認証が必要なAPIは Authorization: Bearer <token> をヘッダに付与し、userId はトークンから取得する（Frontendからは送らない）
+ 
 ### /#/login, /#/signup
 
 - POST `/api/v1/auth/signup`
@@ -114,8 +115,8 @@
       ```json
       {
         "description": "ダッシュボードサマリ取得（フロント→BFF）",
-        "request": "GET /api/v1/dashboard/summary?userId=101",
-        "header": "",
+        "request": "GET /api/v1/dashboard/summary",
+        "header": "Authorization: Bearer <token>",
         "body": null,
         "response": {
           "status": 200,
@@ -170,8 +171,8 @@
       ```json
       {
         "description": "カテゴリ毎の数と完了数取得（フロント→BFF）",
-        "request": "GET /api/v1/dashboard/categories?userId=101",
-        "header": "",
+        "request": "GET /api/v1/dashboard/categories",
+        "header": "Authorization: Bearer <token>",
         "body": null,
         "response": {
           "status": 200,
@@ -232,8 +233,8 @@
       ```json
       {
         "description": "指定期間の日毎取り組み数取得（フロント→BFF）",
-        "request": "GET /api/v1/dashboard/activities?userId=101&period=30",
-        "header": "",
+        "request": "GET /api/v1/dashboard/activities?period=30",
+        "header": "Authorization: Bearer <token>",
         "body": null,
         "response": {
           "status": 200,
@@ -280,9 +281,8 @@
       {
         "description": "クイズ生成・保存リクエスト（フロント→BFF）",
         "request": "POST /api/v1/quiz-creation/generate",
-        "header": "Content-Type: application/json",
+        "header": "Content-Type: application/json, Authorization: Bearer <token>",
         "body": {
-          "userId": 101,
           "title": "React基礎クイズ",
           "description": "React の props / state / コンポーネント分割の基礎を確認するクイズセットです。",
           "files": [
@@ -397,8 +397,8 @@
       ```json
       {
         "description": "クイズセット一覧取得（フロント→BFF）",
-        "request": "GET /api/v1/quiz-sets?userId=101",
-        "header": "",
+        "request": "GET /api/v1/quiz-sets",
+        "header": "Authorization: Bearer <token>",
         "body": null,
         "response": {
           "status": 200,
@@ -472,8 +472,8 @@
       ```json
       {
         "description": "クイズセット詳細と問題一覧取得（フロント→BFF）",
-        "request": "GET /api/v1/quiz-sets/205?userId=101",
-        "header": "",
+        "request": "GET /api/v1/quiz-sets/205",
+        "header": "Authorization: Bearer <token>",
         "body": null,
         "response": {
           "status": 200,
@@ -543,7 +543,7 @@
       {
         "description": "問題詳細取得（フロント→BFF）",
         "request": "GET /api/v1/problems/1002", // languageパラメータがある場合は、その値を採用する（v2）
-        "header": "",
+        "header": "Authorization: Bearer <token>",
         "body": null,
         "response": {
           "status": 200,
@@ -611,7 +611,7 @@
       {
         "description": "コード実行リクエスト（フロント→BFF）",
         "request": "POST /api/v1/runner/execute",
-        "header": "Content-Type: application/json",
+        "header": "Content-Type: application/json, Authorization: Bearer <token>",
         "body": {
           "problemId": 1002,
           "language": "javascript",
@@ -669,9 +669,8 @@
       {
         "description": "コード提出リクエスト（フロント→BFF）",
         "request": "POST /api/v1/submissions",
-        "header": "Content-Type: application/json",
+        "header": "Content-Type: application/json, Authorization: Bearer <token>",
         "body": {
-          "userId": 101,
           "problemId": 1002,
           "language": "javascript",
           "code": "function test() {}"
@@ -702,13 +701,14 @@
         - サービス：[Quiz Service, Executor Service, Validator Service, Progress Service (結果保存)]
 
         ```markdown
-        1. リクエストボディから { userId, problemId, language, code } を受け取る
-        2. Quiz Service から対象 problem の testcases を取得する
-        3. 各 testcase について stdin=json.dumps(sysin) を作り、Executor Service で実行する
-        4. 各 testcase について expected と stdout（必要なら stderr/exitCode）をまとめ、Validator Service に判定依頼する
-        5. 採点結果(isCorrect)を受け取る
-        6. Progress Service を呼び出し、`submissions` テーブルに結果を保存する
-        7. 結果(isCorrect)と詳細(details)をクライアントに返す
+        1. userId は認証トークンから取得する
+        2. リクエストボディから { problemId, language, code } を受け取る
+        3. Quiz Service から対象 problem の testcases を取得する
+        4. 各 testcase について stdin=json.dumps(sysin) を作り、Executor Service で実行する
+        5. 各 testcase について expected と stdout（必要なら stderr/exitCode）をまとめ、Validator Service に判定依頼する
+        6. 採点結果(isCorrect)を受け取る
+        7. Progress Service を呼び出し、`submissions` テーブルに結果を保存する
+        8. 結果(isCorrect)と詳細(details)をクライアントに返す
         ```
 
         ```json

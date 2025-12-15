@@ -17,10 +17,7 @@ function getCurrentUserId() {
 
 export const quizCreationApi = {
   async generateQuiz({ title, description, files }) {
-    const userId = getCurrentUserId() ?? 1;
-
     const body = {
-      userId,
       title,
       description,
       files,

@@ -17,16 +17,10 @@ function getCurrentUserId() {
 
 export const quizSetsApi = {
   async getQuizSets() {
-    const userId = getCurrentUserId() ?? 1;
-    return apiClient.get("/quiz-sets", {
-      params: { userId },
-    });
+    return apiClient.get("/quiz-sets");
   },
 
   async getQuizSetDetail(quizSetId) {
-    const userId = getCurrentUserId() ?? 1;
-    return apiClient.get(`/quiz-sets/${quizSetId}`, {
-      params: { userId },
-    });
+    return apiClient.get(`/quiz-sets/${quizSetId}`);
   },
 };

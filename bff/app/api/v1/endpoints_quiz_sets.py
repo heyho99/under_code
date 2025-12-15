@@ -1,9 +1,10 @@
 from typing import List
 
 import logging
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException
 
 from app.clients.quiz_client import QuizClient
+from app.core.security import get_current_user_id
 from app.schemas.problems import ProblemSummary
 from app.schemas.quiz_sets import QuizSetDetail, QuizSetSummary
 
@@ -13,9 +14,9 @@ quiz_client = QuizClient()
 
 
 @router.get("", response_model=List[QuizSetSummary])
-async def get_quiz_sets(userId: int = Query(...)):
+async def get_quiz_sets(user_id: int = Depends(get_current_user_id)):
     try:
-        quiz_sets = await quiz_client.get_quiz_sets(userId)
+        quiz_sets = await quiz_client.get_quiz_sets(user_id)
     except Exception:
         logger.exception("Failed to fetch quiz sets")
         raise HTTPException(status_code=502, detail="Failed to fetch quiz sets")
@@ -32,7 +33,7 @@ async def get_quiz_sets(userId: int = Query(...)):
 
 
 @router.get("/{quiz_set_id}", response_model=QuizSetDetail)
-async def get_quiz_set_detail(quiz_set_id: int, userId: int = Query(...)):
+async def get_quiz_set_detail(quiz_set_id: int, user_id: int = Depends(get_current_user_id)):
     try:
         data = await quiz_client.get_quiz_set_detail(quiz_set_id)
     except Exception:

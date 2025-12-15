@@ -2,10 +2,11 @@ from typing import Any, Dict, List
 
 import ast
 import logging
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.clients.generator_client import GeneratorClient
 from app.clients.quiz_client import QuizClient
+from app.core.security import get_current_user_id
 from app.schemas.quiz_creation import (
     GenerateQuizRequest,
     GenerateQuizResponse,
@@ -62,7 +63,7 @@ def _convert_quizzes_to_problems(quizzes: List[Dict[str, Any]]) -> List[Dict[str
 
 
 @router.post("/generate", response_model=GenerateQuizResponse, status_code=status.HTTP_201_CREATED)
-async def generate_quiz(data: GenerateQuizRequest) -> GenerateQuizResponse:
+async def generate_quiz(data: GenerateQuizRequest, user_id: int = Depends(get_current_user_id)) -> GenerateQuizResponse:
     try:
         generator_payload = data.model_dump()
         generator_response = await generator_client.generate_problems(generator_payload)
@@ -73,7 +74,7 @@ async def generate_quiz(data: GenerateQuizRequest) -> GenerateQuizResponse:
         problems = _convert_quizzes_to_problems(quizzes)
 
         save_payload: Dict[str, Any] = {
-            "userId": data.userId,
+            "userId": user_id,
             "title": data.title,
             "description": data.description,
             "problems": problems,

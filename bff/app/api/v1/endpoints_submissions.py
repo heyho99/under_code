@@ -1,8 +1,9 @@
 import logging
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
 from app.clients.executor_client import ExecutorClient
+from app.core.security import get_current_user_id
 from app.schemas.submissions import (
     ExecuteRequest,
     ExecuteResponse,
@@ -16,7 +17,7 @@ executor_client = ExecutorClient()
 
 
 @router.post("/runner/execute", response_model=ExecuteResponse)
-async def execute_code(data: ExecuteRequest):
+async def execute_code(data: ExecuteRequest, user_id: int = Depends(get_current_user_id)):
     try:
         payload = data.model_dump()
         result = await executor_client.execute_code(payload)
@@ -27,7 +28,7 @@ async def execute_code(data: ExecuteRequest):
 
 
 @router.post("/submissions", response_model=SubmissionResponse)
-async def submit_solution(data: SubmissionRequest):
+async def submit_solution(data: SubmissionRequest, user_id: int = Depends(get_current_user_id)):
     execution_result = ExecuteResponse(
         stdout="Mock execution output\n",
         stderr="",

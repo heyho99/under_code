@@ -1,12 +1,13 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Depends, Query
 from typing import List
 from app.schemas.dashboard import DashboardSummary, CategoryStat, ActivityStat
+from app.core.security import get_current_user_id
 
 router = APIRouter()
 
 
 @router.get("/summary", response_model=DashboardSummary)
-async def get_dashboard_summary(userId: int = Query(..., description="User ID")):
+async def get_dashboard_summary(user_id: int = Depends(get_current_user_id)):
     return DashboardSummary(
         totalProblems=150,
         completedProblems=45,
@@ -14,7 +15,7 @@ async def get_dashboard_summary(userId: int = Query(..., description="User ID"))
 
 
 @router.get("/categories", response_model=List[CategoryStat])
-async def get_dashboard_categories(userId: int = Query(..., description="User ID")):
+async def get_dashboard_categories(user_id: int = Depends(get_current_user_id)):
     data = [
         {"category": "syntax", "count": 40, "solved": 15},
         {"category": "logic", "count": 40, "solved": 10},
@@ -40,7 +41,7 @@ async def get_dashboard_categories(userId: int = Query(..., description="User ID
 
 
 @router.get("/activities", response_model=List[ActivityStat])
-async def get_dashboard_activities(userId: int = Query(...), period: int = Query(30)):
+async def get_dashboard_activities(user_id: int = Depends(get_current_user_id), period: int = Query(30)):
     return [
         ActivityStat(date="2023-09-16", count=0),
         ActivityStat(date="2023-09-17", count=2),

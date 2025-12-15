@@ -30,10 +30,8 @@ export const quizPlayApi = {
   },
 
   async submit({ problemId, submittedCode }) {
-    const userId = getCurrentUserId() ?? 1;
     return apiClient.post("/submissions", {
       body: {
-        userId,
         problemId,
         submittedCode,
       },

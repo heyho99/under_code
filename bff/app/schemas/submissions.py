@@ -10,7 +10,6 @@ class ExecuteResponse(BaseModel):
     exitCode: int
 
 class SubmissionRequest(BaseModel):
-    userId: int
     problemId: int
     submittedCode: str
 

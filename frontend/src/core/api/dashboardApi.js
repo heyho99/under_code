@@ -18,23 +18,16 @@ function getCurrentUserId() {
 
 export const dashboardApi = {
   async getSummary() {
-    const userId = getCurrentUserId() ?? 1;
-    return apiClient.get("/dashboard/summary", {
-      params: { userId },
-    });
+    return apiClient.get("/dashboard/summary");
   },
 
   async getCategories() {
-    const userId = getCurrentUserId() ?? 1;
-    return apiClient.get("/dashboard/categories", {
-      params: { userId },
-    });
+    return apiClient.get("/dashboard/categories");
   },
 
   async getActivities(period = 30) {
-    const userId = getCurrentUserId() ?? 1;
     return apiClient.get("/dashboard/activities", {
-      params: { userId, period },
+      params: { period },
     });
   },
 };
