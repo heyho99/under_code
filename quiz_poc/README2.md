@@ -8,6 +8,7 @@ flask --app quiz_poc run --debug
 2. **expectedをjsonで表現可能なオブジェクトに限定し、expectedとpaiza io apiはjsonパースしてpythonオブジェクトに変換し、等号で判定**
       - jsonはあらゆる言語で標準ライブラリで扱える
       - jsonで限定されてしまうので、setやタプル等ができなくなり、とても狭い範囲での出題になってしまいそう
+      - ユーザはjsonにダンプした形で出力するコードを作成する必要がある
 3. **expectedとpaiza io apiは文字列で保持し、文字列の比較で判定**
       - 文字列の比較なので集合やdictなどオブジェクト内の順序が決まっていないものについて判定が不可能
 
@@ -124,7 +125,7 @@ flask --app quiz_poc run --debug
 
 1. **エディタにユーザがコードを入力する**
 
-2. **testcase を選び、実行ボタンを押す（案B）**
+2. **testcase を選び、実行ボタンを押す**
     - 実行ボタンが押されると、入力されたコードが文字列としてjavascriptの変数に格納される
     - frontend は `problemId` / `language` / `code` / `testcaseIndex` を BFF に送信する
     - `code` はエディタに入っているソース全体（starterCode + ユーザ追記 でも、完全な1ファイルでも良い）
@@ -174,12 +175,18 @@ flask --app quiz_poc run --debug
 ```python
 import sys, json
 sysin = json.loads(sys.stdin.read())
+# ここから下をユーザが書く
+result = None
+print(json.dumps(result))
 ```
 
 **javascript(Node)初期表示コード:**
 ```javascript
 const fs = require("fs");
 const sysin = JSON.parse(fs.readFileSync(0, "utf8"));
+// ここから下をユーザが書く
+let result = null;
+process.stdout.write(JSON.stringify(result) + "\n");
 ```
 
 **Go初期表示コード:**
@@ -202,8 +209,14 @@ func main() {
 	if err := json.Unmarshal(b, &sysin); err != nil {
 		panic(err)
 	}
-
-	// ここから下をユーザが書く
+    
+    // ここから下をユーザが書く
+    var result interface{} = nil
+    out, err := json.Marshal(result)
+    if err != nil {
+        panic(err)
+    }
+    fmt.Println(string(out))
 }
 ```
 
@@ -216,13 +229,14 @@ func main() {
     - 提出ボタンが押されると、入力されたコードが文字列としてjavascriptの変数に格納される
     - frontend は `problemId` / `language` / `code` を BFF に送信する
 3. **BFFが quiz-service から testcases を取得する**
-    - er-diagram.md の通り、quiz-db の `problems.testcases`（jsonb）に採点用の配列 `[{sysin, expected}, ...]` を保存する
+    - BFFがQuiz-serviceにproblemを要求
+    - `json.loads`し、各testcaseを保持
 4. **BFFが testcases を順に executor-service へ実行依頼する**
-    - 各 testcase について、`stdin = json.dumps(sysin)` を作り、executor-service に `language` / `code` / `stdin` を渡す
-    - executor-service から stdout/stderr/exitCode を受け取る
-5. **BFFが validator-service に判定を依頼する**
-    - `expected` と `stdout`（必要なら stderr/exitCode）をまとめて validator-service に送る
-6. **validator-service が判定する**
+    - 各 testcase について、`stdin = json.dumps(sysin)` を作り、Executor-service に `language` / `code` / `stdin` を渡す
+    - Executor-service から stdout/stderr/exitCode を受け取る
+5. **BFFが Validator-service に判定を依頼する**
+    - `expected` と `stdout`（必要なら stderr/exitCode）をまとめて Validator-service に送る
+6. **Validator-service が判定する**
     - stdout の「最後の非空行」を JSON として `json.loads` し、パース結果と expected を `==` で比較する
     - どの言語でも同じ（Go は `encoding/json` で stdin を読み、`json.Marshal`/`Encoder` で stdout 最終行を JSON にする）
 7. **BFFが progress-service に結果を保存する**
