@@ -95,7 +95,7 @@ export const QuizSetDetailController = {
 
               const metaEl = article.querySelector(".quiz-grid__meta");
               if (metaEl) {
-                metaEl.textContent = problem.description || "";
+                metaEl.textContent = isSolved ? "完了済み" : "未完了";
               }
 
               gridEl.appendChild(article);

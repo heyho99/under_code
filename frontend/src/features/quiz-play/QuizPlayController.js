@@ -69,16 +69,22 @@ export const QuizPlayController = {
         if (titleEl) {
           titleEl.textContent = detail?.title || `問題 #${problemId}`;
         }
+        const contentMarkdown = detail?.contentMarkdown || "";
+        const summaryLine =
+          contentMarkdown
+            .split("\n")
+            .map((line) => line.trim())
+            .filter((line) => line && !line.startsWith("#"))[0] || "";
         if (descriptionEl) {
-          descriptionEl.textContent = detail?.description || "";
+          descriptionEl.textContent = summaryLine;
         }
         if (hintEl) {
           // v1 では description を軽くヒントとしても使う程度にとどめる
-          hintEl.textContent = detail?.description || "";
+          hintEl.textContent = summaryLine;
         }
         if (markdownEl) {
           // 簡易的に contentMarkdown をそのままテキストとして表示
-          markdownEl.textContent = detail?.contentMarkdown || "";
+          markdownEl.textContent = contentMarkdown;
         }
         sampleAnswer = detail?.sampleAnswer || "";
       } catch (_error) {
