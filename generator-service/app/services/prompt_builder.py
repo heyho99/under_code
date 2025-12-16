@@ -4,6 +4,7 @@ from typing import Dict, List
 from app.schemas.generator import FileWithProblems, GenerateRequest
 
 
+
 def _aggregate_problem_counts(base: Dict[str, int], files: List[FileWithProblems]) -> Dict[str, int]:
     out: Dict[str, int] = dict(base or {})
     for f in files:
