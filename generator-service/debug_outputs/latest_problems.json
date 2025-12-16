@@ -1,0 +1,24 @@
+{
+  "problems": [
+    {
+      "title": "JSON入力の数値をそのまま出力",
+      "contentMarkdown": "変数 `sysin` には JSON オブジェクト `{\"n\": number}` が入ります。`sysin[\"n\"]` を JSON として1行で標準出力してください。",
+      "sysinFormat": "{\"n\": number}",
+      "sampleAnswer": "import sys, json\nsysin = json.loads(sys.stdin.read())\nprint(json.dumps(sysin[\"n\"]))\n",
+      "testcases": [
+        {
+          "sysin": {
+            "n": 1
+          },
+          "expected": 1
+        },
+        {
+          "sysin": {
+            "n": 2
+          },
+          "expected": 2
+        }
+      ]
+    }
+  ]
+}

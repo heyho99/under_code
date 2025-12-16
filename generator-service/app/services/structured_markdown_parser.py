@@ -9,7 +9,7 @@ class StructuredMarkdownParseError(ValueError):
     pass
 
 
-_H2_RE = re.compile(r"^##\s*(.+?)\s*$")
+_H2_RE = re.compile(r"^##(?!#)\s*(.+?)\s*$")
 _INLINE_CODE_RE = re.compile(r"`([^`]*)`")
 
 

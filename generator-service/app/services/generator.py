@@ -2,7 +2,7 @@ import os
 
 from app.clients.llm_client import LLMError, call_llm
 from app.schemas.generator import GenerateRequest, GenerateResponse
-from app.services.debug_outputs import save_debug_outputs
+from app.services.debug_outputs import save_debug_outputs, save_raw_llm_response
 from app.services.prompt_builder import build_generation_prompt
 from app.services.structured_markdown_parser import (
     StructuredMarkdownParseError,
@@ -44,6 +44,7 @@ async def generate(request: GenerateRequest) -> GenerateResponse:
     else:
         markdown = await call_llm(prompt)
 
+    save_raw_llm_response(markdown)
     problems = parse_structured_markdown(markdown)
     save_debug_outputs(markdown, problems)
     return GenerateResponse(problems=problems)
