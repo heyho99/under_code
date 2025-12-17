@@ -1,35 +1,10 @@
 {
   "problems": [
     {
-      "title": "正規表現でパスパラメータ名を抽出する",
-      "contentMarkdown": "入力: `sysin` は文字列です（URLパスを表します）。\n\n処理: `re.findall(\"{(.*?)}\", path)` と `set(...)` を用いた次のロジックを再現してください。\n\n1. 文字列 `sysin` をパスとみなし、`{id}` のような波かっこで囲まれた部分をすべて正規表現で抽出する（中身の文字列だけを取り出す）。\n2. 抽出したすべての名前を集合（重複なし）にして `result` として JSON で出力する。",
-      "sysinFormat": "string",
-      "sampleAnswer": "import sys\nimport json\nimport re\n\nsysin = json.loads(sys.stdin.read() or \"null\")\n\npath = sysin\nnames = set(re.findall(\"{(.*?)}\", path))\nresult = list(names)\n\nprint(json.dumps(result, ensure_ascii=False))\n",
-      "testcases": [
-        {
-          "sysin": "/items/{item_id}",
-          "expected": [
-            "item_id"
-          ]
-        },
-        {
-          "sysin": "/users/{user_id}/orders/{order_id}",
-          "expected": [
-            "user_id",
-            "order_id"
-          ]
-        },
-        {
-          "sysin": "/status",
-          "expected": []
-        }
-      ]
-    },
-    {
-      "title": "HTTPステータスコードからレスポンスボディ許可可否を判定する",
-      "contentMarkdown": "入力: `sysin` は数値・文字列・null のいずれかです（HTTPステータスコード、または特殊文字列）。\n\n処理: `is_body_allowed_for_status_code` 関数と同じロジックを実装し、その真偽値を `result` として出力してください。\n\nルール:\n\n1. `sysin is None`（JSONのnull）のとき: `true` を返す。\n2. `sysin` が `\"default\"`, `\"1XX\"`, `\"2XX\"`, `\"3XX\"`, `\"4XX\"`, `\"5XX\"` のいずれかの文字列のとき: `true` を返す。\n3. 上記以外のとき:\n   - `int(sysin)` で整数に変換し `current_status_code` とする（数値ならそのまま、文字列なら数値文字列を想定）。\n   - `(current_status_code < 200) または (current_status_code が 204, 205, 304 のいずれか)` のとき `false`。\n   - それ以外は `true`。",
-      "sysinFormat": "number|string|null",
-      "sampleAnswer": "import sys\nimport json\n\nsysin = json.loads(sys.stdin.read() or \"null\")\n\nstatus_code = sysin\n\nif status_code is None:\n    result = True\nelif status_code in {\"default\", \"1XX\", \"2XX\", \"3XX\", \"4XX\", \"5XX\"}:\n    result = True\nelse:\n    current_status_code = int(status_code)\n    result = not (current_status_code < 200 or current_status_code in {204, 205, 304})\n\nprint(json.dumps(result, ensure_ascii=False))\n",
+      "title": "HTTPステータスコードと条件分岐",
+      "contentMarkdown": "`sysin` は `int` / `string` / `null` のいずれかです。次のルールに従って、`is_body_allowed_for_status_code` 関数と同等の真偽値を計算し、JSONで出力してください。\n\n- 入力: 実行時に `sysin` が与えられます（stdin の JSON を読み込み `sysin` に代入する）。\n- 処理:\n  - `sysin is None`（JSONでは `null`）なら `true` を返す。\n  - 文字列 `\"default\"`, `\"1XX\"`, `\"2XX\"`, `\"3XX\"`, `\"4XX\"`, `\"5XX\"` のいずれかなら `true` を返す。\n  - それ以外では `int(sysin)` を `current_status_code` として扱い、\n    - `(current_status_code < 200)` または `current_status_code` が `{204, 205, 304}` のいずれかの場合は `false`\n    - それ以外は `true`\n  - 得られた真偽値を `result` として JSON 1 行で出力する。",
+      "sysinFormat": "number | string | null",
+      "sampleAnswer": "import sys\nimport json\n\nsysin = json.loads(sys.stdin.read() or \"null\")\n\nstatus_code = sysin\n\nif status_code is None:\n    result = True\nelif status_code in [\"default\", \"1XX\", \"2XX\", \"3XX\", \"4XX\", \"5XX\"]:\n    result = True\nelse:\n    current_status_code = int(status_code)\n    result = not (current_status_code < 200 or current_status_code in [204, 205, 304])\n\nprint(json.dumps(result, ensure_ascii=False))\n",
       "testcases": [
         {
           "sysin": null,
@@ -42,20 +17,38 @@
         {
           "sysin": 204,
           "expected": false
-        },
-        {
-          "sysin": "304",
-          "expected": false
-        },
-        {
-          "sysin": 404,
-          "expected": true
         }
       ]
     },
     {
-      "title": "2つの辞書を深くマージする（再帰 + 型判定）",
-      "contentMarkdown": "入力: `sysin` は `{\"main\": {...}, \"update\": {...}}` という2つの辞書を含むオブジェクトです。\n\n処理: `deep_dict_update` 関数と同じロジックで `main` を更新し、その更新後の `main` を `result` として出力してください。\n\n具体的なルール:\n\n- `update` の各 `(key, value)` について処理する。\n- 次の条件をすべて満たす場合:\n  - `key` が `main` に存在し、\n  - `main[key]` が辞書（`dict`）であり、\n  - `value` も辞書である  \n  → 再帰的に `deep_dict_update(main[key], value)` を行う。\n- 上記でなく、次の条件をすべて満たす場合:\n  - `key` が `main` に存在し、\n  - `main[key]` がリスト（`list`）であり、\n  - `update[key]` もリストである  \n  → `main[key] = main[key] + update[key]` としてリストを結合する。\n- それ以外の場合は:\n  - `main[key] = value` として上書きする。",
+      "title": "正規表現でパスパラメータ名を抽出する",
+      "contentMarkdown": "`sysin` はパス文字列です。`get_path_param_names` 関数のロジックを再現して、波かっこ `{}` で囲まれたパスパラメータ名をすべて取り出し、重複を除いてリストとして出力してください。\n\n- 入力: 実行時に `sysin` が与えられます（stdin の JSON を読み込み `sysin` に代入する）。\n- 処理:\n  - `sysin` は文字列のパスとする（例: `\"/users/{user_id}/items/{item_id}\"`）。\n  - 正規表現 `\"{(.*?)}\"` に相当するマッチを使って、`{` と `}` の間のテキストをすべて抽出する。\n  - 集合（重複なし）相当の処理をし、順序は問わないが、Pythonでは一度リストにして `result` とする。\n  - `result` を JSON の配列として 1 行で出力する。",
+      "sysinFormat": "string",
+      "sampleAnswer": "import sys\nimport json\nimport re\n\nsysin = json.loads(sys.stdin.read() or \"null\")\n\npath = sysin\nnames = set(re.findall(r\"{(.*?)}\", path))\nresult = list(names)\n\nprint(json.dumps(result, ensure_ascii=False))\n",
+      "testcases": [
+        {
+          "sysin": "/users/{user_id}/items/{item_id}",
+          "expected": [
+            "user_id",
+            "item_id"
+          ]
+        },
+        {
+          "sysin": "/status",
+          "expected": []
+        },
+        {
+          "sysin": "/{a}/{a}/{b}",
+          "expected": [
+            "a",
+            "b"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "ネストした辞書とリストのマージ処理",
+      "contentMarkdown": "`sysin` は `{\"main\": ..., \"update\": ...}` という2つの辞書を含むオブジェクトです。`deep_dict_update` 関数のロジックのうち、for ループとその中の条件分岐を再現して、`main` を更新した結果を出力してください。\n\n- 入力: 実行時に `sysin` が与えられます（stdin の JSON を読み込み `sysin` に代入する）。\n- 処理:\n  - `main_dict = sysin[\"main\"]`, `update_dict = sysin[\"update\"]` として処理する。\n  - `for key, value in update_dict.items()` と同等のループを回す。\n  - 各 `key` について、次の条件分岐を行い `main_dict` を更新する:\n    1. `key` が `main_dict` に存在し、かつ `main_dict[key]` も `value` もどちらも辞書であれば、再帰的に同じ処理（`deep_dict_update(main_dict[key], value)` 相当）を行う。\n    2. そうでなく、`key` が `main_dict` に存在し、`main_dict[key]` と `update_dict[key]` がどちらもリストなら、`main_dict[key] = main_dict[key] + update_dict[key]` としてリストを連結する。\n    3. 上記のどれにも当てはまらない場合は、`main_dict[key] = value` として上書きする。\n  - 最終的な `main_dict` を `result` として JSON で出力する。",
       "sysinFormat": "{\"main\": object, \"update\": object}",
       "sampleAnswer": "import sys\nimport json\n\nsysin = json.loads(sys.stdin.read() or \"null\")\n\nmain_dict = sysin[\"main\"]\nupdate_dict = sysin[\"update\"]\n\ndef deep_dict_update(main_dict, update_dict):\n    for key, value in update_dict.items():\n        if (\n            key in main_dict\n            and isinstance(main_dict[key], dict)\n            and isinstance(value, dict)\n        ):\n            deep_dict_update(main_dict[key], value)\n        elif (\n            key in main_dict\n            and isinstance(main_dict[key], list)\n            and isinstance(update_dict[key], list)\n        ):\n            main_dict[key] = main_dict[key] + update_dict[key]\n        else:\n            main_dict[key] = value\n\ndeep_dict_update(main_dict, update_dict)\nresult = main_dict\n\nprint(json.dumps(result, ensure_ascii=False))\n",
       "testcases": [
@@ -103,34 +96,18 @@
             },
             "update": {
               "a": [
-                3,
-                4
-              ]
+                3
+              ],
+              "b": 10
             }
           },
           "expected": {
             "a": [
               1,
               2,
-              3,
-              4
-            ]
-          }
-        },
-        {
-          "sysin": {
-            "main": {
-              "a": [
-                1,
-                2
-              ]
-            },
-            "update": {
-              "a": 10
-            }
-          },
-          "expected": {
-            "a": 10
+              3
+            ],
+            "b": 10
           }
         }
       ]
