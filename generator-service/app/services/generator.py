@@ -21,7 +21,7 @@ JSON入力の数値をそのまま出力
 ## sysinFormat
 `{\"n\": number}`
 
-## sampleCode
+## sampleAnswer
 ```python
 import sys, json
 sysin = json.loads(sys.stdin.read())

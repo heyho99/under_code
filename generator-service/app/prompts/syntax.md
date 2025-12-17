@@ -13,16 +13,21 @@
 
 【実行環境 / sampleAnswer（Python）】
 - sampleAnswer は Python で書く
-- （用語）starterCode は「stdin の JSON 文字列を読み `json.loads` して `sysin` を作り、計算結果 `result` を JSON として stdout の最後の非空行に出力するための I/O テンプレ」を指す
-- （starterCode 相当の最小形 / 出力に含めない）
-  - `import sys`
-  - `import json`
-  - `sysin = json.loads(sys.stdin.read() or "null")`
-  - `print(json.dumps(result, ensure_ascii=False))`
-- sampleAnswer は必ず stdin を JSON として読み込み、変数 `sysin` に代入する（starterCode 相当を必ず含める）
-- sampleAnswer は stdout の最後の非空行として JSON を 1 行で出力する
+- sampleAnswer は必ず、stdin の JSON を読み込んで `sysin` を作り、最後に `result` を JSON として 1 行出力する（I/O テンプレを含む）
+- （I/O テンプレの最小形 / 出力に含めない）
+  ```python
+  import sys
+  import json
+  
+  sysin = json.loads(sys.stdin.read() or "null")
+  
+  # 処理を書く
+  result = None  # 最後に result = 値 の形式で結果を保持
+  
+  print(json.dumps(result, ensure_ascii=False))
+  ```
 - 追加の print やデバッグ出力は禁止（採点が壊れるため）
-- sampleAnswer は「そのまま1ファイルで実行できる完全なコード」にする（import / sysin 作成 / result 作成 / JSON出力まで含める）
+
 
 【JSON の制約（重要）】
 - sysin / expected / sampleAnswer が出力する値（result）は、JSON の6種類の値のみを使う
@@ -67,8 +72,6 @@ NG:
  リスト内包表記によるフィルタリング
  
  ## content_markdown
- 対象コードの処理の一部を参考にします。
- 実行時に変数 `sysin` が与えられます（stdin の JSON を読み込んで `sysin` に入れる）。
  `sysin` は数値のリストです。偶数だけを残したリストを作り、それを JSON として出力してください。
  
  ## sysinFormat
@@ -99,8 +102,6 @@ NG:
  ステータスコードからレスポンスボディ可否判定
  
  ## content_markdown
- 対象コードの `is_body_allowed_for_status_code` のロジックを参考にします。
- 実行時に変数 `sysin` が与えられます（stdin の JSON を読み込んで `sysin` に入れる）。
  `sysin` は `{"statusCode": ...}` の形式です。次のルールでレスポンスボディを許可するか（true/false）を判定し、JSONとして出力してください。
  - statusCode が null のとき: true
  - statusCode が "default" / "1XX" / "2XX" / "3XX" / "4XX" / "5XX" のいずれかのとき: true
