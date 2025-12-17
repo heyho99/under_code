@@ -109,7 +109,7 @@ def _extract_fenced_code(text: str) -> str:
     if start is None:
         code = text.strip("\n")
         if not code.strip():
-            raise StructuredMarkdownParseError("sampleCode is empty")
+            raise StructuredMarkdownParseError("sampleAnswer is empty")
         return code.rstrip() + "\n"
 
     code_lines: List[str] = []
@@ -118,7 +118,7 @@ def _extract_fenced_code(text: str) -> str:
             return "\n".join(code_lines).rstrip() + "\n"
         code_lines.append(lines[j])
 
-    raise StructuredMarkdownParseError("unterminated fenced code block in sampleCode")
+    raise StructuredMarkdownParseError("unterminated fenced code block in sampleAnswer")
 
 
 def _parse_testcases_section(text: str) -> List[GeneratedTestCase]:
@@ -158,7 +158,7 @@ def parse_structured_markdown(md: str) -> List[GeneratedProblem]:
         title = (sections.get("title") or "").strip()
         content_md = (sections.get("content_markdown") or sections.get("contentMarkdown") or "").strip()
         sysin_format = _strip_wrapping_backticks((sections.get("sysinFormat") or "").strip())
-        sample_code = _extract_fenced_code(sections.get("sampleCode") or "")
+        sample_code = _extract_fenced_code(sections.get("sampleAnswer") or sections.get("sampleCode") or "")
         testcases = _parse_testcases_section(sections.get("testcases") or "")
 
         if not title:
@@ -168,7 +168,7 @@ def parse_structured_markdown(md: str) -> List[GeneratedProblem]:
         if not sysin_format:
             raise StructuredMarkdownParseError("missing sysinFormat")
         if not sample_code.strip():
-            raise StructuredMarkdownParseError("missing sampleCode")
+            raise StructuredMarkdownParseError("missing sampleAnswer")
 
         problem = GeneratedProblem(
             title=title,

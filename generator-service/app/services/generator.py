@@ -37,7 +37,7 @@ print(json.dumps(sysin["n"]))
 
 
 async def generate(request: GenerateRequest) -> GenerateResponse:
-    prompt = build_generation_prompt(request)
+    prompt = build_generation_prompt(request, category="syntax")
 
     if os.getenv("GENERATOR_MOCK") == "1":
         markdown = _MOCK_STRUCTURED_MD

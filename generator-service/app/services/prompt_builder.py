@@ -1,8 +1,12 @@
-import json
-from typing import Dict, List
+import logging
+from pathlib import Path
+from typing import Dict, List, Optional
 
 from app.schemas.generator import FileWithProblems, GenerateRequest
 
+
+
+logger = logging.getLogger(__name__)
 
 
 def _aggregate_problem_counts(base: Dict[str, int], files: List[FileWithProblems]) -> Dict[str, int]:
@@ -19,16 +23,43 @@ def _aggregate_problem_counts(base: Dict[str, int], files: List[FileWithProblems
     return out
 
 
-def build_generation_prompt(request: GenerateRequest) -> str:
+def _load_prompt_template(category: str) -> str:
+    prompts_dir = Path(__file__).resolve().parent.parent / "prompts"
+    path = prompts_dir / f"{category}.md"
+    return path.read_text(encoding="utf-8")
+
+
+def _get_category_problem_count(request: GenerateRequest, category: str) -> int:
+    total = 0
+
+    def _add_counts(d: Optional[Dict[str, int]], source: str) -> None:
+        nonlocal total
+        for k, v in (d or {}).items():
+            try:
+                n = int(v)
+            except Exception:
+                continue
+            if n <= 0:
+                continue
+            if k == category:
+                total += n
+            else:
+                logger.warning("ignored problemCounts key '%s' in %s (active category: %s)", k, source, category)
+
+    _add_counts(request.problemCounts, "request.problemCounts")
+    for f in request.files:
+        _add_counts(f.problemCounts, f"file.problemCounts ({f.fileName})")
+
+    return total
+
+
+def build_generation_prompt(request: GenerateRequest, category: str = "syntax") -> str:
     if not request.files:
         raise ValueError("at least one file is required")
 
-    counts = _aggregate_problem_counts(request.problemCounts, request.files)
-    total = sum(counts.values())
+    total = _get_category_problem_count(request, category)
     if total <= 0:
         total = 5
-
-    counts_json = json.dumps(counts, ensure_ascii=False)
 
     sources: List[str] = []
     for f in request.files:
@@ -47,41 +78,15 @@ def build_generation_prompt(request: GenerateRequest) -> str:
     description = request.description or ""
     source_md = "\n\n".join(sources)
 
-    return "\n".join(
-        [
-            "あなたはプログラミング教育の専門家です。",
-            f"次のソースコードを題材に、{total}問のプログラミング問題を作成してください。",
-            f"カテゴリ別の希望出題数: {counts_json}",
-            "",
-            "出力は必ず『構造化 Markdown』で、余計な説明は書かないでください。",
-            "各問題は次のフォーマットで出力してください:",
-            "",
-            "# 1問目",
-            "## title",
-            "(1行)",
-            "## content_markdown",
-            "(Markdown本文)",
-            "## sysinFormat",
-            "(`...` でも plain text でもよい)",
-            "## sampleCode",
-            "```python",
-            "(完全な実行可能コード。stdin を JSON として読み sysin に入れ、最後に JSON を1行で出力)",
-            "```",
-            "## testcases",
-            "### testcase1",
-            "`{\"sysin\": ..., \"expected\": ...}`",
-            "### testcase2",
-            "...",
-            "",
-            "制約:",
-            "- testcases の各行は JSON として厳密に正しいこと（ダブルクオート、true/false/null、末尾カンマ禁止、単一引用符禁止）",
-            "- sysin/expected は JSON で表現可能な値のみ（object/array/string/number/bool/null）",
-            "- sampleCode の出力は stdout の最後の非空行が JSON としてパースできること",
-            "",
-            f"リクエストタイトル: {title}",
-            f"リクエスト説明: {description}",
-            "",
-            "対象コード:",
-            source_md,
-        ]
-    )
+    template = _load_prompt_template(category)
+    replacements = {
+        "__GENERATOR_PROMPT_TOTAL__": str(total),
+        "__GENERATOR_PROMPT_TITLE__": title,
+        "__GENERATOR_PROMPT_DESCRIPTION__": description,
+        "__GENERATOR_PROMPT_SOURCE_MD__": source_md,
+    }
+
+    for k, v in replacements.items():
+        template = template.replace(k, v)
+
+    return template
