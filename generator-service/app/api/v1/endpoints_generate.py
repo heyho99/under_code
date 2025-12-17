@@ -17,7 +17,7 @@ async def generator_health() -> dict:
     return {"status": "ok"}
 
 
-@router.post("/generate", response_model=GenerateResponse, tags=["generator"])
+@router.post("/generator/generate", response_model=GenerateResponse, tags=["generator"])
 async def generate_endpoint(payload: GenerateRequest) -> GenerateResponse:
     try:
         return await generate(payload)

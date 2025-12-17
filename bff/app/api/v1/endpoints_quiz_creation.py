@@ -18,16 +18,17 @@ generator_client = GeneratorClient()
 quiz_client = QuizClient()
 
 
-def _convert_generator_problems(problems_from_generator: List[Dict[str, Any]], category: str = "syntax") -> List[Dict[str, Any]]:
+def _convert_generator_problems(problems_from_generator: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """Generator Service のレスポンスを Quiz Service 保存用に変換する"""
     problems: List[Dict[str, Any]] = []
     for p in problems_from_generator:
         problems.append(
             {
                 "title": p.get("title", ""),
-                "category": category,
+                "category": p.get("category", "syntax"),
                 "contentMarkdown": p.get("contentMarkdown", ""),
                 "sysinFormat": p.get("sysinFormat", ""),
+                "defaultLanguage": p.get("defaultLanguage", "python3"),
                 "sampleAnswer": p.get("sampleAnswer"),
                 "testcases": p.get("testcases", []),
             }

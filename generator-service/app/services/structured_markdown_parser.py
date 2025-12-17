@@ -146,7 +146,7 @@ def _parse_testcases_section(text: str) -> List[GeneratedTestCase]:
     return cases
 
 
-def parse_structured_markdown(md: str) -> List[GeneratedProblem]:
+def parse_structured_markdown(md: str, category: str = "syntax", default_language: str = "python3") -> List[GeneratedProblem]:
     blocks = _split_problem_blocks(md)
     if not blocks:
         raise StructuredMarkdownParseError("no problem blocks found")
@@ -172,8 +172,10 @@ def parse_structured_markdown(md: str) -> List[GeneratedProblem]:
 
         problem = GeneratedProblem(
             title=title,
+            category=category,
             contentMarkdown=content_md,
             sysinFormat=sysin_format,
+            defaultLanguage=default_language,
             sampleAnswer=sample_code,
             testcases=testcases,
         )

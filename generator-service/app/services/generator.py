@@ -36,8 +36,19 @@ print(json.dumps(sysin["n"]))
 """
 
 
+def _get_primary_category(request: GenerateRequest) -> str:
+    """problemCounts のキーから最初のカテゴリを取得する"""
+    for f in request.files:
+        for k in (f.problemCounts or {}).keys():
+            return k
+    return "syntax"
+
+
 async def generate(request: GenerateRequest) -> GenerateResponse:
-    prompt = build_generation_prompt(request, category="syntax")
+    category = _get_primary_category(request)
+    default_language = request.defaultLanguage
+
+    prompt = build_generation_prompt(request, category=category)
 
     if os.getenv("GENERATOR_MOCK") == "1":
         markdown = _MOCK_STRUCTURED_MD
@@ -45,6 +56,6 @@ async def generate(request: GenerateRequest) -> GenerateResponse:
         markdown = await call_llm(prompt)
 
     save_raw_llm_response(markdown)
-    problems = parse_structured_markdown(markdown)
+    problems = parse_structured_markdown(markdown, category=category, default_language=default_language)
     save_debug_outputs(markdown, problems)
     return GenerateResponse(problems=problems)

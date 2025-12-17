@@ -15,6 +15,7 @@ class GenerateRequest(BaseModel):
     userId: Optional[int] = None
     title: Optional[str] = None
     description: Optional[str] = None
+    defaultLanguage: str = "python3"
     files: List[FileWithProblems]
 
 
@@ -25,8 +26,10 @@ class GeneratedTestCase(BaseModel):
 
 class GeneratedProblem(BaseModel):
     title: str
+    category: str
     contentMarkdown: str
     sysinFormat: str
+    defaultLanguage: str
     sampleAnswer: str
     testcases: List[GeneratedTestCase]
 

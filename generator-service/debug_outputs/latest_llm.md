@@ -1,21 +1,23 @@
 # 1問目
 ## title
-HTTPステータスコードと条件分岐
+HTTPステータスコードに応じたレスポンスボディ可否判定
 
 ## content_markdown
-`sysin` は `int` / `string` / `null` のいずれかです。次のルールに従って、`is_body_allowed_for_status_code` 関数と同等の真偽値を計算し、JSONで出力してください。
+入力: `sysin` は `number|string|null` 型の値です（HTTPステータスコードまたはその文字列表現、もしくは null）  
 
-- 入力: 実行時に `sysin` が与えられます（stdin の JSON を読み込み `sysin` に代入する）。
-- 処理:
-  - `sysin is None`（JSONでは `null`）なら `true` を返す。
-  - 文字列 `"default"`, `"1XX"`, `"2XX"`, `"3XX"`, `"4XX"`, `"5XX"` のいずれかなら `true` を返す。
-  - それ以外では `int(sysin)` を `current_status_code` として扱い、
-    - `(current_status_code < 200)` または `current_status_code` が `{204, 205, 304}` のいずれかの場合は `false`
-    - それ以外は `true`
-  - 得られた真偽値を `result` として JSON 1 行で出力する。
+処理: 次のロジックで、レスポンスボディを許可するかどうかを判定し、その結果を真偽値で出力してください。
+
+- `status_code` が `null` のとき: `true`
+- `status_code` が `"default"`, `"1XX"`, `"2XX"`, `"3XX"`, `"4XX"`, `"5XX"` のいずれかのとき: `true`
+- それ以外:
+  - `status_code` を `int(status_code)` として整数に変換し `current_status_code` とする
+  - `(current_status_code < 200)` または `current_status_code` が `{204, 205, 304}` のいずれかのとき: `false`
+  - 上記以外のとき: `true`
+
+最終的な判定結果（true/false）を JSON として 1 行で出力してください。
 
 ## sysinFormat
-`number | string | null`
+`number|string|null`
 
 ## sampleAnswer
 ```python
@@ -28,11 +30,11 @@ status_code = sysin
 
 if status_code is None:
     result = True
-elif status_code in ["default", "1XX", "2XX", "3XX", "4XX", "5XX"]:
+elif status_code in {"default", "1XX", "2XX", "3XX", "4XX", "5XX"}:
     result = True
 else:
     current_status_code = int(status_code)
-    result = not (current_status_code < 200 or current_status_code in [204, 205, 304])
+    result = not (current_status_code < 200 or current_status_code in {204, 205, 304})
 
 print(json.dumps(result, ensure_ascii=False))
 ```
@@ -41,23 +43,23 @@ print(json.dumps(result, ensure_ascii=False))
 ### testcase1
 `{"sysin": null, "expected": true}`
 ### testcase2
-`{"sysin": "2XX", "expected": true}`
-### testcase3
 `{"sysin": 204, "expected": false}`
+### testcase3
+`{"sysin": "201", "expected": true}`
 
 # 2問目
 ## title
-正規表現でパスパラメータ名を抽出する
+URLパス文字列からパスパラメータ名の集合を取得
 
 ## content_markdown
-`sysin` はパス文字列です。`get_path_param_names` 関数のロジックを再現して、波かっこ `{}` で囲まれたパスパラメータ名をすべて取り出し、重複を除いてリストとして出力してください。
+入力: `sysin` は URL パス文字列です。例: `"/users/{user_id}/items/{item_id}"`  
 
-- 入力: 実行時に `sysin` が与えられます（stdin の JSON を読み込み `sysin` に代入する）。
-- 処理:
-  - `sysin` は文字列のパスとする（例: `"/users/{user_id}/items/{item_id}"`）。
-  - 正規表現 `"{(.*?)}"` に相当するマッチを使って、`{` と `}` の間のテキストをすべて抽出する。
-  - 集合（重複なし）相当の処理をし、順序は問わないが、Pythonでは一度リストにして `result` とする。
-  - `result` を JSON の配列として 1 行で出力する。
+処理: パス文字列の中から、`{...}` で囲まれた部分を正規表現によりすべて抜き出し、その文字列たちの集合を JSON の配列として出力してください。  
+
+仕様:
+- 正規表現パターンは `"{(.*?)}"` を使う
+- `re.findall` で得られた値を `set(...)` にして重複を除去するイメージで、集合に相当するユニークな値のリストを出力する
+- 順序は問わないものとします（採点では集合として扱う）が、実装上は `set` を `list` に変換した結果をそのまま出力すればよい
 
 ## sysinFormat
 `string`
@@ -81,26 +83,34 @@ print(json.dumps(result, ensure_ascii=False))
 ### testcase1
 `{"sysin": "/users/{user_id}/items/{item_id}", "expected": ["user_id", "item_id"]}`
 ### testcase2
-`{"sysin": "/status", "expected": []}`
+`{"sysin": "/health", "expected": []}`
 ### testcase3
 `{"sysin": "/{a}/{a}/{b}", "expected": ["a", "b"]}`
 
 # 3問目
 ## title
-ネストした辞書とリストのマージ処理
+ネストした辞書・リストをマージする deep_dict_update の再現
 
 ## content_markdown
-`sysin` は `{"main": ..., "update": ...}` という2つの辞書を含むオブジェクトです。`deep_dict_update` 関数のロジックのうち、for ループとその中の条件分岐を再現して、`main` を更新した結果を出力してください。
+入力: `sysin` は `{"main": {...}, "update": {...}}` という2つの辞書を持つオブジェクトです。  
 
-- 入力: 実行時に `sysin` が与えられます（stdin の JSON を読み込み `sysin` に代入する）。
-- 処理:
-  - `main_dict = sysin["main"]`, `update_dict = sysin["update"]` として処理する。
-  - `for key, value in update_dict.items()` と同等のループを回す。
-  - 各 `key` について、次の条件分岐を行い `main_dict` を更新する:
-    1. `key` が `main_dict` に存在し、かつ `main_dict[key]` も `value` もどちらも辞書であれば、再帰的に同じ処理（`deep_dict_update(main_dict[key], value)` 相当）を行う。
-    2. そうでなく、`key` が `main_dict` に存在し、`main_dict[key]` と `update_dict[key]` がどちらもリストなら、`main_dict[key] = main_dict[key] + update_dict[key]` としてリストを連結する。
-    3. 上記のどれにも当てはまらない場合は、`main_dict[key] = value` として上書きする。
-  - 最終的な `main_dict` を `result` として JSON で出力する。
+処理: 次のルールで `main` を破壊的に更新する処理を実装し、更新後の `main` を出力してください（`update` は変更しない）。  
+
+`deep_dict_update(main_dict, update_dict)` の仕様:
+- `for key, value in update_dict.items():` を行い、各 `key` を処理する
+- もし
+  - `key in main_dict` かつ
+  - `main_dict[key]` が `dict` インスタンス かつ
+  - `value` が `dict` インスタンス  
+  ならば、再帰的に `deep_dict_update(main_dict[key], value)` を呼び出す
+- `elif` として、もし
+  - `key in main_dict` かつ
+  - `main_dict[key]` が `list` インスタンス かつ
+  - `update_dict[key]` が `list` インスタンス  
+  ならば、`main_dict[key] = main_dict[key] + update_dict[key]` としてリスト結合する
+- 上記どちらにも当てはまらない場合は `main_dict[key] = value` として上書きする
+
+最終的に更新された `main_dict` を `result` として JSON 出力してください。
 
 ## sysinFormat
 `{"main": object, "update": object}`
@@ -112,27 +122,28 @@ import json
 
 sysin = json.loads(sys.stdin.read() or "null")
 
-main_dict = sysin["main"]
-update_dict = sysin["update"]
+main_dict = sysin.get("main", {})
+update_dict = sysin.get("update", {})
 
 def deep_dict_update(main_dict, update_dict):
     for key, value in update_dict.items():
         if (
             key in main_dict
-            and isinstance(main_dict[key], dict)
+            and isinstance(main_dict.get(key), dict)
             and isinstance(value, dict)
         ):
             deep_dict_update(main_dict[key], value)
         elif (
             key in main_dict
-            and isinstance(main_dict[key], list)
-            and isinstance(update_dict[key], list)
+            and isinstance(main_dict.get(key), list)
+            and isinstance(update_dict.get(key), list)
         ):
             main_dict[key] = main_dict[key] + update_dict[key]
         else:
             main_dict[key] = value
 
 deep_dict_update(main_dict, update_dict)
+
 result = main_dict
 
 print(json.dumps(result, ensure_ascii=False))
@@ -140,8 +151,8 @@ print(json.dumps(result, ensure_ascii=False))
 
 ## testcases
 ### testcase1
-`{"sysin": {"main": {"a": 1}, "update": {"b": 2}}, "expected": {"a": 1, "b": 2}}`
+`{"sysin": {"main": {"a": 1}, "update": {"a": 2}}, "expected": {"a": 2}}`
 ### testcase2
-`{"sysin": {"main": {"a": {"x": 1}}, "update": {"a": {"y": 2}}}, "expected": {"a": {"x": 1, "y": 2}}}`
+`{"sysin": {"main": {"a": {"b": 1}}, "update": {"a": {"c": 2}}}, "expected": {"a": {"b": 1, "c": 2}}}`
 ### testcase3
-`{"sysin": {"main": {"a": [1, 2]}, "update": {"a": [3], "b": 10}}, "expected": {"a": [1, 2, 3], "b": 10}}`
+`{"sysin": {"main": {"x": [1, 2]}, "update": {"x": [3], "y": 10}}, "expected": {"x": [1, 2, 3], "y": 10}}`

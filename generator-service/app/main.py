@@ -11,4 +11,4 @@ async def health() -> dict:
     return {"status": "ok"}
 
 
-app.include_router(endpoints_generate.router, prefix="/api/v1")
+app.include_router(endpoints_generate.router)

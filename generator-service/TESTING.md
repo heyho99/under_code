@@ -43,7 +43,7 @@ docker compose up -d --build generator-service
 
 ```bash
 curl -sS -i http://localhost:8085/health
-curl -sS -i http://localhost:8085/api/v1/generator/health
+curl -sS -i http://localhost:8085/generator/health
 ```
 
 期待値:
@@ -56,7 +56,7 @@ curl -sS -i http://localhost:8085/api/v1/generator/health
 `generator_payload.json` を使う例:
 
 ```bash
-curl -sS -i -X POST "http://localhost:8085/api/v1/generate" \
+curl -sS -i -X POST "http://localhost:8085/generator/generate" \
   -H "Content-Type: application/json" \
   --data-binary "@/home/ouchi/under_code/generator_payload.json"
 ```
@@ -64,7 +64,7 @@ curl -sS -i -X POST "http://localhost:8085/api/v1/generate" \
 整形して見たい場合（`jq` が不要）:
 
 ```bash
-curl -sS -X POST "http://localhost:8085/api/v1/generate" \
+curl -sS -X POST "http://localhost:8085/generator/generate" \
   -H "Content-Type: application/json" \
   --data-binary "@/home/ouchi/under_code/generator_payload.json" \
 | python3 -m json.tool

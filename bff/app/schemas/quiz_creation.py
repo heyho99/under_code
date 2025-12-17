@@ -15,6 +15,7 @@ class FileWithProblems(BaseModel):
 class GenerateQuizRequest(BaseModel):
     title: str
     description: Optional[str] = None
+    defaultLanguage: str = "python3"
     files: List[FileWithProblems]  # fils:[{fileName:str, content:str, problemCounts:{}},{}...]
 
 
