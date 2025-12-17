@@ -1,88 +1,70 @@
 {
   "problems": [
     {
-      "title": "正規表現を使ってパスパラメータ名を取得する関数の作成",
-      "contentMarkdown": "次の `get_path_param_names` 関数は、URL パス文字列から `{}` で囲まれたパラメータ名をすべて取り出し、集合として返します。\n\n```python\ndef get_path_param_names(path: str) -> Set[str]:\n    return set(re.findall(\"{(.*?)}\", path))\n```\n\nこの関数と同様の挙動をする `extract_param_names` 関数を作成してください。\n\n- 引数: `path: str`\n- 返り値: `List[str]`\n    - パラメータ名のリスト\n    - 集合ではなくリストを返すこと（順序は問わない）\n- 正規表現 `re.findall(\"{(.*?)}\", path)` を用いて実装すること\n\n`sysin` は次の形式の JSON で与えられます:\n\n```json\n{\n  \"path\": \"/users/{user_id}/items/{item_id}\"\n}\n```\n\nこのとき、あなたのプログラムは `[\"user_id\", \"item_id\"]`（順不同可）を JSON 形式で出力してください。",
-      "sysinFormat": "{\"path\": \"文字列のURLパス\"}",
-      "sampleAnswer": "import sys\nimport json\nimport re\nfrom typing import List\n\ndef extract_param_names(path: str) -> List[str]:\n    # ここを実装\n    return re.findall(r\"{(.*?)}\", path)\n\ndef main():\n    data = json.load(sys.stdin)\n    path = data[\"path\"]\n    result = extract_param_names(path)\n    print(json.dumps(result))\n\nif __name__ == \"__main__\":\n    main()\n",
+      "title": "正規表現でパスパラメータ名を抽出する",
+      "contentMarkdown": "入力: `sysin` は文字列です（URLパスを表します）。\n\n処理: `re.findall(\"{(.*?)}\", path)` と `set(...)` を用いた次のロジックを再現してください。\n\n1. 文字列 `sysin` をパスとみなし、`{id}` のような波かっこで囲まれた部分をすべて正規表現で抽出する（中身の文字列だけを取り出す）。\n2. 抽出したすべての名前を集合（重複なし）にして `result` として JSON で出力する。",
+      "sysinFormat": "string",
+      "sampleAnswer": "import sys\nimport json\nimport re\n\nsysin = json.loads(sys.stdin.read() or \"null\")\n\npath = sysin\nnames = set(re.findall(\"{(.*?)}\", path))\nresult = list(names)\n\nprint(json.dumps(result, ensure_ascii=False))\n",
       "testcases": [
         {
-          "sysin": {
-            "path": "/users/{user_id}/items/{item_id}"
-          },
+          "sysin": "/items/{item_id}",
           "expected": [
-            "user_id",
             "item_id"
           ]
         },
         {
-          "sysin": {
-            "path": "/no/params/here"
-          },
-          "expected": []
-        },
-        {
-          "sysin": {
-            "path": "/{a}/{b}/{a}"
-          },
+          "sysin": "/users/{user_id}/orders/{order_id}",
           "expected": [
-            "a",
-            "b",
-            "a"
+            "user_id",
+            "order_id"
           ]
+        },
+        {
+          "sysin": "/status",
+          "expected": []
         }
       ]
     },
     {
-      "title": "ステータスコードに応じてレスポンスボディ可否を判定する",
-      "contentMarkdown": "`is_body_allowed_for_status_code` 関数は、ステータスコードに応じてレスポンスボディを含めてよいかどうかを判定します。\n\n```python\ndef is_body_allowed_for_status_code(status_code: Union[int, str, None]) -> bool:\n    if status_code is None:\n        return True\n    if status_code in {\"default\", \"1XX\", \"2XX\", \"3XX\", \"4XX\", \"5XX\"}:\n        return True\n    current_status_code = int(status_code)\n    return not (current_status_code < 200 or current_status_code in {204, 205, 304})\n```\n\nこの関数と同じロジックを持つ `allow_body` 関数を作成してください。\n\n仕様:\n- 引数: `code` は `int` または `str` または `None`\n- 振る舞い:\n  - `None` → `True`\n  - `\"default\"`, `\"1XX\"`, `\"2XX\"`, `\"3XX\"`, `\"4XX\"`, `\"5XX\"` → `True`\n  - それ以外は `int(code)` に変換し、`< 200` または `204, 205, 304` のいずれかなら `False`、それ以外は `True`\n\n`sysin` は次の形式です:\n\n```json\n{\n  \"code\": 204\n}\n```",
-      "sysinFormat": "{\"code\": (数値または文字列またはnull)}",
-      "sampleAnswer": "import sys\nimport json\nfrom typing import Union\n\ndef allow_body(code: Union[int, str, None]) -> bool:\n    if code is None:\n        return True\n    if code in {\"default\", \"1XX\", \"2XX\", \"3XX\", \"4XX\", \"5XX\"}:\n        return True\n    current = int(code)\n    return not (current < 200 or current in {204, 205, 304})\n\ndef main():\n    data = json.load(sys.stdin)\n    code = data.get(\"code\", None)\n    result = allow_body(code)\n    print(json.dumps(result))\n\nif __name__ == \"__main__\":\n    main()\n",
+      "title": "HTTPステータスコードからレスポンスボディ許可可否を判定する",
+      "contentMarkdown": "入力: `sysin` は数値・文字列・null のいずれかです（HTTPステータスコード、または特殊文字列）。\n\n処理: `is_body_allowed_for_status_code` 関数と同じロジックを実装し、その真偽値を `result` として出力してください。\n\nルール:\n\n1. `sysin is None`（JSONのnull）のとき: `true` を返す。\n2. `sysin` が `\"default\"`, `\"1XX\"`, `\"2XX\"`, `\"3XX\"`, `\"4XX\"`, `\"5XX\"` のいずれかの文字列のとき: `true` を返す。\n3. 上記以外のとき:\n   - `int(sysin)` で整数に変換し `current_status_code` とする（数値ならそのまま、文字列なら数値文字列を想定）。\n   - `(current_status_code < 200) または (current_status_code が 204, 205, 304 のいずれか)` のとき `false`。\n   - それ以外は `true`。",
+      "sysinFormat": "number|string|null",
+      "sampleAnswer": "import sys\nimport json\n\nsysin = json.loads(sys.stdin.read() or \"null\")\n\nstatus_code = sysin\n\nif status_code is None:\n    result = True\nelif status_code in {\"default\", \"1XX\", \"2XX\", \"3XX\", \"4XX\", \"5XX\"}:\n    result = True\nelse:\n    current_status_code = int(status_code)\n    result = not (current_status_code < 200 or current_status_code in {204, 205, 304})\n\nprint(json.dumps(result, ensure_ascii=False))\n",
       "testcases": [
         {
-          "sysin": {
-            "code": null
-          },
+          "sysin": null,
           "expected": true
         },
         {
-          "sysin": {
-            "code": "2XX"
-          },
+          "sysin": "2XX",
           "expected": true
         },
         {
-          "sysin": {
-            "code": 199
-          },
+          "sysin": 204,
           "expected": false
         },
         {
-          "sysin": {
-            "code": 204
-          },
+          "sysin": "304",
           "expected": false
         },
         {
-          "sysin": {
-            "code": 200
-          },
+          "sysin": 404,
           "expected": true
         }
       ]
     },
     {
-      "title": "再帰的な辞書マージ処理の実装",
-      "contentMarkdown": "`deep_dict_update` 関数は、2つの辞書を「深く」マージします。\n\n```python\ndef deep_dict_update(main_dict: Dict[Any, Any], update_dict: Dict[Any, Any]) -> None:\n    for key, value in update_dict.items():\n        if (\n            key in main_dict\n            and isinstance(main_dict[key], dict)\n            and isinstance(value, dict)\n        ):\n            deep_dict_update(main_dict[key], value)\n        elif (\n            key in main_dict\n            and isinstance(main_dict[key], list)\n            and isinstance(update_dict[key], list)\n        ):\n            main_dict[key] = main_dict[key] + update_dict[key]\n        else:\n            main_dict[key] = value\n```\n\nこれと同じ仕様を持つ `merge_deep` 関数を作成し、その結果の辞書を返してください。\n\n仕様:\n- 引数:\n  - `base: dict`\n  - `override: dict`\n- 処理:\n  - `override` の各キーについて、上記コードと同じロジックで `base` を更新\n  - 関数は更新された `base` を返す\n\n`sysin` は次の形式です:\n\n```json\n{\n  \"base\": {...},\n  \"override\": {...}\n}\n```",
-      "sysinFormat": "{\"base\": オブジェクト, \"override\": オブジェクト}",
-      "sampleAnswer": "import sys\nimport json\nfrom typing import Any, Dict\n\ndef merge_deep(base: Dict[Any, Any], override: Dict[Any, Any]) -> Dict[Any, Any]:\n    for key, value in override.items():\n        if (\n            key in base\n            and isinstance(base[key], dict)\n            and isinstance(value, dict)\n        ):\n            merge_deep(base[key], value)\n        elif (\n            key in base\n            and isinstance(base[key], list)\n            and isinstance(override[key], list)\n        ):\n            base[key] = base[key] + override[key]\n        else:\n            base[key] = value\n    return base\n\ndef main():\n    data = json.load(sys.stdin)\n    base = data[\"base\"]\n    override = data[\"override\"]\n    result = merge_deep(base, override)\n    print(json.dumps(result))\n\nif __name__ == \"__main__\":\n    main()\n",
+      "title": "2つの辞書を深くマージする（再帰 + 型判定）",
+      "contentMarkdown": "入力: `sysin` は `{\"main\": {...}, \"update\": {...}}` という2つの辞書を含むオブジェクトです。\n\n処理: `deep_dict_update` 関数と同じロジックで `main` を更新し、その更新後の `main` を `result` として出力してください。\n\n具体的なルール:\n\n- `update` の各 `(key, value)` について処理する。\n- 次の条件をすべて満たす場合:\n  - `key` が `main` に存在し、\n  - `main[key]` が辞書（`dict`）であり、\n  - `value` も辞書である  \n  → 再帰的に `deep_dict_update(main[key], value)` を行う。\n- 上記でなく、次の条件をすべて満たす場合:\n  - `key` が `main` に存在し、\n  - `main[key]` がリスト（`list`）であり、\n  - `update[key]` もリストである  \n  → `main[key] = main[key] + update[key]` としてリストを結合する。\n- それ以外の場合は:\n  - `main[key] = value` として上書きする。",
+      "sysinFormat": "{\"main\": object, \"update\": object}",
+      "sampleAnswer": "import sys\nimport json\n\nsysin = json.loads(sys.stdin.read() or \"null\")\n\nmain_dict = sysin[\"main\"]\nupdate_dict = sysin[\"update\"]\n\ndef deep_dict_update(main_dict, update_dict):\n    for key, value in update_dict.items():\n        if (\n            key in main_dict\n            and isinstance(main_dict[key], dict)\n            and isinstance(value, dict)\n        ):\n            deep_dict_update(main_dict[key], value)\n        elif (\n            key in main_dict\n            and isinstance(main_dict[key], list)\n            and isinstance(update_dict[key], list)\n        ):\n            main_dict[key] = main_dict[key] + update_dict[key]\n        else:\n            main_dict[key] = value\n\ndeep_dict_update(main_dict, update_dict)\nresult = main_dict\n\nprint(json.dumps(result, ensure_ascii=False))\n",
       "testcases": [
         {
           "sysin": {
-            "base": {
+            "main": {
               "a": 1
             },
-            "override": {
+            "update": {
               "b": 2
             }
           },
@@ -93,12 +75,12 @@
         },
         {
           "sysin": {
-            "base": {
+            "main": {
               "a": {
                 "x": 1
               }
             },
-            "override": {
+            "update": {
               "a": {
                 "y": 2
               }
@@ -113,15 +95,16 @@
         },
         {
           "sysin": {
-            "base": {
+            "main": {
               "a": [
                 1,
                 2
               ]
             },
-            "override": {
+            "update": {
               "a": [
-                3
+                3,
+                4
               ]
             }
           },
@@ -129,154 +112,26 @@
             "a": [
               1,
               2,
-              3
+              3,
+              4
             ]
           }
         },
         {
           "sysin": {
-            "base": {
-              "a": {
-                "b": [
-                  1
-                ]
-              }
+            "main": {
+              "a": [
+                1,
+                2
+              ]
             },
-            "override": {
-              "a": {
-                "b": [
-                  2,
-                  3
-                ]
-              }
+            "update": {
+              "a": 10
             }
           },
           "expected": {
-            "a": {
-              "b": [
-                1,
-                2,
-                3
-              ]
-            }
+            "a": 10
           }
-        }
-      ]
-    },
-    {
-      "title": "可変長引数と型チェックを用いたデフォルト値選択関数",
-      "contentMarkdown": "`get_value_or_default` 関数は、`DefaultPlaceholder` インスタンスをスキップしつつ、最初に「実際の値」を返す関数です。\n\n```python\ndef get_value_or_default(\n    first_item: Union[DefaultPlaceholder, DefaultType],\n    *extra_items: Union[DefaultPlaceholder, DefaultType],\n) -> Union[DefaultPlaceholder, DefaultType]:\n    items = (first_item,) + extra_items\n    for item in items:\n        if not isinstance(item, DefaultPlaceholder):\n            return item\n    return first_item\n```\n\nこのロジックと同じ動きをする `pick_first_non_default` 関数を作り、`DefaultPlaceholder` の代わりに単純なクラス `MyDefault` を使ってください。\n\n仕様:\n- クラス `MyDefault` を定義\n- 関数シグネチャ:\n\n```python\nfrom typing import Any\n\ndef pick_first_non_default(first_item: Any, *extra_items: Any) -> Any:\n    ...\n```\n\n- `MyDefault` のインスタンスを「デフォルト」とみなし、それ以外の最初の値を返す\n- 全てが `MyDefault` だった場合は `first_item` を返す\n\n`sysin` の形式:\n\n```json\n{\n  \"items\": [ 値の配列 ]\n}\n```\n\n配列中の `\"__DEFAULT__\"` は `MyDefault()` に読み替えてください。",
-      "sysinFormat": "{\"items\": 配列}",
-      "sampleAnswer": "import sys\nimport json\nfrom typing import Any, List\n\nclass MyDefault:\n    pass\n\ndef pick_first_non_default(first_item: Any, *extra_items: Any) -> Any:\n    items = (first_item,) + extra_items\n    for item in items:\n        if not isinstance(item, MyDefault):\n            return item\n    return first_item\n\ndef parse_items(raw_items: List[Any]) -> List[Any]:\n    parsed = []\n    for v in raw_items:\n        if v == \"__DEFAULT__\":\n            parsed.append(MyDefault())\n        else:\n            parsed.append(v)\n    return parsed\n\ndef main():\n    data = json.load(sys.stdin)\n    raw_items = data[\"items\"]\n    items = parse_items(raw_items)\n    if not items:\n        result = None\n    else:\n        result = pick_first_non_default(items[0], *items[1:])\n    print(json.dumps(result))\n\nif __name__ == \"__main__\":\n    main()\n",
-      "testcases": [
-        {
-          "sysin": {
-            "items": [
-              "__DEFAULT__",
-              10,
-              20
-            ]
-          },
-          "expected": 10
-        },
-        {
-          "sysin": {
-            "items": [
-              "__DEFAULT__",
-              "__DEFAULT__",
-              "x"
-            ]
-          },
-          "expected": "x"
-        },
-        {
-          "sysin": {
-            "items": [
-              "__DEFAULT__",
-              "__DEFAULT__"
-            ]
-          },
-          "expected": null
-        },
-        {
-          "sysin": {
-            "items": [
-              1,
-              "__DEFAULT__",
-              2
-            ]
-          },
-          "expected": 1
-        }
-      ]
-    },
-    {
-      "title": "正規表現と文字列フォーマットを用いた一意なID生成",
-      "contentMarkdown": "`generate_unique_id` 関数は、`route` オブジェクトから一意な ID を生成します。\n\n```python\ndef generate_unique_id(route: \"APIRoute\") -> str:\n    operation_id = f\"{route.name}{route.path_format}\"\n    operation_id = re.sub(r\"\\W\", \"_\", operation_id)\n    assert route.methods\n    operation_id = f\"{operation_id}_{list(route.methods)[0].lower()}\"\n    return operation_id\n```\n\nこのロジックを模倣し、単純な辞書から ID を生成する `make_unique_id` 関数を作成してください。\n\n仕様:\n- 引数 `route_info: dict` は次のキーを持つ:\n  - `\"name\"`: 文字列\n  - `\"path_format\"`: 文字列\n  - `\"methods\"`: 文字列の配列（空でない）\n- ロジック:\n  1. `operation_id = name + path_format`\n  2. `re.sub(r\"\\W\", \"_\", operation_id)` で英数字以外を `_` に置換\n  3. `methods` の最初の要素を小文字にして末尾に `\"_\" + それ` を付ける\n\n`sysin` は `route_info` 自体を渡します。",
-      "sysinFormat": "{\"name\": 文字列, \"path_format\": 文字列, \"methods\": [文字列,...]}",
-      "sampleAnswer": "import sys\nimport json\nimport re\nfrom typing import Dict, Any\n\ndef make_unique_id(route_info: Dict[str, Any]) -> str:\n    operation_id = f\"{route_info['name']}{route_info['path_format']}\"\n    operation_id = re.sub(r\"\\W\", \"_\", operation_id)\n    methods = route_info[\"methods\"]\n    assert methods\n    operation_id = f\"{operation_id}_{methods[0].lower()}\"\n    return operation_id\n\ndef main():\n    data = json.load(sys.stdin)\n    result = make_unique_id(data)\n    print(json.dumps(result))\n\nif __name__ == \"__main__\":\n    main()\n",
-      "testcases": [
-        {
-          "sysin": {
-            "name": "getUser",
-            "path_format": "/users/{user_id}",
-            "methods": [
-              "GET"
-            ]
-          },
-          "expected": "getUser_users__user_id__get"
-        },
-        {
-          "sysin": {
-            "name": "create-item",
-            "path_format": "/items",
-            "methods": [
-              "POST"
-            ]
-          },
-          "expected": "create_item_items_post"
-        },
-        {
-          "sysin": {
-            "name": "日本語",
-            "path_format": "/パス",
-            "methods": [
-              "GET"
-            ]
-          },
-          "expected": "____get"
-        }
-      ]
-    },
-    {
-      "title": "条件分岐と例外処理を用いた文字列から整数への安全な変換",
-      "contentMarkdown": "`is_body_allowed_for_status_code` 関数では、`status_code` を `int(status_code)` で整数に変換していますが、変換に失敗した場合の処理は考慮されていません。\n\nここでは、次の仕様を持つ `safe_int_status` 関数を作成してください。\n\n仕様:\n- 引数: `code` は `int` または `str` または `None`\n- 返り値: `int` または `null`（Pythonでは `None` を返し、JSON では `null`）\n- ロジック:\n  1. `code is None` → `None` を返す\n  2. `code` が `int` → そのまま返す\n  3. `code` が `str` → `int(code)` を試みる\n      - 成功したら、その整数を返す\n      - `ValueError` が発生したら `None` を返す\n\n`sysin` は次の形式です:\n\n```json\n{\n  \"code\": \"200\"\n}\n```",
-      "sysinFormat": "{\"code\": 数値または文字列またはnull}",
-      "sampleAnswer": "import sys\nimport json\nfrom typing import Union, Optional\n\ndef safe_int_status(code: Union[int, str, None]) -> Optional[int]:\n    if code is None:\n        return None\n    if isinstance(code, int):\n        return code\n    # ここで code は str の想定\n    try:\n        return int(code)\n    except ValueError:\n        return None\n\ndef main():\n    data = json.load(sys.stdin)\n    code = data.get(\"code\", None)\n    result = safe_int_status(code)\n    print(json.dumps(result))\n\nif __name__ == \"__main__\":\n    main()\n",
-      "testcases": [
-        {
-          "sysin": {
-            "code": 404
-          },
-          "expected": 404
-        },
-        {
-          "sysin": {
-            "code": "201"
-          },
-          "expected": 201
-        },
-        {
-          "sysin": {
-            "code": "not_a_number"
-          },
-          "expected": null
-        },
-        {
-          "sysin": {
-            "code": null
-          },
-          "expected": null
         }
       ]
     }

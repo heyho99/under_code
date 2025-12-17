@@ -5,7 +5,7 @@
 
 【クイズ作成ルール】
 - 対象コードに含まれる基本的な文法や処理を問う
-- 「関数定義やクラス定義を含まない、数行の処理」を対象とする
+- 対象コード内の、**関数定義やクラス定義を含まない、数行の処理** を対象とする
 - 対象コード中の特定の行や小さなブロックを抜き出して問題にする
 - content_markdown には必ず次を明記する
   - 入力: 実行時に変数 `sysin` が与えられること（stdin の JSON を読み込んで `sysin` に入れる）
@@ -46,7 +46,8 @@
   - `## testcases`
 
 【testcases の書き方】
-- testcases の中に `### testcase1` / `### testcase2` / `### testcase3` ... を作る
+- testcases の中に `### testcase1` / `### testcase2` / `### testcase3` を作る
+- testcaseは必ず **3つ丁度** 作成する
 - 各 testcase の直下に、1 行のインラインコードで JSON を書く
   - `{"sysin": ..., "expected": ...}`
 - JSON は厳密に正しいこと（ダブルクオート、true/false/null、末尾カンマ禁止、単一引用符禁止）
@@ -139,8 +140,6 @@ NG:
  `{"sysin": {"statusCode": "2XX"}, "expected": true}`
  ### testcase3
  `{"sysin": {"statusCode": 204}, "expected": false}`
- ### testcase4
- `{"sysin": {"statusCode": "304"}, "expected": false}`
 ~~~
 
 リクエストタイトル: __GENERATOR_PROMPT_TITLE__
