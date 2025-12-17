@@ -30,10 +30,10 @@ def _load_prompt_template(category: str) -> str:
 
 
 def _get_category_problem_count(request: GenerateRequest, category: str) -> int:
-    total = 0
+    files_total = 0
 
-    def _add_counts(d: Optional[Dict[str, int]], source: str) -> None:
-        nonlocal total
+    def _sum_for_category(d: Optional[Dict[str, int]], source: str) -> int:
+        out = 0
         for k, v in (d or {}).items():
             try:
                 n = int(v)
@@ -42,15 +42,15 @@ def _get_category_problem_count(request: GenerateRequest, category: str) -> int:
             if n <= 0:
                 continue
             if k == category:
-                total += n
+                out += n
             else:
                 logger.warning("ignored problemCounts key '%s' in %s (active category: %s)", k, source, category)
+        return out
 
-    _add_counts(request.problemCounts, "request.problemCounts")
     for f in request.files:
-        _add_counts(f.problemCounts, f"file.problemCounts ({f.fileName})")
+        files_total += _sum_for_category(f.problemCounts, f"file.problemCounts ({f.fileName})")
 
-    return total
+    return files_total
 
 
 def build_generation_prompt(request: GenerateRequest, category: str = "syntax") -> str:

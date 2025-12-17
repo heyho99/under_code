@@ -2,9 +2,6 @@
   "userId": 1,
   "title": "test_py_code.py から問題生成",
   "description": "quiz_poc/backend/data/test_py_code.py を教材コードとして Generator に渡すテスト",
-  "problemCounts": {
-    "syntax": 3
-  },
   "files": [
     {
       "fileName": "test_py_code.py",

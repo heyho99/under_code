@@ -15,7 +15,6 @@ class GenerateRequest(BaseModel):
     userId: Optional[int] = None
     title: Optional[str] = None
     description: Optional[str] = None
-    problemCounts: Dict[str, int] = Field(default_factory=dict)
     files: List[FileWithProblems]
 
 
