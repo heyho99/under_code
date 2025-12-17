@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS problems (
     quiz_set_id      INTEGER     NOT NULL REFERENCES quiz_sets(id) ON DELETE CASCADE,
     order_index      INTEGER     NOT NULL,
     title            TEXT        NOT NULL,
-    description      TEXT        NOT NULL,
+    category         TEXT        NOT NULL DEFAULT 'syntax',
     content_markdown TEXT        NOT NULL,
     sysin_format     TEXT        NOT NULL,
     default_language TEXT        NOT NULL DEFAULT 'python3',

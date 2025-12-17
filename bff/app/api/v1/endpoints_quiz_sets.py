@@ -40,11 +40,12 @@ async def get_quiz_set_detail(quiz_set_id: int, user_id: int = Depends(get_curre
         logger.exception("Failed to fetch quiz set detail")
         raise HTTPException(status_code=502, detail="Failed to fetch quiz set detail")
 
+    # TODO: Progress Service から解答済みID一覧を取得して isSolved を設定する
     problems = [
         ProblemSummary(
             problemId=p.get("problemId"),
             title=p.get("title", ""),
-            description=p.get("description") or "",
+            defaultLanguage=p.get("defaultLanguage", "python3"),
             isSolved=False,
         )
         for p in data.get("problems") or []

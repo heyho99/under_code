@@ -1,6 +1,5 @@
 from typing import Any, Dict, List
 
-import ast
 import logging
 from fastapi import APIRouter, Depends, HTTPException, status
 
@@ -19,46 +18,20 @@ generator_client = GeneratorClient()
 quiz_client = QuizClient()
 
 
-def _from_repr_or_raw(value: Any) -> Any:
-    if not isinstance(value, str):
-        return value
-    try:
-        return ast.literal_eval(value)
-    except Exception:
-        return value
-
-
-def _convert_quizzes_to_problems(quizzes: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def _convert_generator_problems(problems_from_generator: List[Dict[str, Any]], category: str = "syntax") -> List[Dict[str, Any]]:
+    """Generator Service のレスポンスを Quiz Service 保存用に変換する"""
     problems: List[Dict[str, Any]] = []
-    for quiz in quizzes:
-        raw_title = quiz.get("title")
-        raw_description = quiz.get("description")
-        raw_sysin_format = quiz.get("sysin_format")
-        raw_sample_code = quiz.get("sample_code")
-
-        title = _from_repr_or_raw(raw_title) or ""
-        description = _from_repr_or_raw(raw_description) or ""
-        sysin_format = _from_repr_or_raw(raw_sysin_format) or ""
-        sample_code = _from_repr_or_raw(raw_sample_code) or ""
-
-        parts: List[str] = []
-        if description:
-            parts.append(str(description))
-        if sysin_format:
-            parts.append("\n\n[Input Format]\n")
-            parts.append(str(sysin_format))
-
-        content_markdown = "".join(parts) if parts else ""
-
+    for p in problems_from_generator:
         problems.append(
             {
-                "title": str(title),
-                "description": str(description),
-                "contentMarkdown": content_markdown,
-                "sampleAnswer": str(sample_code) if sample_code is not None else None,
+                "title": p.get("title", ""),
+                "category": category,
+                "contentMarkdown": p.get("contentMarkdown", ""),
+                "sysinFormat": p.get("sysinFormat", ""),
+                "sampleAnswer": p.get("sampleAnswer"),
+                "testcases": p.get("testcases", []),
             }
         )
-
     return problems
 
 
@@ -67,11 +40,11 @@ async def generate_quiz(data: GenerateQuizRequest, user_id: int = Depends(get_cu
     try:
         generator_payload = data.model_dump()
         generator_response = await generator_client.generate_problems(generator_payload)
-        quizzes = generator_response.get("quizzes")
-        if not isinstance(quizzes, list) or not quizzes:
+        problems_from_generator = generator_response.get("problems")
+        if not isinstance(problems_from_generator, list) or not problems_from_generator:
             raise HTTPException(status_code=502, detail="Invalid response from generator service")
 
-        problems = _convert_quizzes_to_problems(quizzes)
+        problems = _convert_generator_problems(problems_from_generator)
 
         save_payload: Dict[str, Any] = {
             "userId": user_id,

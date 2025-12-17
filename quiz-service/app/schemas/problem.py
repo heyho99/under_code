@@ -10,7 +10,7 @@ class Testcase(BaseModel):
 
 class ProblemCreate(BaseModel):
     title: str
-    description: str = ""
+    category: str = "syntax"
     contentMarkdown: str
     sysinFormat: str
     defaultLanguage: str = "python3"

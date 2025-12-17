@@ -1,17 +1,27 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Any, List, Optional
+
+
+class Testcase(BaseModel):
+    sysin: Any
+    expected: Any
+
 
 class ProblemSummary(BaseModel):
     problemId: int
     title: str
-    description: Optional[str] = ""
+    defaultLanguage: str = "python3"
     isSolved: bool = False
+
 
 class ProblemDetail(BaseModel):
     problemId: int
     quizSetId: int
     orderIndex: int
     title: str
-    description: str
+    defaultLanguage: str
     contentMarkdown: str
+    sysinFormat: str
+    starterCode: Optional[str] = None
     sampleAnswer: Optional[str] = None
+    testcases: List[Testcase]

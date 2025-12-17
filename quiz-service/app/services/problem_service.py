@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 
 from app.repositories import problem_repository
 from app.schemas.problem import ProblemDetail
@@ -22,6 +22,11 @@ async def get_problem_detail(problem_id: int) -> Optional[ProblemDetail]:
     )
 
 
-async def get_total_problem_count(user_id: Optional[int] = None) -> int:
+async def get_total_problem_count(user_id: int) -> int:
     return await problem_repository.count_all_problems(user_id)
+
+
+async def get_category_stats(user_id: int) -> List[dict]:
+    rows = await problem_repository.count_problems_by_category(user_id)
+    return [{"category": row["category"], "count": row["count"]} for row in rows]
 

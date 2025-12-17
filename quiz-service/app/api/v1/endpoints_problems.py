@@ -16,6 +16,12 @@ async def get_problem_detail(problem_id: int) -> ProblemDetail:
 
 
 @router.get("/quiz/quizzes/stats/count")
-async def get_quiz_stats_count(userId: int | None = Query(None, description="User ID")) -> dict:
+async def get_quiz_stats_count(userId: int = Query(..., description="User ID")) -> dict:
     total = await problem_service.get_total_problem_count(userId)
     return {"totalProblems": total}
+
+
+@router.get("/quiz/quizzes/stats/categories")
+async def get_quiz_stats_categories(userId: int = Query(..., description="User ID")):
+    categories = await problem_service.get_category_stats(userId)
+    return categories

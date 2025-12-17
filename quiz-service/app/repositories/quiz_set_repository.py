@@ -20,7 +20,7 @@ async def create_quiz_set_with_problems(
 
     query = (
         "INSERT INTO problems "
-        "(quiz_set_id, order_index, title, description, content_markdown, sysin_format, default_language, sample_answer, testcases) "
+        "(quiz_set_id, order_index, title, category, content_markdown, sysin_format, default_language, sample_answer, testcases) "
         "VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9::jsonb)"
     )
 
@@ -31,7 +31,7 @@ async def create_quiz_set_with_problems(
             quiz_set_id,
             index,
             problem.title,
-            problem.description,
+            problem.category,
             problem.contentMarkdown,
             problem.sysinFormat,
             problem.defaultLanguage,

@@ -11,6 +11,11 @@ logger = logging.getLogger(__name__)
 quiz_client = QuizClient()
 
 
+STARTER_CODE_TEMPLATES = {
+    "python3": 'import sys, json\nsysin = json.loads(sys.stdin.read())\n# ここから下をユーザが書く\nresult = None\nprint(json.dumps(result))\n',
+}
+
+
 @router.get("/{problem_id}", response_model=ProblemDetail)
 async def get_problem_detail(problem_id: int, user_id: int = Depends(get_current_user_id)):
     try:
@@ -19,4 +24,18 @@ async def get_problem_detail(problem_id: int, user_id: int = Depends(get_current
         logger.exception("Failed to fetch problem detail")
         raise HTTPException(status_code=502, detail="Failed to fetch problem detail")
 
-    return ProblemDetail(**data)
+    language = data.get("defaultLanguage", "python3")
+    starter_code = STARTER_CODE_TEMPLATES.get(language, STARTER_CODE_TEMPLATES["python3"])
+
+    return ProblemDetail(
+        problemId=data.get("problemId"),
+        quizSetId=data.get("quizSetId"),
+        orderIndex=data.get("orderIndex"),
+        title=data.get("title", ""),
+        defaultLanguage=language,
+        contentMarkdown=data.get("contentMarkdown", ""),
+        sysinFormat=data.get("sysinFormat", ""),
+        starterCode=starter_code,
+        sampleAnswer=data.get("sampleAnswer"),
+        testcases=data.get("testcases", []),
+    )
