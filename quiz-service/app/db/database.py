@@ -1,3 +1,4 @@
+import json
 import os
 from typing import Optional
 
@@ -14,7 +15,22 @@ async def connect() -> None:
     database_url = os.getenv("DATABASE_URL")
     if not database_url:
         raise RuntimeError("DATABASE_URL is not set")
-    _pool = await asyncpg.create_pool(database_url)
+
+    async def _init_connection(conn: asyncpg.Connection) -> None:
+        await conn.set_type_codec(
+            "json",
+            encoder=json.dumps,
+            decoder=json.loads,
+            schema="pg_catalog",
+        )
+        await conn.set_type_codec(
+            "jsonb",
+            encoder=json.dumps,
+            decoder=json.loads,
+            schema="pg_catalog",
+        )
+
+    _pool = await asyncpg.create_pool(database_url, init=_init_connection)
 
 
 async def disconnect() -> None:

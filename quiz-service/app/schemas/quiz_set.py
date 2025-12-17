@@ -26,6 +26,4 @@ class QuizSetSummary(BaseModel):
 class QuizSetDetail(BaseModel):
     quizSetId: int
     title: str
-    description: Optional[str] = None
     problems: List[ProblemSummary]
-

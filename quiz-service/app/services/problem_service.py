@@ -14,12 +14,14 @@ async def get_problem_detail(problem_id: int) -> Optional[ProblemDetail]:
         quizSetId=row["quiz_set_id"],
         orderIndex=row["order_index"],
         title=row["title"],
-        description=row["description"],
+        defaultLanguage=row["default_language"],
         contentMarkdown=row["content_markdown"],
+        sysinFormat=row["sysin_format"],
         sampleAnswer=row["sample_answer"],
+        testcases=row["testcases"],
     )
 
 
-async def get_total_problem_count() -> int:
-    return await problem_repository.count_all_problems()
+async def get_total_problem_count(user_id: Optional[int] = None) -> int:
+    return await problem_repository.count_all_problems(user_id)
 

@@ -13,7 +13,10 @@ CREATE TABLE IF NOT EXISTS problems (
     title            TEXT        NOT NULL,
     description      TEXT        NOT NULL,
     content_markdown TEXT        NOT NULL,
+    sysin_format     TEXT        NOT NULL,
+    default_language TEXT        NOT NULL DEFAULT 'python3',
     sample_answer    TEXT,
+    testcases        JSONB       NOT NULL,
     created_at       TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 

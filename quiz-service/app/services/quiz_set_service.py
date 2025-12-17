@@ -43,7 +43,7 @@ async def get_quiz_set_detail(quiz_set_id: int) -> Optional[QuizSetDetail]:
         ProblemSummary(
             problemId=row["id"],
             title=row["title"],
-            description=row["description"],
+            defaultLanguage=row["default_language"],
         )
         for row in problem_rows
     ]
@@ -51,7 +51,6 @@ async def get_quiz_set_detail(quiz_set_id: int) -> Optional[QuizSetDetail]:
     return QuizSetDetail(
         quizSetId=quiz_row["id"],
         title=quiz_row["title"],
-        description=quiz_row["description"],
         problems=problems,
     )
 

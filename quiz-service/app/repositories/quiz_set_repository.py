@@ -19,11 +19,13 @@ async def create_quiz_set_with_problems(
     quiz_set_id = row["id"]
 
     query = (
-        "INSERT INTO problems (quiz_set_id, order_index, title, description, content_markdown, sample_answer) "
-        "VALUES ($1, $2, $3, $4, $5, $6)"
+        "INSERT INTO problems "
+        "(quiz_set_id, order_index, title, description, content_markdown, sysin_format, default_language, sample_answer, testcases) "
+        "VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9::jsonb)"
     )
 
     for index, problem in enumerate(problems, start=1):
+        testcases_payload = [tc.model_dump() for tc in problem.testcases]
         await database.execute(
             query,
             quiz_set_id,
@@ -31,7 +33,10 @@ async def create_quiz_set_with_problems(
             problem.title,
             problem.description,
             problem.contentMarkdown,
+            problem.sysinFormat,
+            problem.defaultLanguage,
             problem.sampleAnswer,
+            testcases_payload,
         )
 
     return quiz_set_id, len(problems)
@@ -53,7 +58,7 @@ async def get_quiz_set_with_problems(quiz_set_id: int):
         return None, []
 
     problem_rows = await database.fetch(
-        "SELECT id, title, description, order_index FROM problems WHERE quiz_set_id = $1 ORDER BY order_index",
+        "SELECT id, title, order_index, default_language FROM problems WHERE quiz_set_id = $1 ORDER BY order_index",
         quiz_set_id,
     )
     return quiz_row, problem_rows
