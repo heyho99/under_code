@@ -4,6 +4,21 @@ import { updateHeader, activateSection } from "../../ui/MainHeader.js";
 import { quizPlayApi } from "../../core/api/quizPlayApi.js";
 import { createEditor } from "../../ui/components/CodeEditor/CodeEditorFactory.js";
 
+const LANGUAGE_CONFIG = {
+  python3: {
+    tabName: "answer.py",
+    footer: "Python 3.11 / FastAPI / uvicorn",
+  },
+  javascript: {
+    tabName: "answer.js",
+    footer: "Node.js 20 / JavaScript",
+  },
+  go: {
+    tabName: "main.go",
+    footer: "Go 1.21",
+  },
+};
+
 function escapeHtml(str) {
   if (typeof str !== "string") return str;
   return str
@@ -55,6 +70,8 @@ export const QuizPlayController = {
     const titleEl = root.querySelector("[data-quiz-title]");
     const descriptionEl = root.querySelector("[data-quiz-description]");
     const markdownEl = root.querySelector("[data-quiz-markdown]");
+    const editorTabEl = root.querySelector("[data-editor-tab]");
+    const editorFooterEl = root.querySelector("[data-editor-footer]");
     const testcaseSysinEl = root.querySelector("[data-testcase-sysin]");
     const testcaseExpectedEl = root.querySelector("[data-testcase-expected]");
     const testcaseLabelEl = root.querySelector("[data-testcase-label]");
@@ -130,6 +147,15 @@ export const QuizPlayController = {
 
         // 問題の defaultLanguage を保持（実行・提出時に使用）
         currentLanguage = detail?.defaultLanguage || "python3";
+
+        // 言語に応じてタブ名とフッターを更新
+        const langConfig = LANGUAGE_CONFIG[currentLanguage] || LANGUAGE_CONFIG.python3;
+        if (editorTabEl) {
+          editorTabEl.textContent = langConfig.tabName;
+        }
+        if (editorFooterEl) {
+          editorFooterEl.textContent = langConfig.footer;
+        }
       } catch (_error) {
         if (titleEl) titleEl.textContent = "問題を取得できませんでした";
         if (descriptionEl)

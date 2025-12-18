@@ -12,3 +12,4 @@
 ・Generatorでコードを作成したら、1問ずつvalidateする
 　・validateする
 　・動作不良があったらLLMにエラー文を渡して再作成してもらう
+・ts,javaも動くようにする

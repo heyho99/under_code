@@ -16,10 +16,11 @@ function getCurrentUserId() {
 }
 
 export const quizCreationApi = {
-  async generateQuiz({ title, description, files }) {
+  async generateQuiz({ title, description, defaultLanguage, files }) {
     const body = {
       title,
       description,
+      defaultLanguage: defaultLanguage || "python3",
       files,
     };
 

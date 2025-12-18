@@ -23,9 +23,18 @@ def _aggregate_problem_counts(base: Dict[str, int], files: List[FileWithProblems
     return out
 
 
-def _load_prompt_template(category: str) -> str:
+LANGUAGE_CODE_BLOCK_MAP = {
+    "python3": "python",
+    "javascript": "javascript",
+    "go": "go",
+}
+
+
+def _load_prompt_template(language: str, category: str) -> str:
     prompts_dir = Path(__file__).resolve().parent.parent / "prompts"
-    path = prompts_dir / f"{category}.md"
+    path = prompts_dir / language / f"{category}.md"
+    if not path.exists():
+        raise ValueError(f"Prompt template not found: {path}")
     return path.read_text(encoding="utf-8")
 
 
@@ -61,13 +70,16 @@ def build_generation_prompt(request: GenerateRequest, category: str = "syntax") 
     if total <= 0:
         total = 5
 
+    language = request.defaultLanguage or "python3"
+    code_block_lang = LANGUAGE_CODE_BLOCK_MAP.get(language, "python")
+
     sources: List[str] = []
     for f in request.files:
         sources.append(
             "\n".join(
                 [
                     f"### {f.fileName}",
-                    "```python",
+                    f"```{code_block_lang}",
                     f.content.rstrip("\n"),
                     "```",
                 ]
@@ -78,7 +90,7 @@ def build_generation_prompt(request: GenerateRequest, category: str = "syntax") 
     description = request.description or ""
     source_md = "\n\n".join(sources)
 
-    template = _load_prompt_template(category)
+    template = _load_prompt_template(language, category)
     replacements = {
         "__GENERATOR_PROMPT_TOTAL__": str(total),
         "__GENERATOR_PROMPT_TITLE__": title,

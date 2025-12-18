@@ -6,6 +6,7 @@ import {
   readFilesFromInput,
   calculateTotalQuestionsFromFiles,
   buildFilesForApi,
+  detectDefaultLanguage,
 } from "./QuizCreationLogic.js";
 
 export const QuizCreationController = {
@@ -155,11 +156,13 @@ export const QuizCreationController = {
           return;
         }
         const filesForApi = buildFilesForApi(uploadedFiles);
+        const defaultLanguage = detectDefaultLanguage(uploadedFiles);
 
         try {
           await quizCreationApi.generateQuiz({
             title,
             description,
+            defaultLanguage,
             files: filesForApi,
           });
           navigate("#/quiz-set-list");

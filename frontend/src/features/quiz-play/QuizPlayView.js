@@ -26,7 +26,7 @@ export const QuizPlayView = {
           <div class="code-editor-mock">
             <div class="code-editor-mock__header">
               <div class="code-editor-mock__tabs">
-                <span class="code-editor-mock__tab code-editor-mock__tab--active">answer.py</span>
+                <span class="code-editor-mock__tab code-editor-mock__tab--active" data-editor-tab>answer.py</span>
               </div>
               <div class="code-editor-mock__header-buttons">
                 <span class="code-editor-mock__dot"></span>
@@ -37,7 +37,7 @@ export const QuizPlayView = {
             <div class="code-editor-mock__body">
               <div class="code-editor-container" data-code-editor></div>
             </div>
-            <div class="code-editor-mock__footer">
+            <div class="code-editor-mock__footer" data-editor-footer>
               Python 3.11 / FastAPI / uvicorn
             </div>
           </div>

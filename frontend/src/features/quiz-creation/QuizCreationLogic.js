@@ -1,5 +1,24 @@
 const CHARS_PER_QUESTION = 500;
 
+const EXTENSION_TO_LANGUAGE = {
+  ".py": "python3",
+  ".js": "javascript",
+  ".mjs": "javascript",
+  ".cjs": "javascript",
+  ".go": "go",
+};
+
+export function getLanguageFromFileName(fileName) {
+  if (!fileName) return "python3";
+  const lowerName = fileName.toLowerCase();
+  for (const [ext, lang] of Object.entries(EXTENSION_TO_LANGUAGE)) {
+    if (lowerName.endsWith(ext)) {
+      return lang;
+    }
+  }
+  return "python3";
+}
+
 function readFileAsText(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -26,9 +45,11 @@ export async function readFilesFromInput(fileList) {
   const contents = await Promise.all(files.map((file) => readFileAsText(file)));
 
   return files.map((file, index) => {
+    const fileName = file.name || `file-${index + 1}`;
     return {
-      fileName: file.name || `file-${index + 1}`,
+      fileName,
       content: contents[index] || "",
+      detectedLanguage: getLanguageFromFileName(fileName),
     };
   });
 }
@@ -69,4 +90,11 @@ export function buildFilesForApi(uploadedFiles) {
       },
     };
   });
+}
+
+export function detectDefaultLanguage(uploadedFiles) {
+  if (!uploadedFiles || uploadedFiles.length === 0) {
+    return "python3";
+  }
+  return uploadedFiles[0].detectedLanguage || "python3";
 }
