@@ -50,7 +50,7 @@ export const QuizPlayController = {
 
     const problemId = getSelectedProblemId();
 
-    // エディタの初期化
+    // エディタの初期化（問題取得後に starterCode を設定するため、ここでは空で初期化）
     if (editorContainer) {
       this._editor = createEditor({
         container: editorContainer,
@@ -58,6 +58,9 @@ export const QuizPlayController = {
         // type: "cm6", // 必要に応じて "monaco" に変更
       });
     }
+
+    // 問題から取得した言語を保持（実行・提出時に使用）
+    let currentLanguage = "python3";
 
     if (!problemId) {
       if (titleEl) titleEl.textContent = "問題が選択されていません";
@@ -87,6 +90,15 @@ export const QuizPlayController = {
           markdownEl.textContent = contentMarkdown;
         }
         sampleAnswer = detail?.sampleAnswer || "";
+
+        // starterCode をエディタに設定（設計書: BFF が言語別に付与）
+        const starterCode = detail?.starterCode || "";
+        if (this._editor && starterCode) {
+          this._editor.setValue(starterCode);
+        }
+
+        // 問題の defaultLanguage を保持（実行・提出時に使用）
+        currentLanguage = detail?.defaultLanguage || "python3";
       } catch (_error) {
         if (titleEl) titleEl.textContent = "問題を取得できませんでした";
         if (descriptionEl)
@@ -135,8 +147,10 @@ export const QuizPlayController = {
 
         try {
           const result = await quizPlayApi.executeCode({
-            language: "python",
+            problemId,
+            language: currentLanguage,
             code,
+            testcaseIndex: 0,
           });
           const stdout = result?.stdout ?? "";
           const stderr = result?.stderr ?? "";
@@ -179,7 +193,8 @@ export const QuizPlayController = {
         try {
           const result = await quizPlayApi.submit({
             problemId,
-            submittedCode: code,
+            language: currentLanguage,
+            code,
           });
 
           const isCorrect = Boolean(result?.isCorrect);

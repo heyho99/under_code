@@ -20,20 +20,23 @@ export const quizPlayApi = {
     return apiClient.get(`/problems/${problemId}`);
   },
 
-  async executeCode({ language, code }) {
+  async executeCode({ problemId, language, code, testcaseIndex }) {
     return apiClient.post("/runner/execute", {
       body: {
+        problemId,
         language,
         code,
+        testcaseIndex,
       },
     });
   },
 
-  async submit({ problemId, submittedCode }) {
+  async submit({ problemId, language, code }) {
     return apiClient.post("/submissions", {
       body: {
         problemId,
-        submittedCode,
+        language,
+        code,
       },
     });
   },
