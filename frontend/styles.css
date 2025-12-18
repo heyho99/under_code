@@ -1022,7 +1022,7 @@ body {
   border-radius: 10px;
   background: #f3f4f6;
   border: 1px solid rgba(148, 163, 184, 0.8);
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.5;
   color: #111827;
   overflow-x: auto;
@@ -1054,7 +1054,7 @@ body {
 .quiz-statement code {
   font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
     Consolas, "Liberation Mono", "Courier New", monospace;
-  font-size: 13px;
+  font-size: 15px;
   background: rgba(0, 0, 0, 0.06);
   padding: 2px 5px;
   border-radius: 4px;
@@ -1068,7 +1068,7 @@ body {
   overflow: hidden;
   font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
     Consolas, "Liberation Mono", "Courier New", monospace;
-  font-size: 16px;
+  font-size: 15px;
 }
 
 .code-editor-mock__header {
@@ -1145,6 +1145,19 @@ body {
 .code-editor-container {
   flex: 1;
   min-height: 220px;
+}
+
+.code-editor-container .cm-editor {
+  background: transparent;
+}
+
+.code-editor-container .cm-scroller {
+  background: transparent;
+}
+
+.code-editor-container .cm-gutters {
+  background: transparent;
+  border-right: none;
 }
 
 .code-editor-mock__footer {
