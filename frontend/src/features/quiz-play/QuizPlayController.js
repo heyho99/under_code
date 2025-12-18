@@ -45,7 +45,23 @@ export const QuizPlayController = {
     const titleEl = root.querySelector("[data-quiz-title]");
     const descriptionEl = root.querySelector("[data-quiz-description]");
     const markdownEl = root.querySelector("[data-quiz-markdown]");
+    const testcaseSelectEl = root.querySelector("[data-testcase-select]");
+    const testcaseSysinEl = root.querySelector("[data-testcase-sysin]");
+    const testcaseExpectedEl = root.querySelector("[data-testcase-expected]");
     let sampleAnswer = "";
+    let testcases = [];
+
+    // testcase 表示を更新する関数
+    const updateTestcasePreview = (idx) => {
+      if (!testcases.length) return;
+      const tc = testcases[idx] || testcases[0];
+      if (testcaseSysinEl) {
+        testcaseSysinEl.textContent = JSON.stringify(tc.sysin, null, 2);
+      }
+      if (testcaseExpectedEl) {
+        testcaseExpectedEl.textContent = JSON.stringify(tc.expected, null, 2);
+      }
+    };
 
     const problemId = getSelectedProblemId();
 
@@ -81,6 +97,20 @@ export const QuizPlayController = {
           markdownEl.textContent = contentMarkdown;
         }
         sampleAnswer = detail?.sampleAnswer || "";
+
+        // testcases を取得してドロップダウンに反映
+        testcases = detail?.testcases || [];
+        if (testcaseSelectEl && testcases.length > 0) {
+          testcaseSelectEl.innerHTML = testcases
+            .map((_, idx) => `<option value="${idx}">テストケース ${idx + 1}</option>`)
+            .join("");
+          // 初期表示（最初の testcase）
+          updateTestcasePreview(0);
+          // ドロップダウン変更時に表示を更新
+          testcaseSelectEl.addEventListener("change", (e) => {
+            updateTestcasePreview(parseInt(e.target.value, 10));
+          });
+        }
 
         // starterCode をエディタに設定（設計書: BFF が言語別に付与）
         const starterCode = detail?.starterCode || "";
@@ -137,11 +167,12 @@ export const QuizPlayController = {
         }
 
         try {
+          const testcaseIndex = testcaseSelectEl ? parseInt(testcaseSelectEl.value, 10) : 0;
           const result = await quizPlayApi.executeCode({
             problemId,
             language: currentLanguage,
             code,
-            testcaseIndex: 0,
+            testcaseIndex,
           });
           const stdout = result?.stdout ?? "";
           const stderr = result?.stderr ?? "";

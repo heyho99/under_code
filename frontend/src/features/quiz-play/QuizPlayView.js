@@ -42,6 +42,23 @@ export const QuizPlayView = {
             </div>
           </div>
           <div class="quiz-run">
+            <div class="testcase-preview">
+              <div class="testcase-preview__header">
+                <span class="material-symbols-outlined" style="font-size: 16px;">data_object</span>
+                テストケース詳細
+              </div>
+              <div class="testcase-preview__body">
+                <div class="testcase-preview__item">
+                  <div class="testcase-preview__label">入力 (sysin)</div>
+                  <pre class="testcase-preview__value" data-testcase-sysin>{}</pre>
+                </div>
+                <div class="testcase-preview__item">
+                  <div class="testcase-preview__label">期待出力 (expected)</div>
+                  <pre class="testcase-preview__value" data-testcase-expected>{}</pre>
+                </div>
+              </div>
+            </div>
+
             <div class="quiz-output">
               <div class="quiz-output__label">
                 <span class="material-symbols-outlined" style="font-size: 16px;">terminal</span>
@@ -60,6 +77,12 @@ export const QuizPlayView = {
                 一覧へ
               </button>
               <div class="quiz-run__actions">
+                <div class="testcase-selector">
+                  <label for="testcase-select" class="testcase-selector__label">テストケース:</label>
+                  <select id="testcase-select" class="testcase-selector__select" data-testcase-select>
+                    <option value="0">テストケース 1</option>
+                  </select>
+                </div>
                 <button class="primary-btn primary-btn--subtle js-hint-v2">
                   <span class="material-symbols-outlined">lightbulb</span>
                   ヒント
