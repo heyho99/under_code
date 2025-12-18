@@ -12,7 +12,7 @@ quiz_client = QuizClient()
 
 
 STARTER_CODE_TEMPLATES = {
-    "python3": 'import sys, json\nsysin = json.loads(sys.stdin.read())\n# ここから下をユーザが書く\nresult = None\nprint(json.dumps(result))\n',
+    "python3": 'import sys, json\nsysin = json.loads(sys.stdin.read())\n# ここから下をユーザが書く\nresult = None\nprint(json.dumps(result, ensure_ascii=False))\n',
     "javascript": 'const fs = require("fs");\nconst sysin = JSON.parse(fs.readFileSync(0, "utf8"));\n// ここから下をユーザが書く\nlet result = null;\nprocess.stdout.write(JSON.stringify(result) + "\\n");\n',
     "go": '''package main
 

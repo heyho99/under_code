@@ -176,7 +176,7 @@ import sys, json
 sysin = json.loads(sys.stdin.read())
 # ここから下をユーザが書く
 result = None
-print(json.dumps(result))
+print(json.dumps(result, ensure_ascii=False))
 ```
 
 **javascript(Node)初期表示コード:**

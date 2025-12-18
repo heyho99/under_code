@@ -7,7 +7,7 @@ from fastapi.concurrency import run_in_threadpool
 from app.schemas.execute import ExecuteRequest, ExecuteResponse
 
 
-def _run_python(code: str, timeout: float = 5.0) -> ExecuteResponse:
+def _run_python(code: str, stdin: str = "", timeout: float = 5.0) -> ExecuteResponse:
     with tempfile.TemporaryDirectory() as tmpdir:
         file_path = Path(tmpdir) / "main.py"
         file_path.write_text(code, encoding="utf-8")
@@ -15,6 +15,7 @@ def _run_python(code: str, timeout: float = 5.0) -> ExecuteResponse:
         try:
             completed = subprocess.run(
                 ["python", str(file_path)],
+                input=stdin,
                 capture_output=True,
                 text=True,
                 timeout=timeout,
@@ -30,11 +31,11 @@ def _run_python(code: str, timeout: float = 5.0) -> ExecuteResponse:
 async def execute_code(payload: ExecuteRequest) -> ExecuteResponse:
     language = (payload.language or "").lower()
 
-    if language not in ("python", "py"):
+    if language not in ("python", "py", "python3"):
         return ExecuteResponse(
             stdout="",
             stderr=f"Unsupported language: {payload.language}",
             exitCode=1,
         )
 
-    return await run_in_threadpool(_run_python, payload.code)
+    return await run_in_threadpool(_run_python, payload.code, payload.stdin)
