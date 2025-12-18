@@ -4,6 +4,16 @@ import { updateHeader, activateSection } from "../../ui/MainHeader.js";
 import { quizPlayApi } from "../../core/api/quizPlayApi.js";
 import { createEditor } from "../../ui/components/CodeEditor/CodeEditorFactory.js";
 
+function escapeHtml(str) {
+  if (typeof str !== "string") return str;
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 function getSelectedProblemId() {
   try {
     if (typeof window !== "undefined" && window.sessionStorage) {
@@ -236,12 +246,49 @@ export const QuizPlayController = {
           });
 
           const isCorrect = Boolean(result?.isCorrect);
-          const message =
-            result?.message || (isCorrect ? "正解です" : "不正解です");
+          const details = result?.details || [];
+
+          // テストケースごとの結果を HTML で構築
+          let detailsHtml = "";
+          if (details.length > 0) {
+            detailsHtml = `<div class="submission-details">`;
+            details.forEach((d, idx) => {
+              const statusIcon = d.passed ? "check_circle" : "cancel";
+              const statusClass = d.passed ? "submission-details__item--passed" : "submission-details__item--failed";
+              detailsHtml += `
+                <div class="submission-details__item ${statusClass}">
+                  <div class="submission-details__header">
+                    <span class="material-symbols-outlined">${statusIcon}</span>
+                    <span>テストケース ${idx + 1}</span>
+                    <span class="submission-details__status">${d.passed ? "合格" : "不合格"}</span>
+                  </div>
+                  <div class="submission-details__body">
+                    <div class="submission-details__row">
+                      <span class="submission-details__label">入力:</span>
+                      <code class="submission-details__value">${escapeHtml(JSON.stringify(d.sysin))}</code>
+                    </div>
+                    <div class="submission-details__row">
+                      <span class="submission-details__label">期待:</span>
+                      <code class="submission-details__value">${escapeHtml(JSON.stringify(d.expected))}</code>
+                    </div>
+                    <div class="submission-details__row">
+                      <span class="submission-details__label">出力:</span>
+                      <code class="submission-details__value">${escapeHtml(d.stdout || "(なし)")}</code>
+                    </div>
+                  </div>
+                </div>
+              `;
+            });
+            detailsHtml += `</div>`;
+          }
+
+          const passedCount = details.filter(d => d.passed).length;
+          const totalCount = details.length;
+          const summaryMessage = `${passedCount} / ${totalCount} テストケース合格`;
 
           showFeedback(
-            isCorrect ? "正解です！" : "結果",
-            message,
+            isCorrect ? "正解です！" : "不正解",
+            `<p>${summaryMessage}</p>${detailsHtml}`,
             isCorrect
           );
         } catch (_error) {
