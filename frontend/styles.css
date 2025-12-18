@@ -1161,51 +1161,100 @@ body {
   border-radius: var(--radius-md);
   border: 1px solid var(--border-color);
   background: var(--bg-secondary);
-  margin-bottom: 12px;
+  margin-top: 16px;
 }
 
 .testcase-preview__header {
-  padding: 8px 12px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-secondary);
+  padding: 12px 16px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
   border-bottom: 1px solid var(--border-color);
   display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: space-between;
+}
+
+.testcase-preview__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.testcase-preview__title .material-symbols-outlined {
+  font-size: 20px;
+  color: var(--primary);
+}
+
+.testcase-preview__nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.testcase-preview__nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.testcase-preview__nav-btn:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--primary);
+}
+
+.testcase-preview__nav-btn .material-symbols-outlined {
+  font-size: 20px;
+}
+
+.testcase-preview__nav-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  min-width: 50px;
+  text-align: center;
 }
 
 .testcase-preview__body {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  padding: 12px;
+  gap: 16px;
+  padding: 16px;
 }
 
 .testcase-preview__item {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
 }
 
 .testcase-preview__label {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
 }
 
 .testcase-preview__value {
   margin: 0;
-  padding: 8px 10px;
-  font-size: 12px;
+  padding: 12px 14px;
+  font-size: 14px;
   font-family: var(--font-mono);
   background: var(--bg-primary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
   white-space: pre-wrap;
   word-break: break-all;
-  max-height: 120px;
+  max-height: 180px;
   overflow-y: auto;
+  line-height: 1.5;
 }
 
 .quiz-output {

@@ -42,10 +42,29 @@ export const QuizPlayView = {
             </div>
           </div>
           <div class="quiz-run">
+            <div class="quiz-output">
+              <div class="quiz-output__label">
+                <span class="material-symbols-outlined" style="font-size: 16px;">terminal</span>
+                コンソール出力
+              </div>
+              <pre class="quiz-output__body" data-quiz-output>>> 準備完了</pre>
+            </div>
+
             <div class="testcase-preview">
               <div class="testcase-preview__header">
-                <span class="material-symbols-outlined" style="font-size: 16px;">data_object</span>
-                テストケース詳細
+                <div class="testcase-preview__title">
+                  <span class="material-symbols-outlined">data_object</span>
+                  テストケース
+                </div>
+                <div class="testcase-preview__nav">
+                  <button class="testcase-preview__nav-btn js-testcase-prev" title="前のテストケース">
+                    <span class="material-symbols-outlined">chevron_left</span>
+                  </button>
+                  <span class="testcase-preview__nav-label" data-testcase-label>1 / 1</span>
+                  <button class="testcase-preview__nav-btn js-testcase-next" title="次のテストケース">
+                    <span class="material-symbols-outlined">chevron_right</span>
+                  </button>
+                </div>
               </div>
               <div class="testcase-preview__body">
                 <div class="testcase-preview__item">
@@ -59,14 +78,6 @@ export const QuizPlayView = {
               </div>
             </div>
 
-            <div class="quiz-output">
-              <div class="quiz-output__label">
-                <span class="material-symbols-outlined" style="font-size: 16px;">terminal</span>
-                コンソール出力
-              </div>
-              <pre class="quiz-output__body" data-quiz-output>>> 準備完了</pre>
-            </div>
-
             <div class="quiz-feedback" data-quiz-feedback style="display: none;">
               <!-- ここに正解やヒントがカードとして表示されます -->
             </div>
@@ -77,12 +88,6 @@ export const QuizPlayView = {
                 一覧へ
               </button>
               <div class="quiz-run__actions">
-                <div class="testcase-selector">
-                  <label for="testcase-select" class="testcase-selector__label">テストケース:</label>
-                  <select id="testcase-select" class="testcase-selector__select" data-testcase-select>
-                    <option value="0">テストケース 1</option>
-                  </select>
-                </div>
                 <button class="primary-btn primary-btn--subtle js-hint-v2">
                   <span class="material-symbols-outlined">lightbulb</span>
                   ヒント
