@@ -1,23 +1,23 @@
 # 1問目
 ## title
-HTTPステータスコードに応じたレスポンスボディ可否判定
+dict と for ループによる集計処理
 
 ## content_markdown
-入力: `sysin` は `number|string|null` 型の値です（HTTPステータスコードまたはその文字列表現、もしくは null）  
+入力: `sysin` は `{"base": {...}, "files": [...]}` 形式のオブジェクトです。`base` は `{文字列: 数値または数値文字列}` の辞書、`files` は `{"problemCounts": {...}}` という辞書を要素に持つ配列です（`problemCounts` は存在しない場合もあります）。
 
-処理: 次のロジックで、レスポンスボディを許可するかどうかを判定し、その結果を真偽値で出力してください。
+処理: 以下のルールで、新しい辞書を作って出力してください。
 
-- `status_code` が `null` のとき: `true`
-- `status_code` が `"default"`, `"1XX"`, `"2XX"`, `"3XX"`, `"4XX"`, `"5XX"` のいずれかのとき: `true`
-- それ以外:
-  - `status_code` を `int(status_code)` として整数に変換し `current_status_code` とする
-  - `(current_status_code < 200)` または `current_status_code` が `{204, 205, 304}` のいずれかのとき: `false`
-  - 上記以外のとき: `true`
+- まず `base` を浅いコピーして開始する（`base` が null の場合は空辞書で開始）
+- 各 `file` について、`file["problemCounts"]` を取り出し（存在しない場合や null の場合は空辞書として扱う）、その `items()` を順に処理する
+- 各キー `k` と値 `v` について、`int(v)` が
+  - 例外を出す場合: その要素は無視する
+  - 0 以下の場合: その要素は無視する
+  - 正の整数の場合: 現在の出力辞書の同じキーに加算する（キーがなければ 0 から加算）
 
-最終的な判定結果（true/false）を JSON として 1 行で出力してください。
+最終的に得られた辞書を JSON として出力してください。
 
 ## sysinFormat
-`number|string|null`
+`{"base": object|null, "files": [{"problemCounts": object|null}|object, ...]}`
 
 ## sampleAnswer
 ```python
@@ -26,94 +26,102 @@ import json
 
 sysin = json.loads(sys.stdin.read() or "null")
 
-status_code = sysin
+base = sysin.get("base")
+files = sysin.get("files") or []
 
-if status_code is None:
-    result = True
-elif status_code in {"default", "1XX", "2XX", "3XX", "4XX", "5XX"}:
-    result = True
-else:
-    current_status_code = int(status_code)
-    result = not (current_status_code < 200 or current_status_code in {204, 205, 304})
+out = dict(base or {})
+
+for f in files:
+    pc = None
+    if isinstance(f, dict):
+        pc = f.get("problemCounts")
+    for k, v in (pc or {}).items():
+        try:
+            n = int(v)
+        except Exception:
+            continue
+        if n <= 0:
+            continue
+        out[k] = out.get(k, 0) + n
+
+result = out
 
 print(json.dumps(result, ensure_ascii=False))
 ```
 
 ## testcases
 ### testcase1
-`{"sysin": null, "expected": true}`
+`{"sysin": {"base": {"a": 1}, "files": [{"problemCounts": {"a": 2, "b": "3"}}, {"problemCounts": {"b": -1, "c": "x"}}]}, "expected": {"a": 3, "b": 3}}`
 ### testcase2
-`{"sysin": 204, "expected": false}`
+`{"sysin": {"base": null, "files": [{"problemCounts": {"x": "0"}}, {"problemCounts": {"x": 5}}]}, "expected": {"x": 5}}`
 ### testcase3
-`{"sysin": "201", "expected": true}`
+`{"sysin": {"base": {"k": 10}, "files": [{}]}, "expected": {"k": 10}}`
 
 # 2問目
 ## title
-URLパス文字列からパスパラメータ名の集合を取得
+Path を使ったファイルパス結合とテキスト読み込み
 
 ## content_markdown
-入力: `sysin` は URL パス文字列です。例: `"/users/{user_id}/items/{item_id}"`  
+入力: `sysin` は `{"baseDir": "...", "category": "..."}` 形式のオブジェクトです。
 
-処理: パス文字列の中から、`{...}` で囲まれた部分を正規表現によりすべて抜き出し、その文字列たちの集合を JSON の配列として出力してください。  
+処理: 以下のルールで文字列を読み込んで出力してください（実際にはファイルは存在しないので、読み込むべきパス文字列をそのまま出力します）。
 
-仕様:
-- 正規表現パターンは `"{(.*?)}"` を使う
-- `re.findall` で得られた値を `set(...)` にして重複を除去するイメージで、集合に相当するユニークな値のリストを出力する
-- 順序は問わないものとします（採点では集合として扱う）が、実装上は `set` を `list` に変換した結果をそのまま出力すればよい
+- `baseDir` を基準ディレクトリのパス文字列とみなす
+- `"prompts"` ディレクトリを `baseDir` に連結し、その中の `"{category}.md"` というファイルパスを作る
+- 最終的なフルパスを文字列として JSON 出力する
+
+※ 実際のファイル読み込みは行わず、構築したパス文字列のみを出力してください。
 
 ## sysinFormat
-`string`
+`{"baseDir": string, "category": string}`
 
 ## sampleAnswer
 ```python
 import sys
 import json
-import re
+from pathlib import Path
 
 sysin = json.loads(sys.stdin.read() or "null")
 
-path = sysin
-names = set(re.findall(r"{(.*?)}", path))
-result = list(names)
+base_dir = sysin.get("baseDir") or ""
+category = sysin.get("category") or ""
+
+prompts_dir = Path(base_dir) / "prompts"
+path = prompts_dir / f"{category}.md"
+
+result = str(path)
 
 print(json.dumps(result, ensure_ascii=False))
 ```
 
 ## testcases
 ### testcase1
-`{"sysin": "/users/{user_id}/items/{item_id}", "expected": ["user_id", "item_id"]}`
+`{"sysin": {"baseDir": "/app/src", "category": "syntax"}, "expected": "/app/src/prompts/syntax.md"}`
 ### testcase2
-`{"sysin": "/health", "expected": []}`
+`{"sysin": {"baseDir": ".", "category": "math"}, "expected": "prompts/math.md"}`
 ### testcase3
-`{"sysin": "/{a}/{a}/{b}", "expected": ["a", "b"]}`
+`{"sysin": {"baseDir": "/tmp", "category": ""}, "expected": "/tmp/prompts/.md"}`
 
 # 3問目
 ## title
-ネストした辞書・リストをマージする deep_dict_update の再現
+特定カテゴリの数値のみを合計する条件付きループ
 
 ## content_markdown
-入力: `sysin` は `{"main": {...}, "update": {...}}` という2つの辞書を持つオブジェクトです。  
+入力: `sysin` は `{"category": "...", "files": [...]}` 形式のオブジェクトです。`files` は `{"fileName": "...", "problemCounts": {...}}` という辞書を要素に持つ配列です。
 
-処理: 次のルールで `main` を破壊的に更新する処理を実装し、更新後の `main` を出力してください（`update` は変更しない）。  
+処理: 次のルールで合計値（number）を計算し、JSON として出力してください。
 
-`deep_dict_update(main_dict, update_dict)` の仕様:
-- `for key, value in update_dict.items():` を行い、各 `key` を処理する
-- もし
-  - `key in main_dict` かつ
-  - `main_dict[key]` が `dict` インスタンス かつ
-  - `value` が `dict` インスタンス  
-  ならば、再帰的に `deep_dict_update(main_dict[key], value)` を呼び出す
-- `elif` として、もし
-  - `key in main_dict` かつ
-  - `main_dict[key]` が `list` インスタンス かつ
-  - `update_dict[key]` が `list` インスタンス  
-  ならば、`main_dict[key] = main_dict[key] + update_dict[key]` としてリスト結合する
-- 上記どちらにも当てはまらない場合は `main_dict[key] = value` として上書きする
-
-最終的に更新された `main_dict` を `result` として JSON 出力してください。
+- 合計値 `files_total` を 0 で初期化する
+- 各ファイル `f` の `problemCounts` 辞書を調べ、その `items()` を順に処理する
+- 各キー `k` と値 `v` について
+  - `int(v)` が例外を出す場合は無視
+  - 0 以下なら無視
+  - それ以外の正の数値なら、`k` が `category` と等しい場合にのみ合計に加算する
+  - `k` が `category` と異なる場合は合計に加算せず無視する
+- すべてのファイルを処理し終わったら、`files_total` を出力する
 
 ## sysinFormat
-`{"main": object, "update": object}`
+`{"category": string, "files": [{"fileName": string, "problemCounts": object|null}, ...]}`
 
 ## sampleAnswer
 ```python
@@ -122,37 +130,184 @@ import json
 
 sysin = json.loads(sys.stdin.read() or "null")
 
-main_dict = sysin.get("main", {})
-update_dict = sysin.get("update", {})
+category = sysin.get("category")
+files = sysin.get("files") or []
 
-def deep_dict_update(main_dict, update_dict):
-    for key, value in update_dict.items():
-        if (
-            key in main_dict
-            and isinstance(main_dict.get(key), dict)
-            and isinstance(value, dict)
-        ):
-            deep_dict_update(main_dict[key], value)
-        elif (
-            key in main_dict
-            and isinstance(main_dict.get(key), list)
-            and isinstance(update_dict.get(key), list)
-        ):
-            main_dict[key] = main_dict[key] + update_dict[key]
+files_total = 0
+
+for f in files:
+    pc = None
+    if isinstance(f, dict):
+        pc = f.get("problemCounts")
+    out = 0
+    for k, v in (pc or {}).items():
+        try:
+            n = int(v)
+        except Exception:
+            continue
+        if n <= 0:
+            continue
+        if k == category:
+            out += n
         else:
-            main_dict[key] = value
+            # 実際にはログ警告だがここでは何もしない
+            pass
+    files_total += out
 
-deep_dict_update(main_dict, update_dict)
-
-result = main_dict
+result = files_total
 
 print(json.dumps(result, ensure_ascii=False))
 ```
 
 ## testcases
 ### testcase1
-`{"sysin": {"main": {"a": 1}, "update": {"a": 2}}, "expected": {"a": 2}}`
+`{"sysin": {"category": "syntax", "files": [{"fileName": "a.py", "problemCounts": {"syntax": 2, "style": 3}}, {"fileName": "b.py", "problemCounts": {"syntax": "4"}}]}, "expected": 6}`
 ### testcase2
-`{"sysin": {"main": {"a": {"b": 1}}, "update": {"a": {"c": 2}}}, "expected": {"a": {"b": 1, "c": 2}}}`
+`{"sysin": {"category": "style", "files": [{"fileName": "a.py", "problemCounts": {"syntax": 2, "style": 0}}, {"fileName": "b.py", "problemCounts": {"style": "5", "other": "x"}}]}, "expected": 5}`
 ### testcase3
-`{"sysin": {"main": {"x": [1, 2]}, "update": {"x": [3], "y": 10}}, "expected": {"x": [1, 2, 3], "y": 10}}`
+`{"sysin": {"category": "syntax", "files": [{"fileName": "a.py", "problemCounts": null}]}, "expected": 0}`
+
+# 4問目
+## title
+空リスト判定と ValueError の代わりの戻り値
+
+## content_markdown
+入力: `sysin` は `{"files": [...]} | {"files": []} | {"files": null}` のような形式です。
+
+処理: 次の条件分岐を行い、文字列または数値を JSON として出力してください。
+
+- `files` が存在しない、または空リスト `[]`、または null、または長さ 0 の場合: `"error: at least one file is required"` という文字列を出力する
+- それ以外（1件以上のファイルがある場合）: ファイル数（`len(files)`）を数値として出力する
+
+実際のコードでは `ValueError` を送出していますが、この問題では上記のように文字列を返してください。
+
+## sysinFormat
+`{"files": array|null}`
+
+## sampleAnswer
+```python
+import sys
+import json
+
+sysin = json.loads(sys.stdin.read() or "null")
+
+files = sysin.get("files")
+
+if not files:
+    result = "error: at least one file is required"
+else:
+    result = len(files)
+
+print(json.dumps(result, ensure_ascii=False))
+```
+
+## testcases
+### testcase1
+`{"sysin": {"files": []}, "expected": "error: at least one file is required"}`
+### testcase2
+`{"sysin": {"files": [{"fileName": "a.py"}, {"fileName": "b.py"}]}, "expected": 2}`
+### testcase3
+`{"sysin": {"files": null}, "expected": "error: at least one file is required"}`
+
+# 5問目
+## title
+デフォルト値と条件付き代入による数値の初期化
+
+## content_markdown
+入力: `sysin` は `{"total": number}` または `{"total": number, "filesTotal": number}` の形式です。
+
+処理: 次のルールで最終的な数値を決め、JSON として出力してください。
+
+- まず `total` を `sysin["total"]` で初期化する
+- `filesTotal` を `sysin.get("filesTotal")` で取得する（存在しなければ null）
+- もし `filesTotal` が 0 以下であれば、`total` を 5 に上書きする
+- それ以外の場合（`filesTotal` が 1 以上のとき、または null のとき）は `total` を変更しない
+- 最終的な `total` の値を出力する
+
+## sysinFormat
+`{"total": number, "filesTotal": number|null}`
+
+## sampleAnswer
+```python
+import sys
+import json
+
+sysin = json.loads(sys.stdin.read() or "null")
+
+total = sysin.get("total", 0)
+files_total = sysin.get("filesTotal")
+
+if isinstance(files_total, (int, float)) and files_total <= 0:
+    total = 5
+
+result = total
+
+print(json.dumps(result, ensure_ascii=False))
+```
+
+## testcases
+### testcase1
+`{"sysin": {"total": 0, "filesTotal": 0}, "expected": 5}`
+### testcase2
+`{"sysin": {"total": 10, "filesTotal": 3}, "expected": 10}`
+### testcase3
+`{"sysin": {"total": 7, "filesTotal": null}, "expected": 7}`
+
+# 6問目
+## title
+リスト内包表記と join による Markdown 文字列生成
+
+## content_markdown
+入力: `sysin` は `{"files": [...]}` 形式で、各要素は `{"fileName": string, "content": string}` というオブジェクトです。
+
+処理: 次のルールで Markdown 形式の文字列を作り、JSON の文字列として出力してください。
+
+- 各ファイル `f` について、次の 4 行からなる文字列ブロックを作る  
+  1. `### {fileName}`  
+  2. ```python  
+  3. `content` から末尾の改行文字（`\n`）をすべて取り除いた文字列  
+  4. ```  
+- これら 4 行は `\n` で結合する
+- すべてのファイルブロックを `\n\n`（空行1つ相当）で結合して 1 つの文字列にする
+- その結果の文字列を JSON として出力する
+
+## sysinFormat
+`{"files": [{"fileName": string, "content": string}, ...]}`
+
+## sampleAnswer
+```python
+import sys
+import json
+
+sysin = json.loads(sys.stdin.read() or "null")
+
+files = sysin.get("files") or []
+
+sources = []
+for f in files:
+    file_name = f.get("fileName", "")
+    content = f.get("content", "")
+    block = "\n".join(
+        [
+            f"### {file_name}",
+            "```python",
+            content.rstrip("\n"),
+            "```",
+        ]
+    )
+    sources.append(block)
+
+source_md = "\n\n".join(sources)
+
+result = source_md
+
+print(json.dumps(result, ensure_ascii=False))
+```
+
+## testcases
+### testcase1
+`{"sysin": {"files": [{"fileName": "a.py", "content": "print(1)\n"}]}, "expected": "### a.py\n```python\nprint(1)\n```"}`
+### testcase2
+`{"sysin": {"files": [{"fileName": "a.py", "content": "x = 1\n\n"}, {"fileName": "b.py", "content": "y = 2"}]}, "expected": "### a.py\n```python\nx = 1\n\n```\n\n### b.py\n```python\ny = 2\n```"}`
+### testcase3
+`{"sysin": {"files": []}, "expected": ""}`

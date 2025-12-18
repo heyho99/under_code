@@ -75,7 +75,13 @@ services:
     environment:
       - DATABASE_URL=postgresql://user:password@quiz-db:5432/quiz_db
     depends_on:
-      - quiz-db
+      # depends_on は「起動順」だけではなく、DBが接続可能(healthy)になるまで待ってから
+      # quiz-service を起動させるために condition: service_healthy を使用する。
+      # これにより up -d 時に DB 起動待ちできず quiz-service が落ちる問題を防ぐ。
+      quiz-db:
+        condition: service_healthy
+    # DB起動タイミング等で一時的に落ちても自動復旧するようにする
+    restart: unless-stopped
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80", "--reload"]
 
 #   # Progress Service (Host: 8084 -> Container: 80)
@@ -173,6 +179,13 @@ services:
       - POSTGRES_DB=quiz_db
     ports:
       - "5502:5432"
+    healthcheck:
+      # postgres が接続可能になるまでの起動完了判定（quiz-service 側の depends_on で利用）
+      test: ["CMD-SHELL", "pg_isready -U user -d quiz_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 5s
 
 #   # Progress DB (Host: 5503 -> Container: 5432)
 #   progress-db:
