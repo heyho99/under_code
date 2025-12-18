@@ -7,7 +7,7 @@
 - 対象コードに含まれる基本的な文法や処理を問う
 - 対象コード内の、**関数定義やクラス定義を含まない、数行の処理** を対象とする
 - 対象コード中の特定の行や小さなブロックを抜き出して問題にする
-- content_markdown には必ず次を明記する
+- statement には必ず次を明記する
   - 入力: 実行時に変数 `sysin` が与えられること（stdin の JSON を読み込んで `sysin` に入れる）
   - 処理: 対象コードのロジックをどのように再現するか
 
@@ -40,10 +40,14 @@
 - 各問題は必ず行頭から `# n問目` で始める（先頭に空白を入れない）
 - 各問題は以下のセクションをこの順番・この名前で出力する（完全一致）
   - `## title`
-  - `## content_markdown`
+  - `## statement`
   - `## sysinFormat`
   - `## sampleAnswer`
   - `## testcases`
+
+【statement の書き方】
+- HTMLタグを直接書く（コードブロックで囲まない）
+- 使用可能なタグ: <p>, <code>, <ul>, <ol>, <li>
 
 【testcases の書き方】
 - testcases の中に `### testcase1` / `### testcase2` / `### testcase3` を作る
@@ -72,8 +76,8 @@ NG:
  ## title
  リスト内包表記によるフィルタリング
  
- ## content_markdown
- `sysin` は数値のリストです。偶数だけを残したリストを作り、それを JSON として出力してください。
+ ## statement
+<p><code>sysin</code> は数値のリストです。偶数だけを残したリストを作り、それを JSON として出力してください。</p>
  
  ## sysinFormat
  `[number, number, ...]`
@@ -102,11 +106,13 @@ NG:
  ## title
  ステータスコードからレスポンスボディ可否判定
  
- ## content_markdown
- `sysin` は `{"statusCode": ...}` の形式です。次のルールでレスポンスボディを許可するか（true/false）を判定し、JSONとして出力してください。
- - statusCode が null のとき: true
- - statusCode が "default" / "1XX" / "2XX" / "3XX" / "4XX" / "5XX" のいずれかのとき: true
- - それ以外: statusCode を整数に変換し、(statusCode < 200) または (204/205/304 のいずれか) のとき false。そうでなければ true
+ ## statement
+<p><code>sysin</code> は <code>{"statusCode": ...}</code> の形式です。次のルールでレスポンスボディを許可するか（true/false）を判定し、JSONとして出力してください。</p>
+<ul>
+<li>statusCode が null のとき: true</li>
+<li>statusCode が "default" / "1XX" / "2XX" / "3XX" / "4XX" / "5XX" のいずれかのとき: true</li>
+<li>それ以外: statusCode を整数に変換し、(statusCode &lt; 200) または (204/205/304 のいずれか) のとき false。そうでなければ true</li>
+</ul>
  
  ## sysinFormat
  `{"statusCode": number|string|null}`
