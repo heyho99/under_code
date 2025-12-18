@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS problems (
     order_index      INTEGER     NOT NULL,
     title            TEXT        NOT NULL,
     category         TEXT        NOT NULL DEFAULT 'syntax',
-    content_markdown TEXT        NOT NULL,
+    statement        TEXT        NOT NULL,
     sysin_format     TEXT        NOT NULL,
     default_language TEXT        NOT NULL DEFAULT 'python3',
     sample_answer    TEXT,

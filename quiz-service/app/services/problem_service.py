@@ -15,7 +15,7 @@ async def get_problem_detail(problem_id: int) -> Optional[ProblemDetail]:
         orderIndex=row["order_index"],
         title=row["title"],
         defaultLanguage=row["default_language"],
-        contentMarkdown=row["content_markdown"],
+        statement=row["statement"],
         sysinFormat=row["sysin_format"],
         sampleAnswer=row["sample_answer"],
         testcases=row["testcases"],

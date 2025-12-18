@@ -15,7 +15,7 @@ _MOCK_STRUCTURED_MD = """# 1問目
 ## title
 JSON入力の数値をそのまま出力
 
-## content_markdown
+## statement
 変数 `sysin` には JSON オブジェクト `{\"n\": number}` が入ります。`sysin[\"n\"]` を JSON として1行で標準出力してください。
 
 ## sysinFormat

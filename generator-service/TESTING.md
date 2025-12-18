@@ -68,7 +68,7 @@ curl -sS -X POST "http://localhost:8085/generator/generate" \
   "problems": [
     {
       "title": "...",
-      "contentMarkdown": "...",
+      "statement": "...",
       "sysinFormat": "...",
       "sampleAnswer": "...",
       "testcases": [

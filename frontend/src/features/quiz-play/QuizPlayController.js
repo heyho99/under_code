@@ -104,14 +104,14 @@ export const QuizPlayController = {
         if (titleEl) {
           titleEl.textContent = detail?.title || `問題 #${problemId}`;
         }
-        const contentMarkdown = detail?.contentMarkdown || "";
+        const statement = detail?.statement || "";
         // カードサブタイトルにはカテゴリを表示（重複を避ける）
         if (descriptionEl) {
           descriptionEl.textContent = detail?.category || "";
         }
         if (markdownEl) {
           // 問題本文を表示
-          markdownEl.textContent = contentMarkdown;
+          markdownEl.innerHTML = statement;
         }
         sampleAnswer = detail?.sampleAnswer || "";
 

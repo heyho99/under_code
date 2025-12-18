@@ -11,7 +11,7 @@ class Testcase(BaseModel):
 class ProblemCreate(BaseModel):
     title: str
     category: str = "syntax"
-    contentMarkdown: str
+    statement: str
     sysinFormat: str
     defaultLanguage: str = "python3"
     sampleAnswer: Optional[str] = None
@@ -30,7 +30,7 @@ class ProblemDetail(BaseModel):
     orderIndex: int
     title: str
     defaultLanguage: str
-    contentMarkdown: str
+    statement: str
     sysinFormat: str
     sampleAnswer: Optional[str] = None
     testcases: List[Testcase]

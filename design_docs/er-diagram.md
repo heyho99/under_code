@@ -32,7 +32,7 @@ erDiagram
         int order_index "セット内での並び順"
         varchar title "問題のタイトル"
         varchar category "問題カテゴリ(syntax, logic等)"
-        text content_markdown "問題文(Markdown形式)"
+        text statement "問題文(HTML形式)"
         text sysin_format "入力形式の説明(JSON型定義等)"
         varchar default_language "デフォルト言語(python3等)"
         text sample_answer "模範解答コード"

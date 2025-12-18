@@ -20,7 +20,7 @@ class ProblemDetail(BaseModel):
     orderIndex: int
     title: str
     defaultLanguage: str
-    contentMarkdown: str
+    statement: str
     sysinFormat: str
     starterCode: Optional[str] = None
     sampleAnswer: Optional[str] = None

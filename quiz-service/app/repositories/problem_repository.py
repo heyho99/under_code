@@ -4,7 +4,7 @@ from app.db import database
 async def get_problem(problem_id: int):
     return await database.fetchrow(
         """
-        SELECT id, quiz_set_id, order_index, title, category, content_markdown, sysin_format, default_language, sample_answer, testcases
+        SELECT id, quiz_set_id, order_index, title, category, statement, sysin_format, default_language, sample_answer, testcases
         FROM problems
         WHERE id = $1
         """,

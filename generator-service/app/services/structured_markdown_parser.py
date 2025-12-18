@@ -156,7 +156,7 @@ def parse_structured_markdown(md: str, category: str = "syntax", default_languag
         sections = _parse_sections(block)
 
         title = (sections.get("title") or "").strip()
-        content_md = (sections.get("content_markdown") or sections.get("contentMarkdown") or "").strip()
+        content_md = (sections.get("statement") or "").strip()
         sysin_format = _strip_wrapping_backticks((sections.get("sysinFormat") or "").strip())
         sample_code = _extract_fenced_code(sections.get("sampleAnswer") or sections.get("sampleCode") or "")
         testcases = _parse_testcases_section(sections.get("testcases") or "")
@@ -164,7 +164,7 @@ def parse_structured_markdown(md: str, category: str = "syntax", default_languag
         if not title:
             raise StructuredMarkdownParseError("missing title")
         if not content_md:
-            raise StructuredMarkdownParseError("missing content_markdown")
+            raise StructuredMarkdownParseError("missing statement")
         if not sysin_format:
             raise StructuredMarkdownParseError("missing sysinFormat")
         if not sample_code.strip():
@@ -173,7 +173,7 @@ def parse_structured_markdown(md: str, category: str = "syntax", default_languag
         problem = GeneratedProblem(
             title=title,
             category=category,
-            contentMarkdown=content_md,
+            statement=content_md,
             sysinFormat=sysin_format,
             defaultLanguage=default_language,
             sampleAnswer=sample_code,

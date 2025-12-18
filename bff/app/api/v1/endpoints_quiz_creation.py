@@ -26,7 +26,7 @@ def _convert_generator_problems(problems_from_generator: List[Dict[str, Any]]) -
             {
                 "title": p.get("title", ""),
                 "category": p.get("category", "syntax"),
-                "contentMarkdown": p.get("contentMarkdown", ""),
+                "statement": p.get("statement", ""),
                 "sysinFormat": p.get("sysinFormat", ""),
                 "defaultLanguage": p.get("defaultLanguage", "python3"),
                 "sampleAnswer": p.get("sampleAnswer"),

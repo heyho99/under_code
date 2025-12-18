@@ -105,7 +105,7 @@ README2.md の新仕様に沿って、BFF / Generator / Executor / Validator に
 
 ### 構造化 Markdown -> problems 変換
 - `parse_structured_markdown(md: str) -> list[dict]`
-  - **処理**: `title/contentMarkdown/sysinFormat/sampleAnswer/testcases` を抽出して list 化
+  - **処理**: `title/statement/sysinFormat/sampleAnswer/testcases` を抽出して list 化
 - `parse_testcase_json_line(line: str) -> dict`
   - **処理**: `` `{ "sysin": ..., "expected": ... }` `` のような JSON 行を dict にする
 

@@ -27,7 +27,7 @@ class GeneratedTestCase(BaseModel):
 class GeneratedProblem(BaseModel):
     title: str
     category: str
-    contentMarkdown: str
+    statement: str
     sysinFormat: str
     defaultLanguage: str
     sampleAnswer: str

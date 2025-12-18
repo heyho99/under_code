@@ -347,7 +347,7 @@
               "problems": [
                 {
                   "title": "...",
-                  "contentMarkdown": "...",
+                  "statement": "...",
                   "sysinFormat": "{\"a\": number, \"b\": [number, number], \"s\": string}",
                   "sampleAnswer": "...",
                   "testcases": [
@@ -373,7 +373,7 @@
             "problems": [
               {
                 "title": "...",
-                "contentMarkdown": "...",
+                "statement": "...",
                 "sysinFormat": "{\"a\": number, \"b\": [number, number], \"s\": string}",
                 "sampleAnswer": "...",
                 "testcases": [
@@ -558,7 +558,7 @@
             "orderIndex": 1,
             "title": "Propsの受け渡し",
             "defaultLanguage": "python3",
-            "contentMarkdown": "## 問題\\n親コンポーネントから `name` というpropsを受け取り、`<div>Hello, {name}</div>` と表示するコンポーネントを作成してください...",
+            "statement": "## 問題\\n親コンポーネントから `name` というpropsを受け取り、`<div>Hello, {name}</div>` と表示するコンポーネントを作成してください...",
             "sysinFormat": "{\"a\": number, \"b\": [number, number], \"s\": string}",
             "starterCode": "import sys, json\\nsysin = json.loads(sys.stdin.read())\\n# ここから下をユーザが書く\\nresult = None\\nprint(json.dumps(result))\\n",
             "sampleAnswer": "...",
@@ -596,7 +596,7 @@
               "orderIndex": 1,
               "title": "Propsの受け渡し",
               "defaultLanguage": "python3",
-              "contentMarkdown": "## 問題\\n親コンポーネントから `name` というpropsを受け取り、`<div>Hello, {name}</div>` と表示するコンポーネントを作成してください...",
+              "statement": "## 問題\\n親コンポーネントから `name` というpropsを受け取り、`<div>Hello, {name}</div>` と表示するコンポーネントを作成してください...",
               "sysinFormat": "{\"a\": number, \"b\": [number, number], \"s\": string}",
               "sampleAnswer": "...",
               "testcases": [

@@ -70,7 +70,7 @@ curl -sS -X POST "http://localhost:8083/quiz/quiz-sets/generate" \
       {
         "title": "テスト問題1",
         "category": "syntax",
-        "contentMarkdown": "変数 `sysin` に数値が入っています。その値を2倍にして出力してください。",
+        "statement": "変数 `sysin` に数値が入っています。その値を2倍にして出力してください。",
         "sysinFormat": "{\"n\": number}",
         "defaultLanguage": "python3",
         "sampleAnswer": "import sys, json\nsysin = json.loads(sys.stdin.read())\nprint(json.dumps(sysin[\"n\"] * 2))\n",
@@ -147,7 +147,7 @@ curl -sS "http://localhost:8083/quiz/problems/1" | python3 -m json.tool
   "orderIndex": 1,
   "title": "テスト問題1",
   "defaultLanguage": "python3",
-  "contentMarkdown": "変数 `sysin` に数値が入っています。その値を2倍にして出力してください。",
+  "statement": "変数 `sysin` に数値が入っています。その値を2倍にして出力してください。",
   "sysinFormat": "{\"n\": number}",
   "sampleAnswer": "import sys, json\nsysin = json.loads(sys.stdin.read())\nprint(json.dumps(sysin[\"n\"] * 2))\n",
   "testcases": [

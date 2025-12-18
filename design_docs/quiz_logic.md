@@ -52,7 +52,7 @@ flask --app quiz_poc run --debug
     ## title
     辞書内包表記による値の加工
 
-    ## content_markdown
+    ## statement
     辞書内包表記を使用して、元の辞書の「値 (value)」をすべて文字列型に変換した新しい辞書を作成し、それを標準出力してください。
 
     ## sysinFormat
@@ -81,7 +81,7 @@ flask --app quiz_poc run --debug
     ~~~
 
 2. **マークダウンからjsonを生成**
-   - マークダウンをfor文で1行ずつ読み、`title` / `content_markdown` / `sysin_format` / `sample_code` / `test_cases` を探す
+   - マークダウンをfor文で1行ずつ読み、`title` / `statement` / `sysin_format` / `sample_code` / `test_cases` を探す
    - python内で、値が格納された各変数を、dictでまとめる
    - そのdictを、json.dumpsでjson文字列に変換
       - pythonやその他言語で、jsonオブジェクトは文字列オブジェクトとして扱われる
@@ -92,7 +92,7 @@ flask --app quiz_poc run --debug
    ```json
    {
      "title": "辞書内包表記による値の加工",
-     "contentMarkdown": "辞書内包表記を使用して、元の辞書の「値 (value)」をすべて文字列型に変換した新しい辞書を作成し、それを標準出力してください。",
+     "statement": "辞書内包表記を使用して、元の辞書の「値 (value)」をすべて文字列型に変換した新しい辞書を作成し、それを標準出力してください。",
      "sysinFormat": "{key: value, ...}",
      "sampleAnswer": "import sys, json\nsysin = json.loads(sys.stdin.read())\nresult = {k: str(v) for k, v in sysin.items()}\nprint(json.dumps(result))\n",
      "testcases": [
@@ -154,7 +154,7 @@ flask --app quiz_poc run --debug
 ```json
 {
   "problemId": 1002,
-  "contentMarkdown": "変数 sysin には {\"a\": number, \"b\": [number, number], \"s\": string} が入ります。a + b[1] を計算し、結果を JSON として1行で出力してください。",
+  "statement": "変数 sysin には {\"a\": number, \"b\": [number, number], \"s\": string} が入ります。a + b[1] を計算し、結果を JSON として1行で出力してください。",
   "sysinFormat": "{\"a\": number, \"b\": [number, number], \"s\": string}",
   "sampleAnswer": "import sys, json\nsysin = json.loads(sys.stdin.read())\nanswer = sysin[\"a\"] + sysin[\"b\"][1]\nprint(json.dumps(answer))\n",
   "testcases": [
