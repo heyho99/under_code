@@ -1016,6 +1016,51 @@ body {
     Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
+.quiz-statement {
+  margin: 6px 0 4px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #f3f4f6;
+  border: 1px solid rgba(148, 163, 184, 0.8);
+  font-size: 14px;
+  line-height: 1.5;
+  color: #111827;
+  overflow-x: auto;
+}
+
+.quiz-statement p {
+  margin: 0 0 8px;
+}
+
+.quiz-statement p:last-child {
+  margin-bottom: 0;
+}
+
+.quiz-statement ul,
+.quiz-statement ol {
+  margin: 0 0 8px;
+  padding-left: 20px;
+}
+
+.quiz-statement ul:last-child,
+.quiz-statement ol:last-child {
+  margin-bottom: 0;
+}
+
+.quiz-statement li {
+  margin: 2px 0;
+}
+
+.quiz-statement code {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 13px;
+  background: rgba(0, 0, 0, 0.06);
+  padding: 2px 5px;
+  border-radius: 4px;
+  color: #c7254e;
+}
+
 .code-editor-mock {
   border-radius: 12px;
   border: 1px solid rgba(15, 23, 42, 0.9);
@@ -1300,9 +1345,17 @@ body {
 }
 
 .quiz-feedback__content {
-  font-size: 15px;
-  line-height: 1.6;
+  font-size: 13px;
+  line-height: 1.5;
   color: var(--text-main);
+  margin: 0;
+  padding: 12px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-sm);
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-family: "Fira Code", "Consolas", "Monaco", monospace;
 }
 
 .quiz-feedback__content p {

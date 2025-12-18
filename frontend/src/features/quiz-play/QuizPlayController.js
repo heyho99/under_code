@@ -153,7 +153,7 @@ export const QuizPlayController = {
           <span class="material-symbols-outlined">${icon}</span>
           ${title}
         </div>
-        <div class="quiz-feedback__content">${content}</div>
+        <pre class="quiz-feedback__content"><code>${content}</code></pre>
       `;
     };
 

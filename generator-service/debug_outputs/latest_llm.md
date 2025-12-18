@@ -1,23 +1,25 @@
 # 1問目
 ## title
-dict と for ループによる集計処理
+辞書とリストを使った集計処理
 
-## content_markdown
-入力: `sysin` は `{"base": {...}, "files": [...]}` 形式のオブジェクトです。`base` は `{文字列: 数値または数値文字列}` の辞書、`files` は `{"problemCounts": {...}}` という辞書を要素に持つ配列です（`problemCounts` は存在しない場合もあります）。
-
-処理: 以下のルールで、新しい辞書を作って出力してください。
-
-- まず `base` を浅いコピーして開始する（`base` が null の場合は空辞書で開始）
-- 各 `file` について、`file["problemCounts"]` を取り出し（存在しない場合や null の場合は空辞書として扱う）、その `items()` を順に処理する
-- 各キー `k` と値 `v` について、`int(v)` が
-  - 例外を出す場合: その要素は無視する
-  - 0 以下の場合: その要素は無視する
-  - 正の整数の場合: 現在の出力辞書の同じキーに加算する（キーがなければ 0 から加算）
-
-最終的に得られた辞書を JSON として出力してください。
+## statement
+<p><code>sysin</code> は <code>{"base": {...}, "files": [...]}</code> 形式のオブジェクトです。<code>base</code> は文字列キー・数値または文字列値の辞書、<code>files</code> は <code>{"problemCounts": {...}}</code> を持つオブジェクトの配列とします。</p>
+<p>次のロジックを実装して、集計結果の辞書を JSON として出力してください。</p>
+<ul>
+<li>まず <code>base</code> をコピーして <code>out</code> 辞書を作る。<code>base</code> が null の場合は空辞書とする。</li>
+<li><code>files</code> の各要素 <code>f</code> について、<code>f["problemCounts"]</code> を取り出し、null の場合は空辞書とみなす。</li>
+<li>その辞書の各 <code>(k, v)</code> について:
+  <ul>
+    <li><code>v</code> を <code>int(v)</code> として整数に変換しようとする。変換に失敗したらそのキーは無視する。</li>
+    <li>変換後の値 <code>n</code> が 0 以下なら無視する。</li>
+    <li>それ以外の場合、<code>out[k]</code> に <code>n</code> を加算する（<code>out</code> にキーが無ければ 0 から加算）。</li>
+  </ul>
+</li>
+<li>最終的な <code>out</code> をそのまま JSON として出力する。</li>
+</ul>
 
 ## sysinFormat
-`{"base": object|null, "files": [{"problemCounts": object|null}|object, ...]}`
+`{"base": {"key": number|string, ...}|null, "files": [{"problemCounts": {"key": number|string, ...}|null}, ...]}`
 
 ## sampleAnswer
 ```python
@@ -32,10 +34,8 @@ files = sysin.get("files") or []
 out = dict(base or {})
 
 for f in files:
-    pc = None
-    if isinstance(f, dict):
-        pc = f.get("problemCounts")
-    for k, v in (pc or {}).items():
+    pc = (f or {}).get("problemCounts") or {}
+    for k, v in pc.items():
         try:
             n = int(v)
         except Exception:
@@ -51,29 +51,28 @@ print(json.dumps(result, ensure_ascii=False))
 
 ## testcases
 ### testcase1
-`{"sysin": {"base": {"a": 1}, "files": [{"problemCounts": {"a": 2, "b": "3"}}, {"problemCounts": {"b": -1, "c": "x"}}]}, "expected": {"a": 3, "b": 3}}`
+`{"sysin": {"base": {"a": 1}, "files": [{"problemCounts": {"a": 2, "b": 3}}]}, "expected": {"a": 3, "b": 3}}`
 ### testcase2
-`{"sysin": {"base": null, "files": [{"problemCounts": {"x": "0"}}, {"problemCounts": {"x": 5}}]}, "expected": {"x": 5}}`
+`{"sysin": {"base": null, "files": [{"problemCounts": {"a": "5", "b": "x"}}, {"problemCounts": {"a": 1}}]}, "expected": {"a": 6}}`
 ### testcase3
-`{"sysin": {"base": {"k": 10}, "files": [{}]}, "expected": {"k": 10}}`
+`{"sysin": {"base": {"a": 10}, "files": [{"problemCounts": null}, {"problemCounts": {"a": 0, "b": -1}}]}, "expected": {"a": 10}}`
 
 # 2問目
 ## title
-Path を使ったファイルパス結合とテキスト読み込み
+Path オブジェクトと文字列フォーマットを使ったファイルパス生成
 
-## content_markdown
-入力: `sysin` は `{"baseDir": "...", "category": "..."}` 形式のオブジェクトです。
-
-処理: 以下のルールで文字列を読み込んで出力してください（実際にはファイルは存在しないので、読み込むべきパス文字列をそのまま出力します）。
-
-- `baseDir` を基準ディレクトリのパス文字列とみなす
-- `"prompts"` ディレクトリを `baseDir` に連結し、その中の `"{category}.md"` というファイルパスを作る
-- 最終的なフルパスを文字列として JSON 出力する
-
-※ 実際のファイル読み込みは行わず、構築したパス文字列のみを出力してください。
+## statement
+<p><code>sysin</code> は文字列 <code>category</code> です。現在のファイルのパスを <code>__file__</code> と仮定し、次のロジックを実行して、最終的なパスを文字列として JSON 出力してください。</p>
+<ul>
+<li><code>__file__</code> を <code>"./dummy/current_file.py"</code> という文字列とみなす。</li>
+<li><code>Path(__file__).resolve()</code> の親ディレクトリのさらに親ディレクトリ（<code>parent.parent</code>）を基準ディレクトリとする。</li>
+<li>基準ディレクトリの中の <code>"prompts"</code> ディレクトリのパスを作る。</li>
+<li>その中の <code>f"{category}.md"</code> というファイル名のパスを作る。</li>
+<li>そのパスを文字列に変換して JSON として出力する。</li>
+</ul>
 
 ## sysinFormat
-`{"baseDir": string, "category": string}`
+`string`
 
 ## sampleAnswer
 ```python
@@ -83,10 +82,10 @@ from pathlib import Path
 
 sysin = json.loads(sys.stdin.read() or "null")
 
-base_dir = sysin.get("baseDir") or ""
-category = sysin.get("category") or ""
-
-prompts_dir = Path(base_dir) / "prompts"
+category = sysin
+fake_file = "./dummy/current_file.py"
+base = Path(fake_file).resolve().parent.parent
+prompts_dir = base / "prompts"
 path = prompts_dir / f"{category}.md"
 
 result = str(path)
@@ -96,32 +95,42 @@ print(json.dumps(result, ensure_ascii=False))
 
 ## testcases
 ### testcase1
-`{"sysin": {"baseDir": "/app/src", "category": "syntax"}, "expected": "/app/src/prompts/syntax.md"}`
+`{"sysin": "syntax", "expected": "prompts/syntax.md"}`
 ### testcase2
-`{"sysin": {"baseDir": ".", "category": "math"}, "expected": "prompts/math.md"}`
+`{"sysin": "logic", "expected": "prompts/logic.md"}`
 ### testcase3
-`{"sysin": {"baseDir": "/tmp", "category": ""}, "expected": "/tmp/prompts/.md"}`
+`{"sysin": "test_category", "expected": "prompts/test_category.md"}`
 
 # 3問目
 ## title
-特定カテゴリの数値のみを合計する条件付きループ
+ネストした関数でのローカル変数の加算処理
 
-## content_markdown
-入力: `sysin` は `{"category": "...", "files": [...]}` 形式のオブジェクトです。`files` は `{"fileName": "...", "problemCounts": {...}}` という辞書を要素に持つ配列です。
-
-処理: 次のルールで合計値（number）を計算し、JSON として出力してください。
-
-- 合計値 `files_total` を 0 で初期化する
-- 各ファイル `f` の `problemCounts` 辞書を調べ、その `items()` を順に処理する
-- 各キー `k` と値 `v` について
-  - `int(v)` が例外を出す場合は無視
-  - 0 以下なら無視
-  - それ以外の正の数値なら、`k` が `category` と等しい場合にのみ合計に加算する
-  - `k` が `category` と異なる場合は合計に加算せず無視する
-- すべてのファイルを処理し終わったら、`files_total` を出力する
+## statement
+<p><code>sysin</code> は <code>{"items": [...], "category": "..."}</code> 形式のオブジェクトです。次のロジックを実装して、合計値を JSON の数値として出力してください。</p>
+<ul>
+<li><code>items</code> は <code>{"problemCounts": {...}}</code> を持つオブジェクトの配列とする。</li>
+<li><code>category</code> は文字列とする。</li>
+<li>内部関数 <code>_sum_for_category(d: dict|None)</code> を定義し、次のように動作させる:
+  <ul>
+    <li>ローカル変数 <code>out = 0</code> から開始する。</li>
+    <li><code>d</code> が null のときは空辞書として扱う。</li>
+    <li><code>d</code> の各 <code>(k, v)</code> について:
+      <ul>
+        <li><code>v</code> を <code>int(v)</code> に変換し、失敗したら無視する。</li>
+        <li>変換後の値 <code>n</code> が 0 以下なら無視する。</li>
+        <li><code>k</code> が外側スコープの <code>category</code> と等しいときだけ、<code>out</code> に <code>n</code> を加算する。</li>
+      </ul>
+    </li>
+    <li>最後に <code>out</code> を返す。</li>
+  </ul>
+</li>
+<li>外側ではローカル変数 <code>files_total = 0</code> を 0 で初期化する。</li>
+<li><code>items</code> の各要素 <code>f</code> について、<code>_sum_for_category(f["problemCounts"])</code> を呼び、その戻り値を <code>files_total</code> に加算する。</li>
+<li>最終的な <code>files_total</code> を JSON として出力する。</li>
+</ul>
 
 ## sysinFormat
-`{"category": string, "files": [{"fileName": string, "problemCounts": object|null}, ...]}`
+`{"items": [{"problemCounts": {"key": number|string, ...}|null}, ...], "category": string}`
 
 ## sampleAnswer
 ```python
@@ -130,17 +139,12 @@ import json
 
 sysin = json.loads(sys.stdin.read() or "null")
 
+items = sysin.get("items") or []
 category = sysin.get("category")
-files = sysin.get("files") or []
 
-files_total = 0
-
-for f in files:
-    pc = None
-    if isinstance(f, dict):
-        pc = f.get("problemCounts")
+def _sum_for_category(d):
     out = 0
-    for k, v in (pc or {}).items():
+    for k, v in (d or {}).items():
         try:
             n = int(v)
         except Exception:
@@ -149,10 +153,12 @@ for f in files:
             continue
         if k == category:
             out += n
-        else:
-            # 実際にはログ警告だがここでは何もしない
-            pass
-    files_total += out
+    return out
+
+files_total = 0
+for f in items:
+    pc = (f or {}).get("problemCounts")
+    files_total += _sum_for_category(pc)
 
 result = files_total
 
@@ -161,28 +167,26 @@ print(json.dumps(result, ensure_ascii=False))
 
 ## testcases
 ### testcase1
-`{"sysin": {"category": "syntax", "files": [{"fileName": "a.py", "problemCounts": {"syntax": 2, "style": 3}}, {"fileName": "b.py", "problemCounts": {"syntax": "4"}}]}, "expected": 6}`
+`{"sysin": {"items": [{"problemCounts": {"syntax": 2, "logic": 3}}, {"problemCounts": {"syntax": "4"}}], "category": "syntax"}, "expected": 6}`
 ### testcase2
-`{"sysin": {"category": "style", "files": [{"fileName": "a.py", "problemCounts": {"syntax": 2, "style": 0}}, {"fileName": "b.py", "problemCounts": {"style": "5", "other": "x"}}]}, "expected": 5}`
+`{"sysin": {"items": [{"problemCounts": {"logic": 1}}, {"problemCounts": null}], "category": "syntax"}, "expected": 0}`
 ### testcase3
-`{"sysin": {"category": "syntax", "files": [{"fileName": "a.py", "problemCounts": null}]}, "expected": 0}`
+`{"sysin": {"items": [{"problemCounts": {"syntax": -1, "syntax2": 5}}, {"problemCounts": {"syntax": 3, "syntax": "2"}}], "category": "syntax"}, "expected": 5}`
 
 # 4問目
 ## title
-空リスト判定と ValueError の代わりの戻り値
+デフォルト値付き引数と条件分岐による値の補正
 
-## content_markdown
-入力: `sysin` は `{"files": [...]} | {"files": []} | {"files": null}` のような形式です。
-
-処理: 次の条件分岐を行い、文字列または数値を JSON として出力してください。
-
-- `files` が存在しない、または空リスト `[]`、または null、または長さ 0 の場合: `"error: at least one file is required"` という文字列を出力する
-- それ以外（1件以上のファイルがある場合）: ファイル数（`len(files)`）を数値として出力する
-
-実際のコードでは `ValueError` を送出していますが、この問題では上記のように文字列を返してください。
+## statement
+<p><code>sysin</code> は <code>{"files": [...], "category": "...", "fallbackTotal": number}</code> 形式のオブジェクトです。次のロジックを利用して、最終的な <code>total</code> を JSON 数値として出力してください。</p>
+<ul>
+<li>まず、前問で定義したのと同等の <code>_sum_for_category</code> ロジックで、<code>files</code> 配列の各要素 <code>f</code> の <code>problemCounts</code> から、<code>category</code> に一致するキーの正の値だけを合計し、その合計を <code>total</code> とする。</li>
+<li><code>total</code> が 0 以下のときは、<code>fallbackTotal</code> の値を <code>total</code> として使う。</li>
+<li>最終的な <code>total</code> を JSON で出力する。</li>
+</ul>
 
 ## sysinFormat
-`{"files": array|null}`
+`{"files": [{"problemCounts": {"key": number|string, ...}|null}, ...], "category": string, "fallbackTotal": number}`
 
 ## sampleAnswer
 ```python
@@ -191,54 +195,30 @@ import json
 
 sysin = json.loads(sys.stdin.read() or "null")
 
-files = sysin.get("files")
+files = sysin.get("files") or []
+category = sysin.get("category")
+fallback_total = sysin.get("fallbackTotal", 5)
 
-if not files:
-    result = "error: at least one file is required"
-else:
-    result = len(files)
+def _sum_for_category(d):
+    out = 0
+    for k, v in (d or {}).items():
+        try:
+            n = int(v)
+        except Exception:
+            continue
+        if n <= 0:
+            continue
+        if k == category:
+            out += n
+    return out
 
-print(json.dumps(result, ensure_ascii=False))
-```
+total = 0
+for f in files:
+    pc = (f or {}).get("problemCounts")
+    total += _sum_for_category(pc)
 
-## testcases
-### testcase1
-`{"sysin": {"files": []}, "expected": "error: at least one file is required"}`
-### testcase2
-`{"sysin": {"files": [{"fileName": "a.py"}, {"fileName": "b.py"}]}, "expected": 2}`
-### testcase3
-`{"sysin": {"files": null}, "expected": "error: at least one file is required"}`
-
-# 5問目
-## title
-デフォルト値と条件付き代入による数値の初期化
-
-## content_markdown
-入力: `sysin` は `{"total": number}` または `{"total": number, "filesTotal": number}` の形式です。
-
-処理: 次のルールで最終的な数値を決め、JSON として出力してください。
-
-- まず `total` を `sysin["total"]` で初期化する
-- `filesTotal` を `sysin.get("filesTotal")` で取得する（存在しなければ null）
-- もし `filesTotal` が 0 以下であれば、`total` を 5 に上書きする
-- それ以外の場合（`filesTotal` が 1 以上のとき、または null のとき）は `total` を変更しない
-- 最終的な `total` の値を出力する
-
-## sysinFormat
-`{"total": number, "filesTotal": number|null}`
-
-## sampleAnswer
-```python
-import sys
-import json
-
-sysin = json.loads(sys.stdin.read() or "null")
-
-total = sysin.get("total", 0)
-files_total = sysin.get("filesTotal")
-
-if isinstance(files_total, (int, float)) and files_total <= 0:
-    total = 5
+if total <= 0:
+    total = fallback_total
 
 result = total
 
@@ -247,29 +227,30 @@ print(json.dumps(result, ensure_ascii=False))
 
 ## testcases
 ### testcase1
-`{"sysin": {"total": 0, "filesTotal": 0}, "expected": 5}`
+`{"sysin": {"files": [{"problemCounts": {"syntax": 1}}, {"problemCounts": {"syntax": 2}}], "category": "syntax", "fallbackTotal": 5}, "expected": 3}`
 ### testcase2
-`{"sysin": {"total": 10, "filesTotal": 3}, "expected": 10}`
+`{"sysin": {"files": [{"problemCounts": {"syntax": 0}}, {"problemCounts": {"logic": 2}}], "category": "syntax", "fallbackTotal": 5}, "expected": 5}`
 ### testcase3
-`{"sysin": {"total": 7, "filesTotal": null}, "expected": 7}`
+`{"sysin": {"files": [], "category": "syntax", "fallbackTotal": 10}, "expected": 10}`
 
-# 6問目
+# 5問目
 ## title
-リスト内包表記と join による Markdown 文字列生成
+リストへの文字列追加と join による複数ソースの結合
 
-## content_markdown
-入力: `sysin` は `{"files": [...]}` 形式で、各要素は `{"fileName": string, "content": string}` というオブジェクトです。
-
-処理: 次のルールで Markdown 形式の文字列を作り、JSON の文字列として出力してください。
-
-- 各ファイル `f` について、次の 4 行からなる文字列ブロックを作る  
-  1. `### {fileName}`  
-  2. ```python  
-  3. `content` から末尾の改行文字（`\n`）をすべて取り除いた文字列  
-  4. ```  
-- これら 4 行は `\n` で結合する
-- すべてのファイルブロックを `\n\n`（空行1つ相当）で結合して 1 つの文字列にする
-- その結果の文字列を JSON として出力する
+## statement
+<p><code>sysin</code> は <code>{"files": [...]}</code> 形式のオブジェクトです。<code>files</code> は <code>{"fileName": "...", "content": "..."}</code> を持つオブジェクトの配列とします。次のロジックを実装し、最終的な結合済み文字列を JSON の文字列として出力してください。</p>
+<ul>
+<li>空のリスト <code>sources</code> を作成する。</li>
+<li><code>files</code> の各要素 <code>f</code> について、次の 4 行からなる文字列ブロックを作成し、<code>sources</code> に追加する:
+  <ul>
+    <li><code>f"### {f['fileName']}"</code></li>
+    <li><code>"```python"</code></li>
+    <li><code>f["content"].rstrip("\n")</code></li>
+    <li><code>"```"</code></li>
+  </ul>
+  これら 4 行を <code>"\n"</code> で連結して 1 つの文字列にする。</li>
+<li>最後に、<code>sources</code> の要素を <code>"\n\n"</code> で連結した文字列を作成し、それを JSON として出力する。</li>
+</ul>
 
 ## sysinFormat
 `{"files": [{"fileName": string, "content": string}, ...]}`
@@ -285,13 +266,11 @@ files = sysin.get("files") or []
 
 sources = []
 for f in files:
-    file_name = f.get("fileName", "")
-    content = f.get("content", "")
     block = "\n".join(
         [
-            f"### {file_name}",
+            f"### {f['fileName']}",
             "```python",
-            content.rstrip("\n"),
+            f["content"].rstrip("\n"),
             "```",
         ]
     )
@@ -308,6 +287,67 @@ print(json.dumps(result, ensure_ascii=False))
 ### testcase1
 `{"sysin": {"files": [{"fileName": "a.py", "content": "print(1)\n"}]}, "expected": "### a.py\n```python\nprint(1)\n```"}`
 ### testcase2
-`{"sysin": {"files": [{"fileName": "a.py", "content": "x = 1\n\n"}, {"fileName": "b.py", "content": "y = 2"}]}, "expected": "### a.py\n```python\nx = 1\n\n```\n\n### b.py\n```python\ny = 2\n```"}`
+`{"sysin": {"files": [{"fileName": "a.py", "content": "print(1)\n\n"}, {"fileName": "b.py", "content": "x = 2"}]}, "expected": "### a.py\n```python\nprint(1)\n```\n\n### b.py\n```python\nx = 2\n```"}`
 ### testcase3
 `{"sysin": {"files": []}, "expected": ""}`
+
+# 6問目
+## title
+辞書の生成と文字列の置換処理
+
+## statement
+<p><code>sysin</code> は <code>{"template": "...", "total": number, "title": string|null, "description": string|null, "source": string}</code> 形式のオブジェクトです。次のロジックを実装して、テンプレート文字列の置換結果を JSON の文字列として出力してください。</p>
+<ul>
+<li><code>template</code> は文字列とする。</li>
+<li><code>total</code> は数値、<code>title</code>, <code>description</code>, <code>source</code> は文字列または null とする。</li>
+<li><code>title</code> と <code>description</code> が null のときは空文字列として扱う。</li>
+<li>次の内容を持つ辞書 <code>replacements</code> を作成する:
+  <ul>
+    <li><code>"__GENERATOR_PROMPT_TOTAL__"</code>: <code>str(total)</code></li>
+    <li><code>"__GENERATOR_PROMPT_TITLE__"</code>: <code>title</code>（null の場合は ""）</li>
+    <li><code>"__GENERATOR_PROMPT_DESCRIPTION__"</code>: <code>description</code>（null の場合は ""）</li>
+    <li><code>"__GENERATOR_PROMPT_SOURCE_MD__"</code>: <code>source</code></li>
+  </ul>
+</li>
+<li><code>template</code> に対して、<code>replacements.items()</code> の各 <code>(k, v)</code> について順に <code>template = template.replace(k, v)</code> を行う。</li>
+<li>最終的な <code>template</code> を JSON として出力する。</li>
+</ul>
+
+## sysinFormat
+`{"template": string, "total": number, "title": string|null, "description": string|null, "source": string}`
+
+## sampleAnswer
+```python
+import sys
+import json
+
+sysin = json.loads(sys.stdin.read() or "null")
+
+template = sysin.get("template", "")
+total = sysin.get("total", 0)
+title = sysin.get("title") or ""
+description = sysin.get("description") or ""
+source_md = sysin.get("source", "")
+
+replacements = {
+    "__GENERATOR_PROMPT_TOTAL__": str(total),
+    "__GENERATOR_PROMPT_TITLE__": title,
+    "__GENERATOR_PROMPT_DESCRIPTION__": description,
+    "__GENERATOR_PROMPT_SOURCE_MD__": source_md,
+}
+
+for k, v in replacements.items():
+    template = template.replace(k, v)
+
+result = template
+
+print(json.dumps(result, ensure_ascii=False))
+```
+
+## testcases
+### testcase1
+`{"sysin": {"template": "total=__GENERATOR_PROMPT_TOTAL__", "total": 5, "title": null, "description": null, "source": ""}, "expected": "total=5"}`
+### testcase2
+`{"sysin": {"template": "__GENERATOR_PROMPT_TITLE__:__GENERATOR_PROMPT_DESCRIPTION__", "total": 1, "title": "t", "description": "d", "source": "s"}, "expected": "t:d"}`
+### testcase3
+`{"sysin": {"template": "__GENERATOR_PROMPT_SOURCE_MD__ (__GENERATOR_PROMPT_TOTAL__)", "total": 3, "title": null, "description": null, "source": "SRC"}, "expected": "SRC (3)"}`
