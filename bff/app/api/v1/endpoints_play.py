@@ -13,6 +13,35 @@ quiz_client = QuizClient()
 
 STARTER_CODE_TEMPLATES = {
     "python3": 'import sys, json\nsysin = json.loads(sys.stdin.read())\n# ここから下をユーザが書く\nresult = None\nprint(json.dumps(result))\n',
+    "javascript": 'const fs = require("fs");\nconst sysin = JSON.parse(fs.readFileSync(0, "utf8"));\n// ここから下をユーザが書く\nlet result = null;\nprocess.stdout.write(JSON.stringify(result) + "\\n");\n',
+    "go": '''package main
+
+import (
+\t"encoding/json"
+\t"fmt"
+\t"io"
+\t"os"
+)
+
+func main() {
+\tvar sysin interface{}
+\tb, err := io.ReadAll(os.Stdin)
+\tif err != nil {
+\t\tpanic(err)
+\t}
+\tif err := json.Unmarshal(b, &sysin); err != nil {
+\t\tpanic(err)
+\t}
+
+\t// ここから下をユーザが書く
+\tvar result interface{} = nil
+\tout, err := json.Marshal(result)
+\tif err != nil {
+\t\tpanic(err)
+\t}
+\tfmt.Println(string(out))
+}
+''',
 }
 
 
