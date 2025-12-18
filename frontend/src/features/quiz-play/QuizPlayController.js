@@ -44,7 +44,6 @@ export const QuizPlayController = {
 
     const titleEl = root.querySelector("[data-quiz-title]");
     const descriptionEl = root.querySelector("[data-quiz-description]");
-    const hintEl = root.querySelector("[data-quiz-hint]");
     const markdownEl = root.querySelector("[data-quiz-markdown]");
     let sampleAnswer = "";
 
@@ -73,20 +72,12 @@ export const QuizPlayController = {
           titleEl.textContent = detail?.title || `問題 #${problemId}`;
         }
         const contentMarkdown = detail?.contentMarkdown || "";
-        const summaryLine =
-          contentMarkdown
-            .split("\n")
-            .map((line) => line.trim())
-            .filter((line) => line && !line.startsWith("#"))[0] || "";
+        // カードサブタイトルにはカテゴリを表示（重複を避ける）
         if (descriptionEl) {
-          descriptionEl.textContent = summaryLine;
-        }
-        if (hintEl) {
-          // v1 では description を軽くヒントとしても使う程度にとどめる
-          hintEl.textContent = summaryLine;
+          descriptionEl.textContent = detail?.category || "";
         }
         if (markdownEl) {
-          // 簡易的に contentMarkdown をそのままテキストとして表示
+          // 問題本文を表示
           markdownEl.textContent = contentMarkdown;
         }
         sampleAnswer = detail?.sampleAnswer || "";

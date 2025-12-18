@@ -16,12 +16,6 @@ export const QuizPlayView = {
           <p class="card__subtitle" data-quiz-description>ここに問題の概要が表示されます。</p>
         </header>
         <div class="card__body card__body--stack">
-          <div class="setting-row">
-            <div>
-              <div class="setting-row__label">問題</div>
-              <div class="setting-row__hint" data-quiz-hint>ここに問題の補足説明が表示されます。</div>
-            </div>
-          </div>
           <pre class="schema-preview"><code data-quiz-markdown>問題の本文がここに表示されます。</code></pre>
           <div class="setting-row">
             <div>
