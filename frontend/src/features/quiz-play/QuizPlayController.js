@@ -99,15 +99,6 @@ export const QuizPlayController = {
 
     const problemId = getSelectedProblemId();
 
-    // エディタの初期化（問題取得後に starterCode を設定するため、ここでは空で初期化）
-    if (editorContainer) {
-      this._editor = createEditor({
-        container: editorContainer,
-        initialCode: "",
-        // type: "cm6", // 必要に応じて "monaco" に変更
-      });
-    }
-
     // 問題から取得した言語を保持（実行・提出時に使用）
     let currentLanguage = "python3";
 
@@ -115,6 +106,14 @@ export const QuizPlayController = {
       if (titleEl) titleEl.textContent = "問題が選択されていません";
       if (descriptionEl)
         descriptionEl.textContent = "クイズセットから問題を選択してから、再度お試しください。";
+      // 問題未選択時はデフォルト言語でエディタを初期化
+      if (editorContainer) {
+        this._editor = createEditor({
+          container: editorContainer,
+          initialCode: "",
+          language: currentLanguage,
+        });
+      }
     } else {
       try {
         const detail = await quizPlayApi.getProblemDetail(problemId);
@@ -139,12 +138,6 @@ export const QuizPlayController = {
           updateTestcasePreview(0);
         }
 
-        // starterCode をエディタに設定（設計書: BFF が言語別に付与）
-        const starterCode = detail?.starterCode || "";
-        if (this._editor && starterCode) {
-          this._editor.setValue(starterCode);
-        }
-
         // 問題の defaultLanguage を保持（実行・提出時に使用）
         currentLanguage = detail?.defaultLanguage || "python3";
 
@@ -156,10 +149,28 @@ export const QuizPlayController = {
         if (editorFooterEl) {
           editorFooterEl.textContent = langConfig.footer;
         }
+
+        // エディタを言語に応じて初期化（問題取得後に作成）
+        const starterCode = detail?.starterCode || "";
+        if (editorContainer) {
+          this._editor = createEditor({
+            container: editorContainer,
+            initialCode: starterCode,
+            language: currentLanguage,
+          });
+        }
       } catch (_error) {
         if (titleEl) titleEl.textContent = "問題を取得できませんでした";
         if (descriptionEl)
           descriptionEl.textContent = "時間をおいて再度お試しください。";
+        // エラー時もデフォルト言語でエディタを初期化
+        if (editorContainer) {
+          this._editor = createEditor({
+            container: editorContainer,
+            initialCode: "",
+            language: currentLanguage,
+          });
+        }
       }
     }
 

@@ -1,6 +1,14 @@
 import { EditorView, basicSetup } from "codemirror";
 import { python } from "@codemirror/lang-python";
+import { javascript } from "@codemirror/lang-javascript";
+import { go } from "@codemirror/lang-go";
 import { oneDark } from "@codemirror/theme-one-dark";
+
+const LANGUAGE_EXTENSIONS = {
+  python3: python,
+  javascript: javascript,
+  go: go,
+};
 
 /**
  * Create a CodeMirror 6 editor instance.
@@ -9,14 +17,16 @@ import { oneDark } from "@codemirror/theme-one-dark";
  * @param {{ initialCode?: string }} options
  * @returns {{ getValue(): string, setValue(code: string): void, focus(): void }}
  */
-export function createCodemirror6Editor(container, { initialCode = "" } = {}) {
+export function createCodemirror6Editor(container, { initialCode = "", language = "python3" } = {}) {
   if (!container) {
     throw new Error("Editor container is required for CodeMirror 6");
   }
 
+  const langExtension = LANGUAGE_EXTENSIONS[language] || LANGUAGE_EXTENSIONS.python3;
+
   const view = new EditorView({
     doc: initialCode,
-    extensions: [basicSetup, python(), oneDark],
+    extensions: [basicSetup, langExtension(), oneDark],
     parent: container,
   });
 
