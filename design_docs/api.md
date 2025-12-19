@@ -213,19 +213,23 @@
 
         ```json
         {
-          "description": "(b) Progress Service から「ユーザーのカテゴリ別正解数」を取得",
-          "request": "GET /progress/stats/categories?userId=101",
+          "description": "(b) BFF が Quiz Service と Progress Service を突合して「ユーザーのカテゴリ別正解数」を算出",
+          "request": "(内部処理)",
           "header": "",
           "body": null,
           "response": {
             "status": 200,
-            "body": [
-              { "category": "Frontend", "solved": 20 },
-              { "category": "Backend", "solved": 25 }
-            ]
+            "body": "BFF 内部で集計"
           }
         }
         ```
+
+        - Quiz Service: カテゴリ別総問題数
+          - `GET /quiz/quizzes/stats/categories?userId=101`
+        - Quiz Service: problemId と category の一覧
+          - `GET /quiz/problem-categories?userId=101`
+        - Progress Service: 解答済み problemId 一覧（バッチ）
+          - `GET /progress/solved-problems?userId=101&problemIds=1,2,3`
 
 - GET `/api/v1/dashboard/activities`
     - **Frontend to BFF**

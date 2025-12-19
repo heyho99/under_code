@@ -38,3 +38,16 @@ async def count_problems_by_category(user_id: int):
         user_id,
     )
 
+
+async def list_problem_categories(user_id: int):
+    return await database.fetch(
+        """
+        SELECT p.id AS problem_id, p.category AS category
+        FROM problems p
+        INNER JOIN quiz_sets q ON q.id = p.quiz_set_id
+        WHERE q.user_id = $1
+        ORDER BY p.id
+        """,
+        user_id,
+    )
+

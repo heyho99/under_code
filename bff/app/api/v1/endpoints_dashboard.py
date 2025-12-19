@@ -1,5 +1,5 @@
 import logging
-from typing import List
+from typing import Dict, List
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 
@@ -31,26 +31,50 @@ async def get_dashboard_summary(user_id: int = Depends(get_current_user_id)):
 
 @router.get("/categories", response_model=List[CategoryStat])
 async def get_dashboard_categories(user_id: int = Depends(get_current_user_id)):
-    data = [
-        {"category": "syntax", "count": 40, "solved": 15},
-        {"category": "logic", "count": 40, "solved": 10},
-        {"category": "function", "count": 40, "solved": 12},
-        {"category": "class", "count": 30, "solved": 8},
-    ]
+    try:
+        categories = await quiz_client.get_stats_categories(user_id)
+        problem_categories = await quiz_client.list_problem_categories(user_id)
+    except Exception:
+        logger.exception("Failed to fetch dashboard categories from quiz service")
+        raise HTTPException(status_code=502, detail="Failed to fetch dashboard categories")
 
-    results = []
-    for item in data:
-        count = item["count"]
-        solved = item["solved"]
+    category_counts: Dict[str, int] = {}
+    for item in categories or []:
+        cat = item.get("category")
+        if not cat:
+            continue
+        category_counts[str(cat)] = int(item.get("count", 0) or 0)
+
+    problem_ids_by_category: Dict[str, List[int]] = {}
+    all_problem_ids: List[int] = []
+    for row in problem_categories or []:
+        cat = row.get("category")
+        pid = row.get("problemId")
+        if not cat or not isinstance(pid, int):
+            continue
+        key = str(cat)
+        problem_ids_by_category.setdefault(key, []).append(pid)
+        all_problem_ids.append(pid)
+
+    solved_set = set()
+    unique_problem_ids = sorted(set(all_problem_ids))
+    if unique_problem_ids:
+        try:
+            solved_ids = await progress_client.get_solved_problems(user_id, unique_problem_ids)
+            solved_set = set(int(x) for x in (solved_ids or []))
+        except Exception:
+            logger.exception("Failed to fetch solved problems for dashboard categories")
+            raise HTTPException(status_code=502, detail="Failed to fetch dashboard categories")
+
+    all_categories = sorted(set(list(category_counts.keys()) + list(problem_ids_by_category.keys())))
+
+    results: List[CategoryStat] = []
+    for cat in all_categories:
+        count = int(category_counts.get(cat, 0) or 0)
+        pids = problem_ids_by_category.get(cat, [])
+        solved = sum(1 for pid in pids if pid in solved_set)
         rate = int(round((solved / count) * 100)) if count > 0 else 0
-        results.append(
-            CategoryStat(
-                category=item["category"],
-                count=count,
-                solved=solved,
-                rate=rate,
-            )
-        )
+        results.append(CategoryStat(category=cat, count=count, solved=solved, rate=rate))
 
     return results
 

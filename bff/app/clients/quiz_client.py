@@ -18,6 +18,12 @@ class QuizClient:
             response.raise_for_status()
             return response.json()
 
+    async def list_problem_categories(self, user_id: int):
+        async with httpx.AsyncClient() as client:
+            response = await client.get(f"{self.base_url}/quiz/problem-categories", params={"userId": user_id})
+            response.raise_for_status()
+            return response.json()
+
     async def upload_source_data(self, data: dict):
         async with httpx.AsyncClient() as client:
             response = await client.post(f"{self.base_url}/api/v1/quiz/source-data", json=data)

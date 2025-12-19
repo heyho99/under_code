@@ -30,3 +30,11 @@ async def get_category_stats(user_id: int) -> List[dict]:
     rows = await problem_repository.count_problems_by_category(user_id)
     return [{"category": row["category"], "count": row["count"]} for row in rows]
 
+
+async def list_problem_categories(user_id: int) -> List[dict]:
+    rows = await problem_repository.list_problem_categories(user_id)
+    return [
+        {"problemId": int(row["problem_id"]), "category": row["category"]}
+        for row in rows
+    ]
+

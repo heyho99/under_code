@@ -12,12 +12,6 @@ class ProgressClient:
             response.raise_for_status()
             return response.json()
 
-    async def get_category_stats(self, user_id: int):
-        async with httpx.AsyncClient() as client:
-            response = await client.get(f"{self.base_url}/progress/stats/categories", params={"userId": user_id})
-            response.raise_for_status()
-            return response.json()
-
     async def get_activities(self, user_id: int, period: int):
         async with httpx.AsyncClient() as client:
             response = await client.get(f"{self.base_url}/progress/activities", params={"userId": user_id, "period": period})
