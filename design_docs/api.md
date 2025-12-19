@@ -239,8 +239,8 @@
         "response": {
           "status": 200,
           "body": [
-            { "date": "2023-10-01", "count": 3 },
-            { "date": "2023-10-02", "count": 0 }
+            { "date": "2023-10-01", "submissionsCount": 3, "solvedCount": 2 },
+            { "date": "2023-10-02", "submissionsCount": 0, "solvedCount": 0 }
           ]
         }
       }
@@ -252,21 +252,21 @@
 
         ```markdown
         1. BFFがクエリパラメータから期間(period=7,30,all)を受け取る
-        2. Progress Service の集計APIを呼び出し、日毎の「正解数」を取得する
-        3. 正解が無い日は0
+        2. Progress Service の集計APIを呼び出し、日毎の「提出数」と「正解数」を取得する
+        3. 提出/正解が無い日は0
         ```
 
         ```json
         {
-          "description": "Progress Service から「日毎の正解数」を取得",
+          "description": "Progress Service から「日毎の提出数」と「正解数」を取得",
           "request": "GET /progress/activities?userId=101&period=30",
           "header": "",
           "body": null,
           "response": {
             "status": 200,
             "body": [
-              { "date": "2023-10-01", "count": 3 },
-              { "date": "2023-10-02", "count": 0 }
+              { "date": "2023-10-01", "submissionsCount": 3, "solvedCount": 2 },
+              { "date": "2023-10-02", "submissionsCount": 0, "solvedCount": 0 }
             ]
           }
         }
