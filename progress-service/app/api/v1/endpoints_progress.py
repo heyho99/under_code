@@ -7,6 +7,7 @@ from app.schemas.stats import ActivityItem, UniqueSolvedStatsResponse
 from app.services.progress_service import (
     create_submission,
     get_activities,
+    get_solved_problem_ids,
     get_unique_solved_count,
 )
 
@@ -33,3 +34,20 @@ async def get_user_activities(
 ) -> List[ActivityItem]:
     items = await get_activities(user_id=userId, period_days=period)
     return items
+
+
+@router.get("/solved-problems", response_model=List[int])
+async def get_solved_problems(
+    userId: int = Query(...),
+    problemIds: str = Query(""),
+) -> List[int]:
+    raw = [p.strip() for p in (problemIds or "").split(",") if p.strip()]
+    ids: List[int] = []
+    for p in raw:
+        try:
+            ids.append(int(p))
+        except ValueError:
+            continue
+
+    solved = await get_solved_problem_ids(user_id=userId, problem_ids=ids)
+    return solved

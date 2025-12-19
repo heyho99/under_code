@@ -53,3 +53,22 @@ async def fetch_daily_counts(user_id: int, start_datetime: datetime) -> Dict[dat
         d: date = r["day"]
         result[d] = (int(r["submissions_count"]), int(r["solved_count"]))
     return result
+
+
+async def fetch_solved_problem_ids(user_id: int, problem_ids: List[int]) -> List[int]:
+    if not problem_ids:
+        return []
+
+    rows = await database.fetch(
+        """
+        SELECT DISTINCT problem_id
+        FROM submissions
+        WHERE user_id = $1
+          AND is_correct = TRUE
+          AND problem_id = ANY($2)
+        """,
+        user_id,
+        problem_ids,
+    )
+
+    return [int(r["problem_id"]) for r in rows]

@@ -75,7 +75,7 @@ export const QuizProgressView = {
           <header class="card__header card__header--with-controls">
             <div class="card__header-main">
               <h2 class="card__title">日別の取り組み</h2>
-              <p class="card__subtitle">直近の正解数（取り組み数）</p>
+              <p class="card__subtitle">直近の提出数・正解数</p>
             </div>
             <div class="activity-controls">
               <div class="segmented" data-activity-range>
@@ -89,8 +89,12 @@ export const QuizProgressView = {
           <div class="card__body">
             <div class="activity-summary">
               <div class="activity-summary-card">
-                <span class="activity-summary__label">この期間の取り組み数</span>
-                <span class="activity-summary__value" id="js-activity-range-total">0 問</span>
+                <span class="activity-summary__label">この期間の提出数</span>
+                <span class="activity-summary__value" id="js-activity-range-submissions-total">0 回</span>
+              </div>
+              <div class="activity-summary-card">
+                <span class="activity-summary__label">この期間の正解数</span>
+                <span class="activity-summary__value" id="js-activity-range-solved-total">0 回</span>
               </div>
             </div>
             <div class="activity-chart-container">

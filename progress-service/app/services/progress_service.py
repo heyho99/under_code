@@ -38,3 +38,7 @@ async def get_activities(user_id: int, period_days: int) -> List[ActivityItem]:
         )
 
     return items
+
+
+async def get_solved_problem_ids(user_id: int, problem_ids: List[int]) -> List[int]:
+    return await submission_repository.fetch_solved_problem_ids(user_id=user_id, problem_ids=problem_ids)

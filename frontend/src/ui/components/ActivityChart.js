@@ -1,4 +1,7 @@
-export function renderActivityChart(canvas, { labels, values, label = "日毎の正解数" } = {}) {
+export function renderActivityChart(
+  canvas,
+  { labels, values, label = "日毎の正解数", datasets } = {}
+) {
   if (!canvas) return;
 
   const hasChartGlobal = typeof window !== "undefined" && typeof window.Chart !== "undefined";
@@ -13,19 +16,24 @@ export function renderActivityChart(canvas, { labels, values, label = "日毎の
     canvas._chartInstance.destroy();
   }
 
-  const data = values || [];
+  const resolvedDatasets = Array.isArray(datasets) && datasets.length > 0
+    ? datasets
+    : [
+        {
+          label,
+          data: values || [],
+          backgroundColor: "rgba(37, 99, 235, 0.85)",
+          maxBarThickness: 32,
+        },
+      ];
+
+  const showLegend = resolvedDatasets.length > 1;
+
   const chart = new window.Chart(ctx, {
     type: "bar",
     data: {
       labels: labels || [],
-      datasets: [
-        {
-          label,
-          data,
-          backgroundColor: "rgba(37, 99, 235, 0.85)",
-          maxBarThickness: 32,
-        },
-      ],
+      datasets: resolvedDatasets,
     },
     options: {
       responsive: true,
@@ -42,12 +50,12 @@ export function renderActivityChart(canvas, { labels, values, label = "日毎の
         },
       },
       plugins: {
-        legend: { display: false },
+        legend: { display: showLegend },
         tooltip: {
           callbacks: {
             label(context) {
               const v = context.parsed.y;
-              return `${v} 問`;
+              return `${v} 回`;
             },
           },
         },

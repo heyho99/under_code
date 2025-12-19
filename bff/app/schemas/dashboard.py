@@ -13,4 +13,5 @@ class CategoryStat(BaseModel):
 
 class ActivityStat(BaseModel):
     date: str
-    count: int
+    submissionsCount: int
+    solvedCount: int

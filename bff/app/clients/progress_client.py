@@ -24,16 +24,13 @@ class ProgressClient:
             response.raise_for_status()
             return response.json()
 
-    async def get_quiz_sets_status(self, user_id: int, quiz_set_ids: List[int]):
-        ids_str = ",".join(map(str, quiz_set_ids))
+    async def get_solved_problems(self, user_id: int, problem_ids: List[int]):
+        ids_str = ",".join(map(str, problem_ids))
         async with httpx.AsyncClient() as client:
-            response = await client.get(f"{self.base_url}/progress/status", params={"userId": user_id, "quizSetIds": ids_str})
-            response.raise_for_status()
-            return response.json()
-
-    async def get_solved_problems(self, user_id: int, quiz_set_id: int):
-        async with httpx.AsyncClient() as client:
-            response = await client.get(f"{self.base_url}/progress/solved-problems", params={"userId": user_id, "quizSetId": quiz_set_id})
+            response = await client.get(
+                f"{self.base_url}/progress/solved-problems",
+                params={"userId": user_id, "problemIds": ids_str},
+            )
             response.raise_for_status()
             return response.json()
     

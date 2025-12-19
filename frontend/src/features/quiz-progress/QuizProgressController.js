@@ -102,15 +102,25 @@ export const QuizProgressController = {
       }
     }
 
-    // 日毎の取り組み数（直近 N 日分のダミーデータ）
+    // 日毎の取り組み数（提出数 / 正解数）
     const canvas = root && root.querySelector("#js-activity-chart");
     const rangeRoot = root && root.querySelector("[data-activity-range]");
-    const totalEl = root && root.querySelector("#js-activity-range-total");
+    const submissionsTotalEl = root && root.querySelector("#js-activity-range-submissions-total");
+    const solvedTotalEl = root && root.querySelector("#js-activity-range-solved-total");
 
-    const updateTotal = (values) => {
-      if (!totalEl) return;
-      const sum = values.reduce((acc, v) => acc + (Number(v) || 0), 0);
-      totalEl.textContent = `${sum} 問`;
+    const sumValues = (values) =>
+      (values || []).reduce((acc, v) => acc + (Number(v) || 0), 0);
+
+    const updateTotals = ({ submissionsValues, solvedValues }) => {
+      const submissionsSum = sumValues(submissionsValues);
+      const solvedSum = sumValues(solvedValues);
+
+      if (submissionsTotalEl) {
+        submissionsTotalEl.textContent = `${submissionsSum} 回`;
+      }
+      if (solvedTotalEl) {
+        solvedTotalEl.textContent = `${solvedSum} 回`;
+      }
     };
 
     if (canvas) {
@@ -125,16 +135,18 @@ export const QuizProgressController = {
 
       const buildDailyData = (activities) => {
         const labels = [];
-        const values = [];
+        const submissionsValues = [];
+        const solvedValues = [];
 
         activities.forEach((item) => {
           const d = new Date(item.date);
           const label = `${d.getMonth() + 1}/${d.getDate()}`;
           labels.push(label);
-          values.push(Number(item.count) || 0);
+          submissionsValues.push(Number(item.submissionsCount) || 0);
+          solvedValues.push(Number(item.solvedCount) || 0);
         });
 
-        return { labels, values };
+        return { labels, submissionsValues, solvedValues };
       };
 
       const maxDays = baseActivities.length || 0;
@@ -142,24 +154,45 @@ export const QuizProgressController = {
 
       const applyRange = (range) => {
         let labels = [];
-        let values = [];
+        let submissionsValues = [];
+        let solvedValues = [];
 
         if (!maxDays) {
           labels = [];
-          values = [];
+          submissionsValues = [];
+          solvedValues = [];
         } else if (range === "all") {
           labels = baseData.labels.slice();
-          values = baseData.values.slice();
+          submissionsValues = baseData.submissionsValues.slice();
+          solvedValues = baseData.solvedValues.slice();
         } else {
           const days = Number(range) || maxDays;
           const safeDays = Math.min(maxDays, Math.max(1, days));
           const startIndex = Math.max(0, maxDays - safeDays);
           labels = baseData.labels.slice(startIndex);
-          values = baseData.values.slice(startIndex);
+          submissionsValues = baseData.submissionsValues.slice(startIndex);
+          solvedValues = baseData.solvedValues.slice(startIndex);
         }
 
-        renderActivityChart(canvas, { labels, values, label: "日毎の正解数" });
-        updateTotal(values);
+        renderActivityChart(canvas, {
+          labels,
+          datasets: [
+            {
+              label: "提出数",
+              data: submissionsValues,
+              backgroundColor: "rgba(37, 99, 235, 0.85)",
+              maxBarThickness: 20,
+            },
+            {
+              label: "正解数",
+              data: solvedValues,
+              backgroundColor: "rgba(34, 197, 94, 0.85)",
+              maxBarThickness: 20,
+            },
+          ],
+        });
+
+        updateTotals({ submissionsValues, solvedValues });
       };
 
       applyRange(defaultDays);
