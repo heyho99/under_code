@@ -42,6 +42,13 @@ export const QuizPlayView = {
             </div>
           </div>
           <div class="quiz-run">
+            <div class="submit-overlay" data-submit-overlay style="display: none;">
+              <div class="submit-overlay__content">
+                <div class="submit-spinner"></div>
+                <span class="submit-overlay__text">採点中...</span>
+              </div>
+            </div>
+
             <div class="quiz-output">
               <div class="quiz-output__label">
                 <span class="material-symbols-outlined" style="font-size: 16px;">terminal</span>

@@ -263,6 +263,14 @@ export const QuizPlayController = {
       });
     });
 
+    const submitOverlay = root.querySelector("[data-submit-overlay]");
+
+    function showSubmitOverlay(show) {
+      if (submitOverlay) {
+        submitOverlay.style.display = show ? "flex" : "none";
+      }
+    }
+
     submitQuizButtons.forEach((btn) => {
       btn.addEventListener("click", async () => {
         const code = this._editor ? this._editor.getValue().trim() : "";
@@ -275,12 +283,18 @@ export const QuizPlayController = {
           return;
         }
 
+        showSubmitOverlay(true);
+        btn.disabled = true;
+
         try {
           const result = await quizPlayApi.submit({
             problemId,
             language: currentLanguage,
             code,
           });
+
+          showSubmitOverlay(false);
+          btn.disabled = false;
 
           const isCorrect = Boolean(result?.isCorrect);
           const details = result?.details || [];
@@ -329,6 +343,8 @@ export const QuizPlayController = {
             isCorrect
           );
         } catch (_error) {
+          showSubmitOverlay(false);
+          btn.disabled = false;
           showFeedback(
             "提出に失敗しました",
             "時間をおいて再度お試しください。",
