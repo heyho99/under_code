@@ -55,6 +55,15 @@ export const QuizCreationView = {
                     />
                   </div>
                 </div>
+
+                <div class="file-list-container" data-file-list-container style="display: none;">
+                  <div class="file-list-header">
+                    <span class="material-symbols-outlined">description</span>
+                    <span class="file-list-header__title">読み込まれたファイル</span>
+                    <span class="file-list-header__count" data-file-count>0</span>
+                  </div>
+                  <ul class="file-list" data-file-list></ul>
+                </div>
               </section>
             </div>
             <div class="step-actions">
@@ -100,6 +109,13 @@ export const QuizCreationView = {
 
           <!-- STEP 3 -->
           <div class="step" data-step="3">
+            <div class="generation-overlay" data-generation-overlay style="display: none;">
+              <div class="generation-overlay__content">
+                <div class="generation-spinner"></div>
+                <h3 class="generation-overlay__title">クイズを作成中...</h3>
+                <p class="generation-overlay__message" data-generation-message>AIがソースコードを解析しています。しばらくお待ちください。</p>
+              </div>
+            </div>
             <div class="layout-grid">
               <section class="card">
                 <header class="card__header">

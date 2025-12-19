@@ -31,6 +31,49 @@ export const QuizCreationController = {
 
     let uploadedFiles = [];
 
+    const fileListContainer = root.querySelector("[data-file-list-container]");
+    const fileListEl = root.querySelector("[data-file-list]");
+    const fileCountEl = root.querySelector("[data-file-count]");
+    const generationOverlay = root.querySelector("[data-generation-overlay]");
+
+    function updateFileListDisplay(files) {
+      if (!fileListContainer || !fileListEl || !fileCountEl) return;
+
+      if (!files || files.length === 0) {
+        fileListContainer.style.display = "none";
+        return;
+      }
+
+      fileListContainer.style.display = "block";
+      fileCountEl.textContent = String(files.length);
+
+      const langIcons = {
+        python3: "code",
+        javascript: "javascript",
+        go: "code",
+      };
+
+      fileListEl.innerHTML = files
+        .map((file) => {
+          const icon = langIcons[file.detectedLanguage] || "description";
+          const sizeKB = file.content ? (file.content.length / 1024).toFixed(1) : "0";
+          return `
+            <li class="file-list__item">
+              <span class="material-symbols-outlined file-list__icon">${icon}</span>
+              <span class="file-list__name">${file.fileName}</span>
+              <span class="file-list__meta">${sizeKB} KB</span>
+            </li>
+          `;
+        })
+        .join("");
+    }
+
+    function showGenerationOverlay(show) {
+      if (generationOverlay) {
+        generationOverlay.style.display = show ? "flex" : "none";
+      }
+    }
+
     function setStep(stepNumber) {
       // 右側のコンテンツ切り替え
       steps.forEach((stepEl) => {
@@ -56,6 +99,7 @@ export const QuizCreationController = {
     async function handleFilesSelected(fileList) {
       try {
         uploadedFiles = await readFilesFromInput(fileList);
+        updateFileListDisplay(uploadedFiles);
       } catch (error) {
         if (typeof window !== "undefined" && window.alert) {
           window.alert(error.message || "ファイルの読み込みに失敗しました。");
@@ -158,6 +202,9 @@ export const QuizCreationController = {
         const filesForApi = buildFilesForApi(uploadedFiles);
         const defaultLanguage = detectDefaultLanguage(uploadedFiles);
 
+        showGenerationOverlay(true);
+        generateQuizButton.disabled = true;
+
         try {
           await quizCreationApi.generateQuiz({
             title,
@@ -167,6 +214,8 @@ export const QuizCreationController = {
           });
           navigate("#/quiz-set-list");
         } catch (error) {
+          showGenerationOverlay(false);
+          generateQuizButton.disabled = false;
           if (typeof window !== "undefined" && window.alert) {
             window.alert(error.message || "クイズの作成に失敗しました。");
           }
