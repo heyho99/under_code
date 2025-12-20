@@ -1,3 +1,17 @@
+## Admin仕様
+
+- **Admin判定**
+  - JWT の `userId` が `0` のユーザーを admin とみなす
+  - admin ユーザーは User Service のDBに `id=0` で予約される（初期ユーザー）
+- **BFFの挙動（GETのスコープ）**
+  - 通常ユーザー:
+    - `Authorization: Bearer <token>` を付与する
+    - `userId` はトークンから取得し、BFF→各Service呼び出しで `userId` をクエリとして付与して「自分のデータ」に絞る
+  - admin ユーザー:
+    - `Authorization: Bearer <token>` を付与する
+    - `userId` はトークンから取得するが、BFF→各ServiceのGET呼び出しでは **`userId` クエリを付与しない**
+    - その結果、Quiz Service / Progress Service は **全件 / 全体集計** を返す（adminの「全件閲覧」）
+
 ## 画面、BFF API、Service API
  
 - 命名規則：bffは `/api/v1/*` （フロントエンドから見たらただのAPIのため）
