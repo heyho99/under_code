@@ -61,6 +61,14 @@ export const SignupController = {
             // localStorage 書き込み失敗時は無視
           }
 
+          try {
+            if (typeof window !== "undefined") {
+              window.dispatchEvent(new Event("auth:changed"));
+            }
+          } catch {
+            // ignore
+          }
+
           navigate("#/dashboard");
         } catch (error) {
           if (errorEl) {
