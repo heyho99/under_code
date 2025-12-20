@@ -19,6 +19,27 @@ function setActiveNav(path) {
 
 function handleRouteChange() {
   const path = window.location.hash || "#/quiz-creation";
+
+  const isPublicRoute = path === "#/login" || path === "#/signup";
+  let hasToken = false;
+  try {
+    if (typeof window !== "undefined" && window.localStorage) {
+      hasToken = Boolean(window.localStorage.getItem("authToken"));
+    }
+  } catch {
+    hasToken = false;
+  }
+
+  if (!hasToken && !isPublicRoute) {
+    window.location.hash = "#/login";
+    return;
+  }
+
+  if (hasToken && isPublicRoute) {
+    window.location.hash = "#/dashboard";
+    return;
+  }
+
   const nextController = routes[path];
   if (!nextController) {
     return;

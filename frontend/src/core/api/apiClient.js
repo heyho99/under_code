@@ -56,6 +56,25 @@ async function request(method, path, options = {}) {
   }
 
   if (!response.ok) {
+    if (response.status === 401) {
+      try {
+        if (typeof window !== "undefined" && window.localStorage) {
+          window.localStorage.removeItem("authToken");
+          window.localStorage.removeItem("currentUser");
+        }
+      } catch {
+        // ignore storage errors
+      }
+
+      try {
+        if (typeof window !== "undefined") {
+          window.location.hash = "#/login";
+        }
+      } catch {
+        // ignore navigation errors
+      }
+    }
+
     const message = isJson && data && data.detail
       ? data.detail
       : `API request failed with status ${response.status}`;

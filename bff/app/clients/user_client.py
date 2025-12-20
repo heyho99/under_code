@@ -16,3 +16,12 @@ class UserClient:
             response = await client.post(f"{self.base_url}/user/users", json=data)
             response.raise_for_status()
             return response.json()
+
+    async def me(self, authorization: str):
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                f"{self.base_url}/user/users/me",
+                headers={"Authorization": authorization},
+            )
+            response.raise_for_status()
+            return response.json()

@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     # 本番環境では適切なシークレットキーを設定する必要があります
     SECRET_KEY: str = "TEST_SECRET_KEY" 
     ALGORITHM: str = "HS256"
+    ALLOW_MOCK_TOKEN: bool = True
 
     class Config:
         case_sensitive = True

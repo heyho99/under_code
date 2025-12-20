@@ -24,7 +24,7 @@ def get_current_user_id(authorization: str = Header(...)) -> int:
         )
 
     token = authorization.split(" ", 1)[1].strip()
-    if token == "mock-token":
+    if token == "mock-token" and settings.ALLOW_MOCK_TOKEN:
         return 1
 
     payload: Dict[str, Any] = verify_token(token)
