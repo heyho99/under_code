@@ -20,33 +20,57 @@ async def insert_submission(user_id: int, problem_id: int, is_correct: bool) -> 
     return int(row["submission_id"])
 
 
-async def count_unique_solved(user_id: int) -> int:
-    row = await database.fetchrow(
-        """
-        SELECT COUNT(DISTINCT problem_id) AS cnt
-        FROM submissions
-        WHERE user_id = $1 AND is_correct = TRUE
-        """,
-        user_id,
-    )
+async def count_unique_solved(user_id) -> int:
+    if user_id is None:
+        row = await database.fetchrow(
+            """
+            SELECT COUNT(DISTINCT (user_id, problem_id)) AS cnt
+            FROM submissions
+            WHERE is_correct = TRUE
+            """,
+        )
+    else:
+        row = await database.fetchrow(
+            """
+            SELECT COUNT(DISTINCT problem_id) AS cnt
+            FROM submissions
+            WHERE user_id = $1 AND is_correct = TRUE
+            """,
+            user_id,
+        )
     return int(row["cnt"] or 0)
 
 
-async def fetch_daily_counts(user_id: int, start_datetime: datetime) -> Dict[date, Tuple[int, int]]:
-    rows = await database.fetch(
-        """
-        SELECT
-            DATE(created_at) AS day,
-            COUNT(*) AS submissions_count,
-            COALESCE(SUM(CASE WHEN is_correct THEN 1 ELSE 0 END), 0) AS solved_count
-        FROM submissions
-        WHERE user_id = $1 AND created_at >= $2
-        GROUP BY day
-        ORDER BY day ASC
-        """,
-        user_id,
-        start_datetime,
-    )
+async def fetch_daily_counts(user_id, start_datetime: datetime) -> Dict[date, Tuple[int, int]]:
+    if user_id is None:
+        rows = await database.fetch(
+            """
+            SELECT
+                DATE(created_at) AS day,
+                COUNT(*) AS submissions_count,
+                COALESCE(SUM(CASE WHEN is_correct THEN 1 ELSE 0 END), 0) AS solved_count
+            FROM submissions
+            WHERE created_at >= $1
+            GROUP BY day
+            ORDER BY day ASC
+            """,
+            start_datetime,
+        )
+    else:
+        rows = await database.fetch(
+            """
+            SELECT
+                DATE(created_at) AS day,
+                COUNT(*) AS submissions_count,
+                COALESCE(SUM(CASE WHEN is_correct THEN 1 ELSE 0 END), 0) AS solved_count
+            FROM submissions
+            WHERE user_id = $1 AND created_at >= $2
+            GROUP BY day
+            ORDER BY day ASC
+            """,
+            user_id,
+            start_datetime,
+        )
 
     result: Dict[date, Tuple[int, int]] = {}
     for r in rows:
@@ -55,20 +79,31 @@ async def fetch_daily_counts(user_id: int, start_datetime: datetime) -> Dict[dat
     return result
 
 
-async def fetch_solved_problem_ids(user_id: int, problem_ids: List[int]) -> List[int]:
+async def fetch_solved_problem_ids(user_id, problem_ids: List[int]) -> List[int]:
     if not problem_ids:
         return []
 
-    rows = await database.fetch(
-        """
-        SELECT DISTINCT problem_id
-        FROM submissions
-        WHERE user_id = $1
-          AND is_correct = TRUE
-          AND problem_id = ANY($2)
-        """,
-        user_id,
-        problem_ids,
-    )
+    if user_id is None:
+        rows = await database.fetch(
+            """
+            SELECT DISTINCT problem_id
+            FROM submissions
+            WHERE is_correct = TRUE
+              AND problem_id = ANY($1)
+            """,
+            problem_ids,
+        )
+    else:
+        rows = await database.fetch(
+            """
+            SELECT DISTINCT problem_id
+            FROM submissions
+            WHERE user_id = $1
+              AND is_correct = TRUE
+              AND problem_id = ANY($2)
+            """,
+            user_id,
+            problem_ids,
+        )
 
     return [int(r["problem_id"]) for r in rows]

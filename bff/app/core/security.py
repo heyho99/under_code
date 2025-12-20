@@ -36,6 +36,8 @@ def get_current_user_id(authorization: str = Header(...)) -> int:
             user_id = int(value)
         except Exception:
             continue
+        if user_id == settings.ADMIN_USER_ID:
+            return user_id
         if user_id > 0:
             return user_id
 
@@ -44,3 +46,7 @@ def get_current_user_id(authorization: str = Header(...)) -> int:
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
+
+
+def is_admin_user_id(user_id: int) -> bool:
+    return user_id == settings.ADMIN_USER_ID

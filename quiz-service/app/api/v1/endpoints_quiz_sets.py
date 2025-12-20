@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from fastapi import APIRouter, HTTPException, Query, status
 
@@ -24,7 +24,7 @@ async def generate_quiz_set(payload: QuizSetGenerateRequest) -> QuizSetGenerateR
 
 
 @router.get("/quiz/quiz-sets", response_model=List[QuizSetSummary])
-async def list_quiz_sets(userId: int = Query(..., description="User ID")) -> List[QuizSetSummary]:
+async def list_quiz_sets(userId: Optional[int] = Query(None, description="User ID")) -> List[QuizSetSummary]:
     return await quiz_set_service.list_quiz_sets(userId)
 
 

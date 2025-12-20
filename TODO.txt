@@ -10,8 +10,9 @@
 ・エディタがたぶんpython仕様になってしまっているから修正　完了
 ・作成時に進行が分かるようなアニメーションをつける　完了
 ・Progress-serviceの設計確認と実装　完了
+・User-serviceの設計確認と実装　完了
 
-・User-serviceの設計確認と実装
+・adminユーザの作成の検討
 ・ファイルの複数読み込みがちゃんと動作するか確認
 ・Generatorでコードを作成したら、1問ずつvalidateする
 　・validateする

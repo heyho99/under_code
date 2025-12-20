@@ -42,7 +42,12 @@ async def create_quiz_set_with_problems(
     return quiz_set_id, len(problems)
 
 
-async def list_quiz_sets_by_user(user_id: int):
+async def list_quiz_sets_by_user(user_id: Optional[int]):
+    if user_id is None:
+        return await database.fetch(
+            "SELECT id, title, description FROM quiz_sets ORDER BY id DESC",
+        )
+
     return await database.fetch(
         "SELECT id, title, description FROM quiz_sets WHERE user_id = $1 ORDER BY id DESC",
         user_id,

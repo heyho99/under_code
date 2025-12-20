@@ -1,5 +1,5 @@
 from datetime import date, datetime, time, timedelta
-from typing import List
+from typing import List, Optional
 
 from app.repositories import submission_repository
 from app.schemas.submission import SubmissionCreate
@@ -14,11 +14,11 @@ async def create_submission(payload: SubmissionCreate) -> int:
     )
 
 
-async def get_unique_solved_count(user_id: int) -> int:
+async def get_unique_solved_count(user_id: Optional[int]) -> int:
     return await submission_repository.count_unique_solved(user_id)
 
 
-async def get_activities(user_id: int, period_days: int) -> List[ActivityItem]:
+async def get_activities(user_id: Optional[int], period_days: int) -> List[ActivityItem]:
     today = date.today()
     start_date = today - timedelta(days=period_days - 1)
     start_dt = datetime.combine(start_date, time.min)
@@ -40,5 +40,5 @@ async def get_activities(user_id: int, period_days: int) -> List[ActivityItem]:
     return items
 
 
-async def get_solved_problem_ids(user_id: int, problem_ids: List[int]) -> List[int]:
+async def get_solved_problem_ids(user_id: Optional[int], problem_ids: List[int]) -> List[int]:
     return await submission_repository.fetch_solved_problem_ids(user_id=user_id, problem_ids=problem_ids)

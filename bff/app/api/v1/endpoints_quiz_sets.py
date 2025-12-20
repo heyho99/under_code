@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException
 
 from app.clients.progress_client import ProgressClient
 from app.clients.quiz_client import QuizClient
-from app.core.security import get_current_user_id
+from app.core.security import get_current_user_id, is_admin_user_id
 from app.schemas.problems import ProblemSummary
 from app.schemas.quiz_sets import QuizSetDetail, QuizSetSummary
 
@@ -18,8 +18,9 @@ progress_client = ProgressClient()
 
 @router.get("", response_model=List[QuizSetSummary])
 async def get_quiz_sets(user_id: int = Depends(get_current_user_id)):
+    scoped_user_id = None if is_admin_user_id(user_id) else user_id
     try:
-        quiz_sets = await quiz_client.get_quiz_sets(user_id)
+        quiz_sets = await quiz_client.get_quiz_sets(scoped_user_id)
     except Exception:
         logger.exception("Failed to fetch quiz sets")
         raise HTTPException(status_code=502, detail="Failed to fetch quiz sets")
@@ -53,7 +54,7 @@ async def get_quiz_sets(user_id: int = Depends(get_current_user_id)):
     solved_set = set()
     if unique_problem_ids:
         try:
-            solved_ids = await progress_client.get_solved_problems(user_id, unique_problem_ids)
+            solved_ids = await progress_client.get_solved_problems(scoped_user_id, unique_problem_ids)
             solved_set = set(int(x) for x in (solved_ids or []))
         except Exception:
             logger.exception("Failed to fetch solved problems")
@@ -85,6 +86,7 @@ async def get_quiz_sets(user_id: int = Depends(get_current_user_id)):
 
 @router.get("/{quiz_set_id}", response_model=QuizSetDetail)
 async def get_quiz_set_detail(quiz_set_id: int, user_id: int = Depends(get_current_user_id)):
+    scoped_user_id = None if is_admin_user_id(user_id) else user_id
     try:
         data = await quiz_client.get_quiz_set_detail(quiz_set_id)
     except Exception:
@@ -97,7 +99,7 @@ async def get_quiz_set_detail(quiz_set_id: int, user_id: int = Depends(get_curre
     solved_set = set()
     if problem_ids:
         try:
-            solved_ids = await progress_client.get_solved_problems(user_id, problem_ids)
+            solved_ids = await progress_client.get_solved_problems(scoped_user_id, problem_ids)
             solved_set = set(int(x) for x in (solved_ids or []))
         except Exception:
             logger.exception("Failed to fetch solved problems")

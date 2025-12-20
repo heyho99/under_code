@@ -6,21 +6,24 @@ class QuizClient:
     def __init__(self):
         self.base_url = settings.QUIZ_SERVICE_URL
 
-    async def get_stats_count(self, user_id: int):
+    async def get_stats_count(self, user_id: Optional[int]):
         async with httpx.AsyncClient() as client:
-            response = await client.get(f"{self.base_url}/quiz/quizzes/stats/count", params={"userId": user_id})
+            params = {"userId": user_id} if user_id is not None else None
+            response = await client.get(f"{self.base_url}/quiz/quizzes/stats/count", params=params)
             response.raise_for_status()
             return response.json()
 
-    async def get_stats_categories(self, user_id: int):
+    async def get_stats_categories(self, user_id: Optional[int]):
         async with httpx.AsyncClient() as client:
-            response = await client.get(f"{self.base_url}/quiz/quizzes/stats/categories", params={"userId": user_id})
+            params = {"userId": user_id} if user_id is not None else None
+            response = await client.get(f"{self.base_url}/quiz/quizzes/stats/categories", params=params)
             response.raise_for_status()
             return response.json()
 
-    async def list_problem_categories(self, user_id: int):
+    async def list_problem_categories(self, user_id: Optional[int]):
         async with httpx.AsyncClient() as client:
-            response = await client.get(f"{self.base_url}/quiz/problem-categories", params={"userId": user_id})
+            params = {"userId": user_id} if user_id is not None else None
+            response = await client.get(f"{self.base_url}/quiz/problem-categories", params=params)
             response.raise_for_status()
             return response.json()
 
@@ -50,9 +53,10 @@ class QuizClient:
             response.raise_for_status()
             return response.json()
 
-    async def get_quiz_sets(self, user_id: int):
+    async def get_quiz_sets(self, user_id: Optional[int]):
         async with httpx.AsyncClient() as client:
-            response = await client.get(f"{self.base_url}/quiz/quiz-sets", params={"userId": user_id})
+            params = {"userId": user_id} if user_id is not None else None
+            response = await client.get(f"{self.base_url}/quiz/quiz-sets", params=params)
             response.raise_for_status()
             return response.json()
 

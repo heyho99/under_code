@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     SECRET_KEY: str = "TEST_SECRET_KEY" 
     ALGORITHM: str = "HS256"
     ALLOW_MOCK_TOKEN: bool = True
+    ADMIN_USER_ID: int = 0
 
     class Config:
         case_sensitive = True

@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.clients.progress_client import ProgressClient
 from app.clients.quiz_client import QuizClient
-from app.core.security import get_current_user_id
+from app.core.security import get_current_user_id, is_admin_user_id
 from app.schemas.dashboard import ActivityStat, CategoryStat, DashboardSummary
 
 router = APIRouter()
@@ -16,9 +16,10 @@ quiz_client = QuizClient()
 
 @router.get("/summary", response_model=DashboardSummary)
 async def get_dashboard_summary(user_id: int = Depends(get_current_user_id)):
+    scoped_user_id = None if is_admin_user_id(user_id) else user_id
     try:
-        quiz_stats = await quiz_client.get_stats_count(user_id)
-        progress_stats = await progress_client.get_unique_solved_count(user_id)
+        quiz_stats = await quiz_client.get_stats_count(scoped_user_id)
+        progress_stats = await progress_client.get_unique_solved_count(scoped_user_id)
     except Exception:
         logger.exception("Failed to fetch dashboard summary")
         raise HTTPException(status_code=502, detail="Failed to fetch dashboard summary")
@@ -31,9 +32,10 @@ async def get_dashboard_summary(user_id: int = Depends(get_current_user_id)):
 
 @router.get("/categories", response_model=List[CategoryStat])
 async def get_dashboard_categories(user_id: int = Depends(get_current_user_id)):
+    scoped_user_id = None if is_admin_user_id(user_id) else user_id
     try:
-        categories = await quiz_client.get_stats_categories(user_id)
-        problem_categories = await quiz_client.list_problem_categories(user_id)
+        categories = await quiz_client.get_stats_categories(scoped_user_id)
+        problem_categories = await quiz_client.list_problem_categories(scoped_user_id)
     except Exception:
         logger.exception("Failed to fetch dashboard categories from quiz service")
         raise HTTPException(status_code=502, detail="Failed to fetch dashboard categories")
@@ -60,7 +62,7 @@ async def get_dashboard_categories(user_id: int = Depends(get_current_user_id)):
     unique_problem_ids = sorted(set(all_problem_ids))
     if unique_problem_ids:
         try:
-            solved_ids = await progress_client.get_solved_problems(user_id, unique_problem_ids)
+            solved_ids = await progress_client.get_solved_problems(scoped_user_id, unique_problem_ids)
             solved_set = set(int(x) for x in (solved_ids or []))
         except Exception:
             logger.exception("Failed to fetch solved problems for dashboard categories")
@@ -81,8 +83,9 @@ async def get_dashboard_categories(user_id: int = Depends(get_current_user_id)):
 
 @router.get("/activities", response_model=List[ActivityStat])
 async def get_dashboard_activities(user_id: int = Depends(get_current_user_id), period: int = Query(30)):
+    scoped_user_id = None if is_admin_user_id(user_id) else user_id
     try:
-        activities = await progress_client.get_activities(user_id, period)
+        activities = await progress_client.get_activities(scoped_user_id, period)
     except Exception:
         logger.exception("Failed to fetch dashboard activities")
         raise HTTPException(status_code=502, detail="Failed to fetch dashboard activities")

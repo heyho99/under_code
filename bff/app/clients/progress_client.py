@@ -1,29 +1,36 @@
 import httpx
-from typing import List
+from typing import List, Optional
 from app.core.config import settings
 
 class ProgressClient:
     def __init__(self):
         self.base_url = settings.PROGRESS_SERVICE_URL
 
-    async def get_unique_solved_count(self, user_id: int):
+    async def get_unique_solved_count(self, user_id: Optional[int]):
         async with httpx.AsyncClient() as client:
-            response = await client.get(f"{self.base_url}/progress/stats/unique-solved", params={"userId": user_id})
+            params = {"userId": user_id} if user_id is not None else None
+            response = await client.get(f"{self.base_url}/progress/stats/unique-solved", params=params)
             response.raise_for_status()
             return response.json()
 
-    async def get_activities(self, user_id: int, period: int):
+    async def get_activities(self, user_id: Optional[int], period: int):
         async with httpx.AsyncClient() as client:
-            response = await client.get(f"{self.base_url}/progress/activities", params={"userId": user_id, "period": period})
+            params = {"period": period}
+            if user_id is not None:
+                params["userId"] = user_id
+            response = await client.get(f"{self.base_url}/progress/activities", params=params)
             response.raise_for_status()
             return response.json()
 
-    async def get_solved_problems(self, user_id: int, problem_ids: List[int]):
+    async def get_solved_problems(self, user_id: Optional[int], problem_ids: List[int]):
         ids_str = ",".join(map(str, problem_ids))
         async with httpx.AsyncClient() as client:
+            params = {"problemIds": ids_str}
+            if user_id is not None:
+                params["userId"] = user_id
             response = await client.get(
                 f"{self.base_url}/progress/solved-problems",
-                params={"userId": user_id, "problemIds": ids_str},
+                params=params,
             )
             response.raise_for_status()
             return response.json()

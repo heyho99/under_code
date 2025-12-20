@@ -1,3 +1,5 @@
+# docker compose exec user-db psql -U user -d user_db
+
 version: '3.8'
 
 services:

@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from fastapi import APIRouter, Query
 
@@ -22,14 +22,14 @@ async def post_submission(payload: SubmissionCreate) -> SubmissionCreateResponse
 
 
 @router.get("/stats/unique-solved", response_model=UniqueSolvedStatsResponse)
-async def get_unique_solved(userId: int = Query(...)) -> UniqueSolvedStatsResponse:
+async def get_unique_solved(userId: Optional[int] = Query(None)) -> UniqueSolvedStatsResponse:
     count = await get_unique_solved_count(userId)
     return UniqueSolvedStatsResponse(completedProblems=count)
 
 
 @router.get("/activities", response_model=List[ActivityItem])
 async def get_user_activities(
-    userId: int = Query(...),
+    userId: Optional[int] = Query(None),
     period: int = Query(..., ge=1),
 ) -> List[ActivityItem]:
     items = await get_activities(user_id=userId, period_days=period)
@@ -38,7 +38,7 @@ async def get_user_activities(
 
 @router.get("/solved-problems", response_model=List[int])
 async def get_solved_problems(
-    userId: int = Query(...),
+    userId: Optional[int] = Query(None),
     problemIds: str = Query(""),
 ) -> List[int]:
     raw = [p.strip() for p in (problemIds or "").split(",") if p.strip()]

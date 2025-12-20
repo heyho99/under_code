@@ -22,7 +22,7 @@ async def create_quiz_set_from_generated(
     return QuizSetGenerateResponse(quizSetId=quiz_set_id, totalProblems=total_problems)
 
 
-async def list_quiz_sets(user_id: int) -> List[QuizSetSummary]:
+async def list_quiz_sets(user_id: Optional[int]) -> List[QuizSetSummary]:
     rows = await quiz_set_repository.list_quiz_sets_by_user(user_id)
     return [
         QuizSetSummary(
