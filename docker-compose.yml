@@ -44,24 +44,28 @@ services:
       - TUTOR_SERVICE_URL=http://tutor-service:80
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80", "--reload"]
 
-#   # =========================================
-#   # Microservices (Domain)
-#   # =========================================
+  # =========================================
+  # Microservices (Domain)
+  # =========================================
   
-#   # User Service (Host: 8082 -> Container: 80)
-#   user-service:
-#     build:
-#       context: ./user-service
-#       dockerfile: Dockerfile.dev
-#     volumes:
-#       - ./user-service:/app
-#     ports:
-#       - "8082:80"
-#     environment:
-#       - DATABASE_URL=postgresql://user:password@user-db:5432/user_db
-#     depends_on:
-#       - user-db
-#     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80", "--reload"]
+  # User Service (Host: 8082 -> Container: 80)
+  user-service:
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./user-service:/app
+    ports:
+      - "8082:80"
+    environment:
+      - DATABASE_URL=postgresql://user:password@user-db:5432/user_db
+      - SECRET_KEY=TEST_SECRET_KEY
+      - ALGORITHM=HS256
+    depends_on:
+      user-db:
+        condition: service_healthy
+    restart: unless-stopped
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80", "--reload"]
 
   # Quiz Service (Host: 8083 -> Container: 80)
   quiz-service:
@@ -189,6 +193,25 @@ services:
       retries: 20
       start_period: 5s
 
+  # User DB (Host: 5501 -> Container: 5432)
+  user-db:
+    image: postgres:15-alpine
+    volumes:
+      - user_db_data:/var/lib/postgresql/data
+      - ./user-service/migrations:/docker-entrypoint-initdb.d
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=user_db
+    ports:
+      - "5501:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d user_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 5s
+
   # Progress DB (Host: 5503 -> Container: 5432)
   progress-db:
     image: postgres:15-alpine
@@ -209,5 +232,6 @@ services:
       start_period: 5s
 
 volumes:
+  user_db_data:
   quiz_db_data:
   progress_db_data:
