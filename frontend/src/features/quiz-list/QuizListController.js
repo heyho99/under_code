@@ -3,6 +3,28 @@ import { navigate } from "../../router/router.js";
 import { updateHeader, activateSection } from "../../ui/MainHeader.js";
 import { quizSetsApi } from "../../core/api/quizSetsApi.js";
 
+const LANGUAGE_DISPLAY = {
+  python3: { icon: "code", label: "Python", color: "#3776ab" },
+  javascript: { icon: "javascript", label: "JavaScript", color: "#f7df1e" },
+  go: { icon: "code", label: "Go", color: "#00add8" },
+};
+
+function buildLanguageBadges(languageCounts) {
+  if (!languageCounts || Object.keys(languageCounts).length === 0) {
+    return '';
+  }
+  const badges = Object.entries(languageCounts)
+    .map(([lang, count]) => {
+      const info = LANGUAGE_DISPLAY[lang] || { icon: "code", label: lang, color: "#6b7280" };
+      return `<span class="quiz-set-lang-badge" style="--lang-color: ${info.color}">
+        <span class="material-symbols-outlined">${info.icon}</span>
+        ${info.label} ${count}
+      </span>`;
+    })
+    .join('');
+  return `<div class="quiz-set-lang-badges">${badges}</div>`;
+}
+
 export const QuizListController = {
   async mount() {
     const root = QuizListView.getRoot();
@@ -41,6 +63,8 @@ export const QuizListController = {
               ? Math.round((completed / total) * 100)
               : 0;
 
+          const langBadgesHtml = buildLanguageBadges(quizSet.languageCounts);
+
           li.innerHTML = `
             <div class="list__row quiz-set-item__row">
               <div class="list__primary">
@@ -51,9 +75,8 @@ export const QuizListController = {
                 <button class="primary-btn js-open-quiz-set">クイズを選ぶ</button>
               </div>
             </div>
+            ${langBadgesHtml}
             <div class="quiz-set-item__meta">
-              <span class="js-quiz-set-last-tried"></span>
-              <span class="quiz-set-item__meta-separator">・</span>
               <span class="js-quiz-set-progress"></span>
             </div>
             <div class="progress">
@@ -70,11 +93,6 @@ export const QuizListController = {
           const metaEl = li.querySelector(".list__meta");
           if (metaEl) {
             metaEl.textContent = quizSet.description || "";
-          }
-
-          const lastTriedEl = li.querySelector(".js-quiz-set-last-tried");
-          if (lastTriedEl) {
-            lastTriedEl.textContent = "前回挑戦: -";
           }
 
           const progressTextEl = li.querySelector(".js-quiz-set-progress");

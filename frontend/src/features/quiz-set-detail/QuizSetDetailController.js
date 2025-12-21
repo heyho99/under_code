@@ -3,6 +3,12 @@ import { navigate } from "../../router/router.js";
 import { updateHeader, activateSection } from "../../ui/MainHeader.js";
 import { quizSetsApi } from "../../core/api/quizSetsApi.js";
 
+const LANGUAGE_DISPLAY = {
+  python3: { icon: "code", label: "Python", color: "#3776ab" },
+  javascript: { icon: "javascript", label: "JavaScript", color: "#f7df1e" },
+  go: { icon: "code", label: "Go", color: "#00add8" },
+};
+
 function getSelectedQuizSetId() {
   try {
     if (typeof window !== "undefined" && window.sessionStorage) {
@@ -71,12 +77,22 @@ export const QuizSetDetailController = {
               );
 
               const isSolved = Boolean(problem.isSolved);
+              const lang = problem.defaultLanguage || "python3";
+              const langInfo = LANGUAGE_DISPLAY[lang] || LANGUAGE_DISPLAY.python3;
 
               article.innerHTML = `
                 <div class="quiz-grid__icon">Q${index + 1}</div>
                 <div class="quiz-grid__body">
                   <h3 class="quiz-grid__title"></h3>
-                  <p class="quiz-grid__meta"></p>
+                  <div class="quiz-grid__meta-row">
+                    <span class="quiz-grid__lang-badge" style="--lang-color: ${langInfo.color}">
+                      <span class="material-symbols-outlined">${langInfo.icon}</span>
+                      ${langInfo.label}
+                    </span>
+                    <span class="quiz-grid__status ${isSolved ? 'quiz-grid__status--solved' : ''}">
+                      ${isSolved ? "完了済み" : "未完了"}
+                    </span>
+                  </div>
                 </div>
                 <div class="quiz-grid__actions">
                   <button class="primary-btn${
@@ -91,11 +107,6 @@ export const QuizSetDetailController = {
               if (titleEl) {
                 titleEl.textContent =
                   problem.title || `問題 #${problem.problemId}`;
-              }
-
-              const metaEl = article.querySelector(".quiz-grid__meta");
-              if (metaEl) {
-                metaEl.textContent = isSolved ? "完了済み" : "未完了";
               }
 
               gridEl.appendChild(article);

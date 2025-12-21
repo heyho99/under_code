@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import Dict, List, Optional
 from .problems import ProblemSummary
 
 class QuizSetSummary(BaseModel):
@@ -9,6 +9,7 @@ class QuizSetSummary(BaseModel):
     total: int = 0
     completed: int = 0
     progressRate: float = 0.0
+    languageCounts: Dict[str, int] = {}
 
 class QuizSetDetail(BaseModel):
     quizSetId: int

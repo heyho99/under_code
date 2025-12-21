@@ -67,16 +67,23 @@ async def get_quiz_sets(user_id: int = Depends(get_current_user_id)):
             continue
 
         detail = detail_by_id.get(int(quiz_set_id)) or {}
-        problem_ids = [p.get("problemId") for p in (detail.get("problems") or []) if isinstance(p.get("problemId"), int)]
+        problems_list = detail.get("problems") or []
+        problem_ids = [p.get("problemId") for p in problems_list if isinstance(p.get("problemId"), int)]
         total = len(problem_ids)
         completed = sum(1 for pid in problem_ids if pid in solved_set)
         progress_rate = float((completed / total) * 100) if total > 0 else 0.0
+
+        language_counts: Dict[str, int] = {}
+        for p in problems_list:
+            lang = p.get("defaultLanguage", "python3")
+            language_counts[lang] = language_counts.get(lang, 0) + 1
 
         results.append(
             QuizSetSummary(
                 total=total,
                 completed=completed,
                 progressRate=progress_rate,
+                languageCounts=language_counts,
                 **qs,
             )
         )
