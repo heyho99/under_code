@@ -1,4 +1,4 @@
-const CHARS_PER_QUESTION = 500;
+const CHARS_PER_QUESTION = 1000;
 
 const EXTENSION_TO_LANGUAGE = {
   ".py": "python3",
