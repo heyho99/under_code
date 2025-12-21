@@ -295,6 +295,9 @@
 - POST `/api/v1/quiz-creation/generate`
     - **Frontend to BFF**
 
+      - files は複数指定でき、各ファイルは `defaultLanguage` を持つ（Paiza.io の language 値に準拠）
+      - リクエストボディ直下の `defaultLanguage` は後方互換のためのフォールバック（files 内に `defaultLanguage` が無い場合に使用）
+
       ```json
       {
         "description": "クイズ生成・保存リクエスト（フロント→BFF）",
@@ -303,9 +306,11 @@
         "body": {
           "title": "React基礎クイズ",
           "description": "React の props / state / コンポーネント分割の基礎を確認するクイズセットです。",
+          "defaultLanguage": "javascript",
           "files": [
             {
               "fileName": "src/App.jsx",
+              "defaultLanguage": "javascript",
               "content": "// source file content 1",
               "problemCounts": {
                 "syntax": 2
@@ -313,6 +318,7 @@
             },
             {
               "fileName": "src/index.jsx",
+              "defaultLanguage": "javascript",
               "content": "// source file content 2",
               "problemCounts": {
                 "syntax": 1
@@ -336,7 +342,7 @@
     
         ```markdown
         1. BFFがリクエストボディの `files` から対象ソースコード群と出題数(problemCounts.syntax など)を読み取る
-        2. BFFが Generator Service に files: [{fileName, content, problemCounts:{...}}, ...] を渡し、問題(problems)を生成させる
+        2. BFFが Generator Service に files: [{fileName, defaultLanguage, content, problemCounts:{...}}, ...] を渡し、ファイル単位で問題(problems)を生成させる
         3. BFFが Quiz Service に {userId, title, description, problems} を渡し、Quiz Set / Problems をDBに保存する
         ```
 
@@ -346,14 +352,17 @@
           "request": "POST /generator/generate",
           "header": "Content-Type: application/json",
           "body": {
+            "defaultLanguage": "javascript",
             "files": [
               {
                 "fileName": "src/App.jsx",
+                "defaultLanguage": "javascript",
                 "content": "// source file content 1",
                 "problemCounts": { "syntax": 2 }
               },
               {
                 "fileName": "src/utils.js",
+                "defaultLanguage": "javascript",
                 "content": "// source file content 2",
                 "problemCounts": { "syntax": 1 }
               }
@@ -367,6 +376,7 @@
                   "title": "...",
                   "statement": "...",
                   "sysinFormat": "{\"a\": number, \"b\": [number, number], \"s\": string}",
+                  "defaultLanguage": "javascript",
                   "sampleAnswer": "...",
                   "testcases": [
                     { "sysin": { "a": 1, "b": [2, 3], "s": "hello" }, "expected": 4 },
@@ -393,6 +403,7 @@
                 "title": "...",
                 "statement": "...",
                 "sysinFormat": "{\"a\": number, \"b\": [number, number], \"s\": string}",
+                "defaultLanguage": "javascript",
                 "sampleAnswer": "...",
                 "testcases": [
                   { "sysin": { "a": 1, "b": [2, 3], "s": "hello" }, "expected": 4 },

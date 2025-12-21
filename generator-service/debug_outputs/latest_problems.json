@@ -1,276 +1,217 @@
 {
   "problems": [
     {
-      "title": "コマンド文字列から <code>-f</code> オプションの値を抽出",
+      "title": "文字列をスペース区切りで分割する",
       "category": "syntax",
-      "statement": "<p><code>sysin</code> は文字列で、<code>docker compose</code> コマンド全体が入っています。</p>\n<p><code>strings.Fields</code> 相当の処理で空白区切りに分割し、配列を左から順に走査して、要素が <code>\"-f\"</code> であり、かつ次の要素が存在する場合に、その次の要素（ファイルパス）を結果の配列に追加する処理を実装してください。</p>\n<p>最終的に、すべての <code>-f</code> の直後に現れた値だけを配列として JSON 出力してください。1つも見つからなければ空配列を出力します。</p>\n<p>入力: 実行時に文字列 <code>sysin</code> が与えられること（stdin の JSON を読み込んで <code>sysin</code> に入れる）。</p>\n<p>処理: 上記のロジックを Go で再現し、<code>result</code> に文字列配列として代入してください。</p>",
+      "statement": "<p><code>sysin</code> は1つの文字列です。この文字列を、Go の <code>strings.Fields</code> を使うのと同じルールで空白区切りし、結果の文字列スライスを JSON 配列として出力してください。</p>\n<p>具体的には、連続する空白文字は1つの区切りとして扱い、先頭や末尾の空白は無視して分割結果には含めません。</p>",
       "sysinFormat": "string",
       "defaultLanguage": "go",
-      "sampleAnswer": "package main\n\nimport (\n\t\"encoding/json\"\n\t\"fmt\"\n\t\"io\"\n\t\"os\"\n\t\"strings\"\n)\n\nfunc main() {\n\tvar sysin string\n\tb, err := io.ReadAll(os.Stdin)\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\tif err := json.Unmarshal(b, &sysin); err != nil {\n\t\tpanic(err)\n\t}\n\n\tcmdArgs := strings.Fields(sysin)\n\tvar result []string\n\tfor i := 0; i < len(cmdArgs); i++ {\n\t\tif cmdArgs[i] == \"-f\" && i+1 < len(cmdArgs) {\n\t\t\tresult = append(result, cmdArgs[i+1])\n\t\t}\n\t}\n\tif result == nil {\n\t\tresult = []string{}\n\t}\n\n\tout, err := json.Marshal(result)\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\tfmt.Println(string(out))\n}\n",
+      "sampleAnswer": "package main\n\nimport (\n\t\"encoding/json\"\n\t\"fmt\"\n\t\"io\"\n\t\"os\"\n\t\"strings\"\n)\n\nfunc main() {\n\tvar sysin interface{}\n\tb, err := io.ReadAll(os.Stdin)\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\tif err := json.Unmarshal(b, &sysin); err != nil {\n\t\tpanic(err)\n\t}\n\n\tinputStr := \"\"\n\tif sysin != nil {\n\t\tinputStr = sysin.(string)\n\t}\n\n\tfields := strings.Fields(inputStr)\n\tvar result interface{} = fields\n\n\tout, err := json.Marshal(result)\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\tfmt.Println(string(out))\n}\n",
       "testcases": [
         {
-          "sysin": "docker compose -f a.yml up",
-          "expected": [
-            "a.yml"
-          ]
-        },
-        {
-          "sysin": "docker compose up",
-          "expected": []
-        },
-        {
-          "sysin": "docker compose -f a.yml -f b.yaml run",
-          "expected": [
-            "a.yml",
-            "b.yaml"
-          ]
-        }
-      ]
-    },
-    {
-      "title": "複数の <code>-f</code> オプション有無による分岐",
-      "category": "syntax",
-      "statement": "<p><code>sysin</code> は文字列で、<code>docker compose</code> コマンド全体が入っています。</p>\n<p>コマンドを空白で分割し、1問目と同様に <code>-f</code> の直後の引数をすべて配列に集めてください。1つ以上見つかった場合は、その配列を結果として出力し、1つも見つからなかった場合は空配列を出力してください。</p>\n<p>入力: 実行時に文字列 <code>sysin</code> が与えられること。</p>\n<p>処理: <code>haveMultipleComposeFiles</code> のようなブール変数を用いて、「<code>-f</code> が1つ以上あるかどうか」を判定し、上記のように結果を分岐させるロジックを Go で再現してください。</p>",
-      "sysinFormat": "string",
-      "defaultLanguage": "go",
-      "sampleAnswer": "package main\n\nimport (\n\t\"encoding/json\"\n\t\"fmt\"\n\t\"io\"\n\t\"os\"\n\t\"strings\"\n)\n\nfunc main() {\n\tvar sysin string\n\tb, err := io.ReadAll(os.Stdin)\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\tif err := json.Unmarshal(b, &sysin); err != nil {\n\t\tpanic(err)\n\t}\n\n\tcmdArgs := strings.Fields(sysin)\n\tcomposePaths := []string{}\n\thaveMultipleComposeFiles := false\n\n\tfor i := 0; i < len(cmdArgs); i++ {\n\t\tif cmdArgs[i] == \"-f\" && i+1 < len(cmdArgs) {\n\t\t\tcomposePaths = append(composePaths, cmdArgs[i+1])\n\t\t\thaveMultipleComposeFiles = true\n\t\t}\n\t}\n\n\tvar result []string\n\tif haveMultipleComposeFiles {\n\t\tresult = composePaths\n\t} else {\n\t\tresult = []string{}\n\t}\n\n\tout, err := json.Marshal(result)\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\tfmt.Println(string(out))\n}\n",
-      "testcases": [
-        {
-          "sysin": "docker compose -f a.yml up",
-          "expected": [
-            "a.yml"
-          ]
-        },
-        {
-          "sysin": "docker compose up service",
-          "expected": []
-        },
-        {
-          "sysin": "docker compose -f a.yml -f b.yml ps",
-          "expected": [
-            "a.yml",
-            "b.yml"
-          ]
-        }
-      ]
-    },
-    {
-      "title": "ファイル一覧から最初に存在するファイル名を返す",
-      "category": "syntax",
-      "statement": "<p><code>sysin</code> は文字列配列で、存在チェックしたいファイル名の候補リストです。</p>\n<p>左から順に <code>os.Stat</code> 相当で存在チェックを行い、エラーが「存在しない（<code>os.IsNotExist</code> が true）」でない最初のファイル名だけを要素にもつ配列を結果として出力してください。どのファイルも存在しない場合は空配列を出力します。</p>\n<p>入力: 実行時に文字列配列 <code>sysin</code> が与えられること。</p>\n<p>処理: Goで <code>for _, filename := range sysin</code> のようにループし、<code>os.Stat</code> と <code>os.IsNotExist</code> を使って上記ロジックを実装し、結果を <code>result</code> に代入してください。</p>",
-      "sysinFormat": "[string, string, ...]",
-      "defaultLanguage": "go",
-      "sampleAnswer": "package main\n\nimport (\n\t\"encoding/json\"\n\t\"fmt\"\n\t\"io\"\n\t\"os\"\n)\n\nfunc main() {\n\tvar sysin []string\n\tb, err := io.ReadAll(os.Stdin)\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\tif err := json.Unmarshal(b, &sysin); err != nil {\n\t\tpanic(err)\n\t}\n\n\tvar result []string\n\tfor _, filename := range sysin {\n\t\tif _, err := os.Stat(filename); !os.IsNotExist(err) {\n\t\t\tresult = []string{filename}\n\t\t\tbreak\n\t\t}\n\t}\n\tif result == nil {\n\t\tresult = []string{}\n\t}\n\n\tout, err := json.Marshal(result)\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\tfmt.Println(string(out))\n}\n",
-      "testcases": [
-        {
-          "sysin": [
-            "go.mod",
-            "not_exists.txt"
-          ],
-          "expected": [
-            "go.mod"
-          ]
-        },
-        {
-          "sysin": [
-            "not_exists_1",
-            "not_exists_2"
-          ],
-          "expected": []
-        },
-        {
-          "sysin": [],
-          "expected": []
-        }
-      ]
-    },
-    {
-      "title": "文字列に特定のサブ文字列が含まれるか判定",
-      "category": "syntax",
-      "statement": "<p><code>sysin</code> は文字列で、あるコマンド全体が入っています。</p>\n<p>この文字列に <code>\"--abort-on-container-exit\"</code> または <code>\"--exit-code-from\"</code> のどちらか一方でも含まれていれば <code>true</code>、どちらも含まれていなければ <code>false</code> を出力してください。</p>\n<p><code>strings.Contains</code> を2回呼び出し、論理演算子 <code>||</code> を用いた条件分岐を Go で再現してください。</p>\n<p>入力: 実行時に文字列 <code>sysin</code> が与えられること。</p>\n<p>処理: 上記条件の真偽値を <code>result</code> として JSON 出力してください。</p>",
-      "sysinFormat": "string",
-      "defaultLanguage": "go",
-      "sampleAnswer": "package main\n\nimport (\n\t\"encoding/json\"\n\t\"fmt\"\n\t\"io\"\n\t\"os\"\n\t\"strings\"\n)\n\nfunc main() {\n\tvar sysin string\n\tb, err := io.ReadAll(os.Stdin)\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\tif err := json.Unmarshal(b, &sysin); err != nil {\n\t\tpanic(err)\n\t}\n\n\thasAbort := strings.Contains(sysin, \"--abort-on-container-exit\")\n\thasExitCodeFrom := strings.Contains(sysin, \"--exit-code-from\")\n\tresult := hasAbort || hasExitCodeFrom\n\n\tout, err := json.Marshal(result)\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\tfmt.Println(string(out))\n}\n",
-      "testcases": [
-        {
-          "sysin": "docker compose up --abort-on-container-exit",
-          "expected": true
-        },
-        {
-          "sysin": "docker compose up --exit-code-from web",
-          "expected": true
-        },
-        {
-          "sysin": "docker compose up -d",
-          "expected": false
-        }
-      ]
-    },
-    {
-      "title": "文字列配列の特定位置に要素を挿入",
-      "category": "syntax",
-      "statement": "<p><code>sysin</code> は <code>{\"parts\": [string,...], \"args\": [string,...], \"index\": number}</code> という形式のオブジェクトです。</p>\n<ul>\n<li><code>parts</code>: 既存のコマンドを表す文字列配列</li>\n<li><code>args</code>: 挿入したい追加引数の文字列配列</li>\n<li><code>index</code>: <code>parts</code> のこのインデックスの直後に <code>args</code> を挿入する（0始まり）</li>\n</ul>\n<p>Go の <code>make</code> と <code>append</code> を使って、新しいスライス <code>newParts</code> を以下の順に作成してください。</p>\n<ol>\n<li><code>parts</code> の先頭から <code>index</code> まで（<code>index</code> を含む）</li>\n<li><code>args</code> の全要素</li>\n<li><code>parts</code> の <code>index+1</code> から末尾まで</li>\n</ol>\n<p>結果のスライスを JSON 配列として出力してください。</p>\n<p>入力: 実行時にオブジェクト <code>sysin</code> が与えられること。</p>\n<p>処理: 上記ロジックを Go のスライス操作で再現し、<code>result</code> に文字列配列として代入してください。</p>",
-      "sysinFormat": "{\"parts\": [string, ...], \"args\": [string, ...], \"index\": number}",
-      "defaultLanguage": "go",
-      "sampleAnswer": "package main\n\nimport (\n\t\"encoding/json\"\n\t\"fmt\"\n\t\"io\"\n\t\"os\"\n)\n\ntype Input struct {\n\tParts []string  `json:\"parts\"`\n\tArgs  []string  `json:\"args\"`\n\tIndex float64   `json:\"index\"`\n}\n\nfunc main() {\n\tvar sysin Input\n\tb, err := io.ReadAll(os.Stdin)\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\tif err := json.Unmarshal(b, &sysin); err != nil {\n\t\tpanic(err)\n\t}\n\n\tparts := sysin.Parts\n\targs := sysin.Args\n\ti := int(sysin.Index)\n\n\tif i < 0 {\n\t\ti = 0\n\t}\n\tif i >= len(parts) {\n\t\ti = len(parts) - 1\n\t}\n\n\tnewParts := make([]string, 0, len(parts)+len(args))\n\tnewParts = append(newParts, parts[:i+1]...)\n\tnewParts = append(newParts, args...)\n\tnewParts = append(newParts, parts[i+1:]...)\n\n\tresult := newParts\n\n\tout, err := json.Marshal(result)\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\tfmt.Println(string(out))\n}\n",
-      "testcases": [
-        {
-          "sysin": {
-            "parts": [
-              "docker",
-              "compose",
-              "up"
-            ],
-            "args": [
-              "--abort-on-container-exit"
-            ],
-            "index": 2
-          },
+          "sysin": "docker compose -f docker-compose.yml up",
           "expected": [
             "docker",
             "compose",
-            "up",
-            "--abort-on-container-exit"
-          ]
-        },
-        {
-          "sysin": {
-            "parts": [
-              "docker",
-              "compose",
-              "up"
-            ],
-            "args": [
-              "--a",
-              "--b"
-            ],
-            "index": 1
-          },
-          "expected": [
-            "docker",
-            "compose",
-            "--a",
-            "--b",
+            "-f",
+            "docker-compose.yml",
             "up"
           ]
         },
         {
-          "sysin": {
-            "parts": [
-              "up"
-            ],
-            "args": [
-              "--x"
-            ],
-            "index": 0
-          },
+          "sysin": "  a   b c  ",
           "expected": [
-            "up",
-            "--x"
+            "a",
+            "b",
+            "c"
+          ]
+        },
+        {
+          "sysin": "",
+          "expected": []
+        }
+      ]
+    },
+    {
+      "title": "コマンド引数から <code>-f</code> オプションの値を抽出する",
+      "category": "syntax",
+      "statement": "<p><code>sysin</code> は1つの文字列で、シェルコマンド全体を表します。これを <code>strings.Fields</code> と同じルールで分割したうえで、配列を先頭から走査し、要素が <code>\"-f\"</code> であり、かつその直後に要素が存在するとき、その「直後の要素」を結果配列に追加してください。</p>\n<p>すべての要素を走査し終えたら、集めた文字列の配列を JSON として出力してください。</p>",
+      "sysinFormat": "string",
+      "defaultLanguage": "go",
+      "sampleAnswer": "package main\n\nimport (\n\t\"encoding/json\"\n\t\"fmt\"\n\t\"io\"\n\t\"os\"\n\t\"strings\"\n)\n\nfunc main() {\n\tvar sysin interface{}\n\tb, err := io.ReadAll(os.Stdin)\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\tif err := json.Unmarshal(b, &sysin); err != nil {\n\t\tpanic(err)\n\t}\n\n\tcmd := \"\"\n\tif sysin != nil {\n\t\tcmd = sysin.(string)\n\t}\n\n\tcmdArgs := strings.Fields(cmd)\n\tcomposePaths := []string{}\n\tfor i := 0; i < len(cmdArgs); i++ {\n\t\tif cmdArgs[i] == \"-f\" && i+1 < len(cmdArgs) {\n\t\t\tcomposePaths = append(composePaths, cmdArgs[i+1])\n\t\t}\n\t}\n\n\tvar result interface{} = composePaths\n\n\tout, err := json.Marshal(result)\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\tfmt.Println(string(out))\n}\n",
+      "testcases": [
+        {
+          "sysin": "docker compose -f a.yml up",
+          "expected": [
+            "a.yml"
+          ]
+        },
+        {
+          "sysin": "docker compose -f a.yml -f b.yml run",
+          "expected": [
+            "a.yml",
+            "b.yml"
+          ]
+        },
+        {
+          "sysin": "docker compose up -f",
+          "expected": []
+        }
+      ]
+    },
+    {
+      "title": "for文とタプルのアンパッキング",
+      "category": "syntax",
+      "statement": "<p><code>sysin</code> は <code>[[beat, bpm], [beat, bpm], ...]</code> という形式の2要素リストのリストです。各要素を <code>for beat, bpm in ...</code> という形で走査し、<code>beat</code> の値だけを順番に取り出して新しいリストを作り、そのリストを JSON として出力してください。</p>\n<p>入力: 実行時に変数 <code>sysin</code> が与えられること（stdin の JSON を読み込んで <code>sysin</code> に入れる）</p>\n<p>処理: <code>sysin</code> をループし、各 [beat, bpm] から beat のみを取り出してリストにし、最後にそのリストを <code>result</code> に代入して出力してください。</p>",
+      "sysinFormat": "<code>[[number, number], [number, number], ...]</code>",
+      "defaultLanguage": "python3",
+      "sampleAnswer": "import sys\nimport json\n\nsysin = json.loads(sys.stdin.read() or \"null\")\n\nbeats = []\nfor beat, bpm in sysin:\n    beats.append(beat)\n\nresult = beats\n\nprint(json.dumps(result, ensure_ascii=False))\n",
+      "testcases": [
+        {
+          "sysin": [
+            [
+              0.0,
+              120.0
+            ],
+            [
+              1.0,
+              150.0
+            ]
+          ],
+          "expected": [
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "sysin": [],
+          "expected": []
+        },
+        {
+          "sysin": [
+            [
+              0,
+              60
+            ],
+            [
+              4,
+              90
+            ],
+            [
+              8,
+              120
+            ]
+          ],
+          "expected": [
+            0,
+            4,
+            8
           ]
         }
       ]
     },
     {
-      "title": "コマンド文字列から <code>up</code> の位置を探してフラグを挿入",
+      "title": "辞書への条件付き加算と代入",
       "category": "syntax",
-      "statement": "<p><code>sysin</code> は <code>{\"cmd\": string, \"service\": string}</code> 形式のオブジェクトです。</p>\n<ul>\n<li><code>cmd</code>: 元の <code>docker compose</code> コマンド（空白区切り）</li>\n<li><code>service</code>: サービス名。空文字列なら無視する</li>\n</ul>\n<p>処理は次の通りです。</p>\n<ol>\n<li><code>strings.Fields</code> で <code>cmd</code> を分割して <code>parts</code> を得る。</li>\n<li><code>args := []string{\"--abort-on-container-exit\"}</code> を作り、<code>service</code> が空でなければ <code>args</code> に <code>\"--exit-code-from\"</code>, <code>service</code> を順に <code>append</code> する。</li>\n<li><code>parts</code> を先頭から走査し、要素が <code>\"up\"</code> である最初の位置の直後に <code>args</code> を挿入する（5問目と同様の挿入方法）。</li>\n<li><code>up</code> が1つも見つからなければ、元の <code>cmd</code> をそのまま結果とする。</li>\n<li>最終的なコマンドを、空白区切りで連結した文字列として出力する。</li>\n</ol>\n<p>入力: 実行時にオブジェクト <code>sysin</code> が与えられること。</p>\n<p>処理: 上記ロジックを Go で実装し、<code>result</code> に文字列として代入してください。</p>",
-      "sysinFormat": "{\"cmd\": string, \"service\": string}",
-      "defaultLanguage": "go",
-      "sampleAnswer": "package main\n\nimport (\n\t\"encoding/json\"\n\t\"fmt\"\n\t\"io\"\n\t\"os\"\n\t\"strings\"\n)\n\ntype Input struct {\n\tCmd     string `json:\"cmd\"`\n\tService string `json:\"service\"`\n}\n\nfunc main() {\n\tvar sysin Input\n\tb, err := io.ReadAll(os.Stdin)\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\tif err := json.Unmarshal(b, &sysin); err != nil {\n\t\tpanic(err)\n\t}\n\n\tappCmd := sysin.Cmd\n\tserviceName := sysin.Service\n\n\targs := []string{\"--abort-on-container-exit\"}\n\tif serviceName != \"\" {\n\t\targs = append(args, \"--exit-code-from\", serviceName)\n\t}\n\n\tparts := strings.Fields(appCmd)\n\tinserted := false\n\tfor i, p := range parts {\n\t\tif p == \"up\" {\n\t\t\tnewParts := make([]string, 0, len(parts)+len(args))\n\t\t\tnewParts = append(newParts, parts[:i+1]...)\n\t\t\tnewParts = append(newParts, args...)\n\t\t\tnewParts = append(newParts, parts[i+1:]...)\n\t\t\tparts = newParts\n\t\t\tinserted = true\n\t\t\tbreak\n\t\t}\n\t}\n\n\tvar result string\n\tif inserted {\n\t\tresult = strings.Join(parts, \" \")\n\t} else {\n\t\tresult = appCmd\n\t}\n\n\tout, err := json.Marshal(result)\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\tfmt.Println(string(out))\n}\n",
+      "statement": "<p><code>sysin</code> は <code>[[beat, stop], [beat, stop], ...]</code> という形式の2要素リストのリストです。次のようなロジックを再現してください。</p>\n<ul>\n<li>空の辞書 <code>stops</code> を用意する</li>\n<li>各 [beat, stop] について、もし beat が <code>stops</code> にすでにキーとして存在するなら、その値に stop を加算する</li>\n<li>その後、<code>stops[beat]</code> に stop を代入する</li>\n</ul>\n<p>結果として得られる <code>stops</code> を JSON オブジェクトとして出力してください。</p>\n<p>入力: 実行時に変数 <code>sysin</code> が与えられること（stdin の JSON を読み込んで <code>sysin</code> に入れる）</p>\n<p>処理: 上記ロジックに従って辞書を構築し、最後の <code>stops</code> を <code>result</code> に代入して出力してください。</p>",
+      "sysinFormat": "<code>[[number, number], [number, number], ...]</code>",
+      "defaultLanguage": "python3",
+      "sampleAnswer": "import sys\nimport json\n\nsysin = json.loads(sys.stdin.read() or \"null\")\n\nstops = {}\nfor beat, stop in sysin:\n    if beat in stops:\n        stops[beat] += stop\n    stops[beat] = stop\n\nresult = stops\n\nprint(json.dumps(result, ensure_ascii=False))\n",
       "testcases": [
         {
-          "sysin": {
-            "cmd": "docker compose up",
-            "service": ""
-          },
-          "expected": "docker compose up --abort-on-container-exit"
+          "sysin": [
+            [
+              1.0,
+              0.5
+            ]
+          ],
+          "expected": {
+            "1.0": 0.5
+          }
         },
         {
-          "sysin": {
-            "cmd": "docker compose up web",
-            "service": "web"
-          },
-          "expected": "docker compose up --abort-on-container-exit --exit-code-from web web"
+          "sysin": [
+            [
+              2,
+              1
+            ],
+            [
+              2,
+              3
+            ]
+          ],
+          "expected": {
+            "2": 3
+          }
         },
         {
-          "sysin": {
-            "cmd": "docker compose run web",
-            "service": "web"
-          },
-          "expected": "docker compose run web"
+          "sysin": [
+            [
+              1,
+              1
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              1,
+              3
+            ]
+          ],
+          "expected": {
+            "1": 3
+          }
         }
       ]
     },
     {
-      "title": "環境変数でモックモードを切り替え",
+      "title": "リスト内包表記による要素変換",
       "category": "syntax",
-      "statement": "<p><code>sysin</code> は <code>{\"env\": string}</code> 形式のオブジェクトで、<code>env</code> は環境変数 <code>GENERATOR_MOCK</code> の値を表します。</p>\n<p>次のような処理を実装してください。</p>\n<ul>\n<li><code>env == \"1\"</code> の場合は、固定の文字列 <code>\"MOCK\"</code> を結果とする。</li>\n<li>それ以外の場合は、固定の文字列 <code>\"CALL_LLM\"</code> を結果とする。</li>\n</ul>\n<p>これは <code>if os.Getenv(\"GENERATOR_MOCK\") == \"1\"</code> という条件分岐と同等です。</p>\n<p>入力: 実行時にオブジェクト <code>sysin</code> が与えられること。</p>\n<p>処理: 上記ロジックを Go の <code>if</code> 文で再現し、<code>result</code> に文字列として代入してください。</p>",
-      "sysinFormat": "{\"env\": string}",
-      "defaultLanguage": "go",
-      "sampleAnswer": "package main\n\nimport (\n\t\"encoding/json\"\n\t\"fmt\"\n\t\"io\"\n\t\"os\"\n)\n\ntype Input struct {\n\tEnv string `json:\"env\"`\n}\n\nfunc main() {\n\tvar sysin Input\n\tb, err := io.ReadAll(os.Stdin)\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\tif err := json.Unmarshal(b, &sysin); err != nil {\n\t\tpanic(err)\n\t}\n\n\tvar result string\n\tif sysin.Env == \"1\" {\n\t\tresult = \"MOCK\"\n\t} else {\n\t\tresult = \"CALL_LLM\"\n\t}\n\n\tout, err := json.Marshal(result)\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\tfmt.Println(string(out))\n}\n",
+      "statement": "<p><code>sysin</code> は <code>[[beat, bpm], [beat, bpm], ...]</code> という形式の2要素リストのリストです。このデータから、<code>(beat, bpm / 60.0)</code> に相当する2要素リスト <code>[beat, bpm/60.0]</code> のリストを、リスト内包表記を使って作成し、JSON として出力してください。</p>\n<p>入力: 実行時に変数 <code>sysin</code> が与えられること（stdin の JSON を読み込んで <code>sysin</code> に入れる）</p>\n<p>処理: <code>sysin</code> を走査し、各 [beat, bpm] から [beat, bpm/60.0] を生成するリスト内包表記を使ってリストを作成し、それを <code>result</code> に代入して出力してください。</p>",
+      "sysinFormat": "<code>[[number, number], [number, number], ...]</code>",
+      "defaultLanguage": "python3",
+      "sampleAnswer": "import sys\nimport json\n\nsysin = json.loads(sys.stdin.read() or \"null\")\n\nresult = [[beat, bpm / 60.0] for beat, bpm in sysin]\n\nprint(json.dumps(result, ensure_ascii=False))\n",
       "testcases": [
         {
-          "sysin": {
-            "env": "1"
-          },
-          "expected": "MOCK"
-        },
-        {
-          "sysin": {
-            "env": "0"
-          },
-          "expected": "CALL_LLM"
-        },
-        {
-          "sysin": {
-            "env": ""
-          },
-          "expected": "CALL_LLM"
-        }
-      ]
-    },
-    {
-      "title": "リストから最初のキー名を取り出す",
-      "category": "syntax",
-      "statement": "<p><code>sysin</code> は <code>{\"files\": [object, ...]}</code> 形式のオブジェクトです。</p>\n<p>各 <code>file</code> オブジェクトには任意のキーを持つ <code>problemCounts</code> フィールドが含まれていると仮定します（<code>problemCounts</code> が存在しない、または <code>null</code> の場合もあります）。</p>\n<p>次のような処理を実装してください。</p>\n<ol>\n<li><code>files</code> を先頭から順に走査する。</li>\n<li>各要素について、<code>problemCounts</code> がオブジェクトであれば、そのキー集合から最初の1つ（Go の <code>for k := range m</code> で得られる最初のキー）を取り出し、その文字列を結果とする。</li>\n<li>どの要素でもそのようなキーが見つからなかった場合は、文字列 <code>\"syntax\"</code> を結果とする。</li>\n</ol>\n<p>入力: 実行時にオブジェクト <code>sysin</code> が与えられること。</p>\n<p>処理: 上記ロジックを Go のマップとスライス、型アサーション（<code>map[string]interface{}</code> など）を用いて再現し、<code>result</code> に文字列として代入してください。</p>",
-      "sysinFormat": "{\"files\": [object, ...]}",
-      "defaultLanguage": "go",
-      "sampleAnswer": "package main\n\nimport (\n\t\"encoding/json\"\n\t\"fmt\"\n\t\"io\"\n\t\"os\"\n)\n\nfunc main() {\n\tvar sysin map[string]interface{}\n\tb, err := io.ReadAll(os.Stdin)\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\tif err := json.Unmarshal(b, &sysin); err != nil {\n\t\tpanic(err)\n\t}\n\n\tfilesVal, ok := sysin[\"files\"]\n\tvar result string\n\n\tif ok {\n\t\tif filesSlice, ok := filesVal.([]interface{}); ok {\n\t\t\tfound := false\n\t\t\tfor _, f := range filesSlice {\n\t\t\t\tfm, ok := f.(map[string]interface{})\n\t\t\t\tif !ok {\n\t\t\t\t\tcontinue\n\t\t\t\t}\n\t\t\t\tpcVal, ok := fm[\"problemCounts\"]\n\t\t\t\tif !ok || pcVal == nil {\n\t\t\t\t\tcontinue\n\t\t\t\t}\n\t\t\t\tpcMap, ok := pcVal.(map[string]interface{})\n\t\t\t\tif !ok {\n\t\t\t\t\tcontinue\n\t\t\t\t}\n\t\t\t\tfor k := range pcMap {\n\t\t\t\t\tresult = k\n\t\t\t\t\tfound = true\n\t\t\t\t\tbreak\n\t\t\t\t}\n\t\t\t\tif found {\n\t\t\t\t\tbreak\n\t\t\t\t}\n\t\t\t}\n\t\t\tif !found {\n\t\t\t\tresult = \"syntax\"\n\t\t\t}\n\t\t} else {\n\t\t\tresult = \"syntax\"\n\t\t}\n\t} else {\n\t\tresult = \"syntax\"\n\t}\n\n\tout, err := json.Marshal(result)\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\tfmt.Println(string(out))\n}\n",
-      "testcases": [
-        {
-          "sysin": {
-            "files": [
-              {
-                "problemCounts": {
-                  "syntax": 2,
-                  "io": 1
-                }
-              }
+          "sysin": [
+            [
+              0.0,
+              60.0
             ]
-          },
-          "expected": "syntax"
-        },
-        {
-          "sysin": {
-            "files": [
-              {
-                "problemCounts": null
-              },
-              {
-                "problemCounts": {
-                  "advanced": 3
-                }
-              }
+          ],
+          "expected": [
+            [
+              0.0,
+              1.0
             ]
-          },
-          "expected": "advanced"
+          ]
         },
         {
-          "sysin": {
-            "files": []
-          },
-          "expected": "syntax"
+          "sysin": [
+            [
+              0,
+              120
+            ],
+            [
+              2,
+              90
+            ]
+          ],
+          "expected": [
+            [
+              0,
+              2.0
+            ],
+            [
+              2,
+              1.5
+            ]
+          ]
+        },
+        {
+          "sysin": [],
+          "expected": []
         }
       ]
     }

@@ -84,6 +84,7 @@ export function buildFilesForApi(uploadedFiles) {
     const syntaxCount = calculateQuestionsFromContent(file.content);
     return {
       fileName: file.fileName,
+      defaultLanguage: file.detectedLanguage || "python3",
       content: file.content,
       problemCounts: {
         syntax: syntaxCount,

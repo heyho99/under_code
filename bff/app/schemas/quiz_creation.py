@@ -8,6 +8,7 @@ class ProblemCounts(BaseModel):
 
 class FileWithProblems(BaseModel):
     fileName: str
+    defaultLanguage: Optional[str] = None
     content: str
     problemCounts: ProblemCounts
 

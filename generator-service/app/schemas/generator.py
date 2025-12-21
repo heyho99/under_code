@@ -6,6 +6,7 @@ from pydantic import BaseModel, ConfigDict, Field
 class FileWithProblems(BaseModel):
     model_config = ConfigDict(extra="ignore")
     fileName: str
+    defaultLanguage: Optional[str] = None
     content: str
     problemCounts: Dict[str, int] = Field(default_factory=dict)
 

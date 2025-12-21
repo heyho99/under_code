@@ -45,17 +45,38 @@ def _get_primary_category(request: GenerateRequest) -> str:
 
 
 async def generate(request: GenerateRequest) -> GenerateResponse:
-    category = _get_primary_category(request)
-    default_language = request.defaultLanguage
+    all_problems = []
+    markdowns = []
 
-    prompt = build_generation_prompt(request, category=category)
+    for f in request.files:
+        effective_language = (getattr(f, "defaultLanguage", None) or request.defaultLanguage or "python3")
 
-    if os.getenv("GENERATOR_MOCK") == "1":
-        markdown = _MOCK_STRUCTURED_MD
-    else:
-        markdown = await call_llm(prompt)
+        single_request = GenerateRequest(
+            userId=request.userId,
+            title=request.title,
+            description=request.description,
+            defaultLanguage=effective_language,
+            files=[f],
+        )
 
-    save_raw_llm_response(markdown)
-    problems = parse_structured_markdown(markdown, category=category, default_language=default_language)
-    save_debug_outputs(markdown, problems)
-    return GenerateResponse(problems=problems)
+        category = _get_primary_category(single_request)
+        prompt = build_generation_prompt(single_request, category=category)
+
+        if os.getenv("GENERATOR_MOCK") == "1":
+            markdown = _MOCK_STRUCTURED_MD
+        else:
+            markdown = await call_llm(prompt)
+
+        markdowns.append(markdown)
+
+        try:
+            problems = parse_structured_markdown(markdown, category=category, default_language=effective_language)
+        except StructuredMarkdownParseError as e:
+            raise StructuredMarkdownParseError(f"{f.fileName}: {e}") from e
+
+        all_problems.extend(problems)
+
+    combined_markdown = "\n\n".join(markdowns)
+    save_raw_llm_response(combined_markdown)
+    save_debug_outputs(combined_markdown, all_problems)
+    return GenerateResponse(problems=all_problems)
