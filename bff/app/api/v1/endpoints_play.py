@@ -12,8 +12,20 @@ quiz_client = QuizClient()
 
 
 STARTER_CODE_TEMPLATES = {
-    "python3": 'import sys, json\nsysin = json.loads(sys.stdin.read())\n# ここから下をユーザが書く\nresult = None\nprint(json.dumps(result, ensure_ascii=False))\n',
-    "javascript": 'const fs = require("fs");\nconst sysin = JSON.parse(fs.readFileSync(0, "utf8"));\n// ここから下をユーザが書く\nlet result = null;\nprocess.stdout.write(JSON.stringify(result) + "\\n");\n',
+    "python3": 'import sys, json\n'
+               'sysin = json.loads(sys.stdin.read())  # stdinからJSONを読み取ってsysinへ\n'
+               '\n'
+               '# ここから下をユーザが書く（sysinを使ってresultを作る）\n'
+               'result = None  # TODO: ここに処理結果を入れる\n'
+               '\n'
+               'print(json.dumps(result, ensure_ascii=False))  # JSONとして出力\n',
+    "javascript": 'const fs = require("fs"); // 標準入力(stdin)を読むためのfs\n'
+                  'const sysin = JSON.parse(fs.readFileSync(0, "utf8")); // stdin(JSON) -> sysin\n'
+                  '\n'
+                  '// ここから下をユーザが書く（sysinを使ってresultを作る）\n'
+                  'let result = null; // TODO: ここに処理結果を入れる\n'
+                  '\n'
+                  'process.stdout.write(JSON.stringify(result) + "\\n"); // JSONとして出力\n',
     "go": '''package main
 
 import (
@@ -24,22 +36,22 @@ import (
 )
 
 func main() {
-\tvar sysin interface{}
-\tb, err := io.ReadAll(os.Stdin)
+\tvar sysin interface{} // 入力(JSON)を受け取る変数
+\tb, err := io.ReadAll(os.Stdin) // stdinを全て読む
 \tif err != nil {
 \t\tpanic(err)
 \t}
-\tif err := json.Unmarshal(b, &sysin); err != nil {
+\tif err := json.Unmarshal(b, &sysin); err != nil { // JSONをパースしてsysinへ
 \t\tpanic(err)
 \t}
 
-\t// ここから下をユーザが書く
-\tvar result interface{} = nil
-\tout, err := json.Marshal(result)
+\t// ここから下をユーザが書く（sysinを使ってresultを作る）
+\tvar result interface{} = nil // TODO: ここに処理結果を入れる
+\tout, err := json.Marshal(result) // result -> JSON
 \tif err != nil {
 \t\tpanic(err)
 \t}
-\tfmt.Println(string(out))
+\tfmt.Println(string(out)) // JSONを出力
 }
 ''',
 }
