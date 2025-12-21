@@ -11,11 +11,12 @@
 ・作成時に進行が分かるようなアニメーションをつける　完了
 ・Progress-serviceの設計確認と実装　完了
 ・User-serviceの設計確認と実装　完了
+・adminユーザの作成の検討　完了
 
-・adminユーザの作成の検討
 ・ファイルの複数読み込みがちゃんと動作するか確認
 ・Generatorでコードを作成したら、1問ずつvalidateする
 　・validateする
 　・動作不良があったらLLMにエラー文を渡して再作成してもらう
+・starterCodeを改良しわかりやすくする、resultもわかりやすくする
 ・ts,javaも動くようにする
 ・Google認証の導入
