@@ -1,108 +1,364 @@
 {
   "problems": [
     {
-      "title": "オブジェクトからの値取得とフォールバック",
+      "title": "for文とリストの更新（重複ビートの上書き）",
       "category": "syntax",
-      "statement": "<p><code>sysin</code> は <code>{\"routes\": object, \"hash\": string}</code> の形式です。次の処理を再現してください。</p>\n<p><code>path</code> という変数に <code>hash</code> の値を代入します。ただし <code>hash</code> が空文字列の場合は、代わりに <code>\"#/quiz-creation\"</code> を代入します。その後、<code>routes</code> オブジェクトからキー <code>path</code> に対応する値を取り出し、<code>nextController</code> とします。もし <code>nextController</code> が <code>undefined</code> または <code>null</code> なら、処理を打ち切って <code>null</code> を出力してください。それ以外の場合は、<code>nextController</code> をそのまま出力してください。</p>",
-      "sysinFormat": "{\"routes\": object, \"hash\": string}",
-      "defaultLanguage": "javascript",
-      "sampleAnswer": "const fs = require(\"fs\");\nconst sysin = JSON.parse(fs.readFileSync(0, \"utf8\"));\n\nconst path = sysin.hash || \"#/quiz-creation\";\nconst nextController = sysin.routes[path];\n\nlet result = null;\nif (!nextController) {\n  result = null;\n} else {\n  result = nextController;\n}\n\nprocess.stdout.write(JSON.stringify(result) + \"\\n\");\n",
+      "statement": "<p><code>sysin</code> は <code>[[beat, bpm], ...]</code> 形式の2次元配列です。次の処理を行い、最終的な <code>bpms</code> リストを出力してください。</p>\n<ol>\n<li><code>beat_last</code> を <code>-1.0</code>、<code>bpms</code> を空リストとして初期化する。</li>\n<li><code>sysin</code> の各要素 <code>[beat, bpm]</code> について、順に以下を行う。</li>\n<ul>\n<li><code>beat</code> が <code>beat_last</code> 未満であればエラーとする（この問題ではそのような入力は与えられない）。</li>\n<li><code>beat</code> が <code>beat_last</code> と等しい場合、<code>bpms</code> の最後の要素を <code>(beat, bpm)</code> で上書きする。</li>\n<li>それ以外の場合、<code>bpms</code> に <code>(beat, bpm)</code> を末尾追加する。</li>\n<li>最後に <code>beat_last = beat</code> とする。</li>\n</ul>\n<li>処理後の <code>bpms</code> を JSON 配列として出力する。ただしタプルは配列として表現されるものとし、<code>[[beat, bpm], ...]</code> 形式で出力する。</li>\n</ol>",
+      "sysinFormat": "<code>[[number, number], ...]</code>",
+      "defaultLanguage": "python3",
+      "sampleAnswer": "import sys\nimport json\n\nsysin = json.loads(sys.stdin.read() or \"null\")\n\nbeat_last = -1.0\nbpms = []\nfor beat, bpm in sysin:\n    if beat == beat_last:\n        bpms[-1] = [beat, bpm]\n    else:\n        bpms.append([beat, bpm])\n    beat_last = beat\n\nresult = bpms\n\nprint(json.dumps(result, ensure_ascii=False))\n",
       "testcases": [
         {
-          "sysin": {
-            "routes": {
-              "#/quiz-creation": {
-                "name": "creator"
-              }
-            },
-            "hash": ""
-          },
-          "expected": {
-            "name": "creator"
-          }
+          "sysin": [
+            [
+              0.0,
+              120.0
+            ],
+            [
+              32.0,
+              60.0
+            ],
+            [
+              64.0,
+              120.0
+            ]
+          ],
+          "expected": [
+            [
+              0.0,
+              120.0
+            ],
+            [
+              32.0,
+              60.0
+            ],
+            [
+              64.0,
+              120.0
+            ]
+          ]
         },
         {
-          "sysin": {
-            "routes": {
-              "#/quiz-set-list": {
-                "name": "list"
-              }
-            },
-            "hash": "#/quiz-set-list"
-          },
-          "expected": {
-            "name": "list"
-          }
+          "sysin": [
+            [
+              0.0,
+              100.0
+            ],
+            [
+              0.0,
+              120.0
+            ],
+            [
+              4.0,
+              150.0
+            ]
+          ],
+          "expected": [
+            [
+              0.0,
+              120.0
+            ],
+            [
+              4.0,
+              150.0
+            ]
+          ]
         },
         {
-          "sysin": {
-            "routes": {
-              "#/quiz-set-list": {
-                "name": "list"
-              }
-            },
-            "hash": "#/unknown"
-          },
-          "expected": null
+          "sysin": [],
+          "expected": []
         }
       ]
     },
     {
-      "title": "オブジェクトからの値取得とデフォルト値の利用",
+      "title": "辞書を用いたストップ時間の集約",
       "category": "syntax",
-      "statement": "<p><code>sysin</code> は <code>{\"path\": string}</code> の形式です。次の処理を再現してください。</p>\n<p><code>navMapping</code> というオブジェクトを、問題文中の対象コードと同じ内容（<code>\"#/problem-list\"</code> と <code>\"#/quiz-play\"</code> の2つのキーを持ち、それぞれが <code>\"#/quiz-set-list\"</code> を値に持つ）で定義します。その後、<code>targetPath</code> という変数に <code>navMapping[sysin.path]</code> の値を代入します。ただし、その値が <code>undefined</code> または存在しない場合は、代わりに <code>sysin.path</code> 自身を代入します。最終的に <code>targetPath</code> を出力してください。</p>",
-      "sysinFormat": "{\"path\": string}",
-      "defaultLanguage": "javascript",
-      "sampleAnswer": "const fs = require(\"fs\");\nconst sysin = JSON.parse(fs.readFileSync(0, \"utf8\"));\n\nconst navMapping = {\n  \"#/problem-list\": \"#/quiz-set-list\",\n  \"#/quiz-play\": \"#/quiz-set-list\"\n};\n\nconst targetPath = navMapping[sysin.path] || sysin.path;\n\nconst result = targetPath;\n\nprocess.stdout.write(JSON.stringify(result) + \"\\n\");\n",
+      "statement": "<p><code>sysin</code> は <code>[[beat, stop], ...]</code> 形式の2次元配列です。次の処理を行い、<code>stops</code> 辞書を JSON オブジェクトとして出力してください。</p>\n<ol>\n<li><code>stops</code> を空のオブジェクト（辞書）として初期化する。</li>\n<li><code>sysin</code> の各要素 <code>[beat, stop]</code> について、順に以下を行う。</li>\n<ul>\n<li><code>beat</code> は 0 より大きいと仮定する。</li>\n<li>もし <code>beat</code> が <code>stops</code> に既に存在するなら、<code>stops[beat]</code> に <code>stop</code> を加算する。</li>\n<li>その後、<code>stops[beat] = stop</code> と代入する。</li>\n</ul>\n<li>最終的な <code>stops</code> を、キーを文字列とした JSON オブジェクトとして出力する（Pythonの辞書をそのままJSON化した形）。</li>\n</ol>",
+      "sysinFormat": "<code>[[number, number], ...]</code>",
+      "defaultLanguage": "python3",
+      "sampleAnswer": "import sys\nimport json\n\nsysin = json.loads(sys.stdin.read() or \"null\")\n\nstops = {}\nfor beat, stop in sysin:\n    if beat in stops:\n        stops[beat] += stop\n    stops[beat] = stop\n\nresult = stops\n\nprint(json.dumps(result, ensure_ascii=False))\n",
       "testcases": [
         {
-          "sysin": {
-            "path": "#/problem-list"
-          },
-          "expected": "#/quiz-set-list"
+          "sysin": [
+            [
+              16.0,
+              5.0
+            ]
+          ],
+          "expected": {
+            "16.0": 5.0
+          }
         },
         {
-          "sysin": {
-            "path": "#/quiz-play"
-          },
-          "expected": "#/quiz-set-list"
+          "sysin": [
+            [
+              4.0,
+              2.0
+            ],
+            [
+              4.0,
+              3.0
+            ]
+          ],
+          "expected": {
+            "4.0": 3.0
+          }
         },
         {
-          "sysin": {
-            "path": "#/quiz-creation"
-          },
-          "expected": "#/quiz-creation"
+          "sysin": [],
+          "expected": {}
         }
       ]
     },
     {
-      "title": "条件分岐による関数呼び出し有無の判定",
+      "title": "sortedとfilterによるストップリストの生成",
       "category": "syntax",
-      "statement": "<p><code>sysin</code> は <code>{\"current\": any, \"hasUnmount\": boolean}</code> の形式です。次の処理を再現してください。</p>\n<p><code>currentController</code> に <code>sysin.current</code> を代入します。もし <code>sysin.hasUnmount</code> が <code>true</code> なら、<code>currentController</code> に <code>unmount</code> というプロパティを持たせ、その値として何もしない関数（空の関数）を代入します。<code>sysin.hasUnmount</code> が <code>false</code> の場合は <code>unmount</code> プロパティは追加しません。</p>\n<p>その後、<code>if (currentController && typeof currentController.unmount === \"function\") { currentController.unmount(); }</code> というロジックと同等の判定を行い、「<code>unmount</code> が実行されたかどうか」を真偽値で表し、<code>result</code> として出力してください。</p>",
-      "sysinFormat": "{\"current\": any, \"hasUnmount\": boolean}",
-      "defaultLanguage": "javascript",
-      "sampleAnswer": "const fs = require(\"fs\");\nconst sysin = JSON.parse(fs.readFileSync(0, \"utf8\"));\n\nlet currentController = sysin.current;\n\nif (sysin.hasUnmount && currentController && typeof currentController === \"object\") {\n  currentController.unmount = function () {};\n}\n\nlet called = false;\n\nif (currentController && typeof currentController.unmount === \"function\") {\n  currentController.unmount();\n  called = true;\n}\n\nconst result = called;\n\nprocess.stdout.write(JSON.stringify(result) + \"\\n\");\n",
+      "statement": "<p><code>sysin</code> は <code>{\"stops\": [[beat, stop], ...]}</code> 形式のオブジェクトです。次の処理を行い、その結果のストップリストを出力してください。</p>\n<ol>\n<li><code>stops</code> を、キーがビート（number）、値がストップ時間（number）の辞書として初期化する。</li>\n<li><code>sysin[\"stops\"]</code> の各要素 <code>[beat, stop]</code> について、順に以下を行う。</li>\n<ul>\n<li>もし <code>beat</code> が <code>stops</code> に既に存在するなら、<code>stops[beat]</code> に <code>stop</code> を加算する。</li>\n<li>その後、<code>stops[beat] = stop</code> と代入する。</li>\n</ul>\n<li><code>stops.items()</code> を <code>beat</code> の昇順でソートした配列を作る。このとき各要素は <code>[beat, stop]</code> 形式の配列とする。</li>\n<li>その配列から、<code>stop</code> が 0.0 でない要素だけを残す。</li>\n<li>最終的な配列を JSON 配列として出力する。</li>\n</ol>",
+      "sysinFormat": "<code>{\"stops\": [[number, number], ...]}</code>",
+      "defaultLanguage": "python3",
+      "sampleAnswer": "import sys\nimport json\n\nsysin = json.loads(sys.stdin.read() or \"null\")\n\nraw_stops = sysin.get(\"stops\", [])\nstops = {}\nfor beat, stop in raw_stops:\n    if beat in stops:\n        stops[beat] += stop\n    stops[beat] = stop\n\nitems = [[beat, value] for beat, value in stops.items()]\nitems.sort(key=lambda x: x[0])\nresult = [item for item in items if item[1] != 0.0]\n\nprint(json.dumps(result, ensure_ascii=False))\n",
       "testcases": [
         {
           "sysin": {
-            "current": {},
-            "hasUnmount": true
+            "stops": [
+              [
+                16.0,
+                5.0
+              ]
+            ]
           },
-          "expected": true
+          "expected": [
+            [
+              16.0,
+              5.0
+            ]
+          ]
         },
         {
           "sysin": {
-            "current": {},
-            "hasUnmount": false
+            "stops": [
+              [
+                4.0,
+                1.0
+              ],
+              [
+                2.0,
+                -1.0
+              ],
+              [
+                4.0,
+                0.0
+              ]
+            ]
           },
-          "expected": false
+          "expected": [
+            [
+              2.0,
+              -1.0
+            ],
+            [
+              4.0,
+              0.0
+            ]
+          ]
         },
         {
           "sysin": {
-            "current": null,
-            "hasUnmount": true
+            "stops": []
           },
-          "expected": false
+          "expected": []
+        }
+      ]
+    },
+    {
+      "title": "リスト内包表記によるBPMからBPSへの変換",
+      "category": "syntax",
+      "statement": "<p><code>sysin</code> は <code>[[beat, bpm], ...]</code> 形式の2次元配列です。次の処理を行い、<code>beat_bps</code> リストを出力してください。</p>\n<ol>\n<li>各要素 <code>[beat, bpm]</code> について、<code>bpm</code> を毎秒ビート数に変換する（<code>bps = bpm / 60.0</code>）。</li>\n<li><code>[beat, bps]</code> からなる新しい配列のリストを作る。</li>\n<li>そのリストを JSON 配列として出力する。</li>\n</ol>",
+      "sysinFormat": "<code>[[number, number], ...]</code>",
+      "defaultLanguage": "python3",
+      "sampleAnswer": "import sys\nimport json\n\nsysin = json.loads(sys.stdin.read() or \"null\")\n\nbeat_bps = [[beat, bpm / 60.0] for beat, bpm in sysin]\n\nresult = beat_bps\n\nprint(json.dumps(result, ensure_ascii=False))\n",
+      "testcases": [
+        {
+          "sysin": [
+            [
+              0.0,
+              120.0
+            ]
+          ],
+          "expected": [
+            [
+              0.0,
+              2.0
+            ]
+          ]
+        },
+        {
+          "sysin": [
+            [
+              0.0,
+              60.0
+            ],
+            [
+              32.0,
+              120.0
+            ]
+          ],
+          "expected": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              32.0,
+              2.0
+            ]
+          ]
+        },
+        {
+          "sysin": [],
+          "expected": []
+        }
+      ]
+    },
+    {
+      "title": "for文と累積計算による時間配列の生成",
+      "category": "syntax",
+      "statement": "<p><code>sysin</code> は <code>{\"offset\": number, \"beat_bps\": [[beat, bps], ...]}</code> 形式のオブジェクトです。次の処理を行い、<code>times</code> 配列を出力してください。</p>\n<ol>\n<li><code>time_cum = -offset</code> とし、<code>times = [-offset]</code> として初期化する。</li>\n<li><code>beat_last</code> と <code>bps_last</code> を、<code>beat_bps</code> の先頭要素 <code>[beat, bps]</code> の値で初期化する。</li>\n<li><code>beat_bps</code> の2番目以降の各要素 <code>[beat, bps]</code> について順に以下を行う。</li>\n<ul>\n<li><code>dbeat = beat - beat_last</code> を計算する。</li>\n<li><code>dtime = dbeat / bps_last</code> を計算する。</li>\n<li><code>time_cum += dtime</code> を行う。</li>\n<li><code>times</code> に <code>time_cum</code> を末尾追加する。</li>\n<li><code>beat_last = beat</code>、<code>bps_last = bps</code> とする。</li>\n</ul>\n<li>最終的な <code>times</code> を JSON 配列として出力する。</li>\n</ol>",
+      "sysinFormat": "<code>{\"offset\": number, \"beat_bps\": [[number, number], ...]}</code>",
+      "defaultLanguage": "python3",
+      "sampleAnswer": "import sys\nimport json\n\nsysin = json.loads(sys.stdin.read() or \"null\")\n\noffset = sysin[\"offset\"]\nbeat_bps = sysin[\"beat_bps\"]\n\ntime_cum = -offset\ntimes = [-offset]\nbeat_last, bps_last = beat_bps[0]\nfor beat, bps in beat_bps[1:]:\n    dbeat = beat - beat_last\n    dtime = dbeat / bps_last\n    time_cum += dtime\n    times.append(time_cum)\n    beat_last = beat\n    bps_last = bps\n\nresult = times\n\nprint(json.dumps(result, ensure_ascii=False))\n",
+      "testcases": [
+        {
+          "sysin": {
+            "offset": 0.05,
+            "beat_bps": [
+              [
+                0.0,
+                2.0
+              ],
+              [
+                32.0,
+                1.0
+              ]
+            ]
+          },
+          "expected": [
+            -0.05,
+            15.95
+          ]
+        },
+        {
+          "sysin": {
+            "offset": 0.0,
+            "beat_bps": [
+              [
+                0.0,
+                2.0
+              ],
+              [
+                1.0,
+                2.0
+              ]
+            ]
+          },
+          "expected": [
+            0.0,
+            0.5
+          ]
+        },
+        {
+          "sysin": {
+            "offset": 1.0,
+            "beat_bps": [
+              [
+                0.0,
+                1.0
+              ],
+              [
+                2.0,
+                1.0
+              ],
+              [
+                4.0,
+                1.0
+              ]
+            ]
+          },
+          "expected": [
+            -1.0,
+            1.0,
+            3.0
+          ]
+        }
+      ]
+    },
+    {
+      "title": "searchsortedとインデックス操作によるビートから時間への変換",
+      "category": "syntax",
+      "statement": "<p><code>sysin</code> は <code>{\"segment_time\": [...], \"segment_beat\": [...], \"segment_spb\": [...], \"beat\": number}</code> 形式のオブジェクトです。ここで各配列は同じ長さを持ち、<code>segment_beat</code> は昇順に並んでいるとします。次の処理を行い、ビートから時間を計算した結果を出力してください（numpy は使わず、組み込みのリストと線形探索で代用してよい）。</p>\n<ol>\n<li><code>beat</code> が 0.0 以上であると仮定する。</li>\n<li><code>segment_beat</code> の中で、<code>beat</code> を挿入する位置を「右側に寄せて」決める（Pythonの <code>bisect</code> モジュールの <code>bisect_right</code> と同じ動作）。</li>\n<li>その位置から 1 を引いた値を <code>seg_idx</code> とする。</li>\n<li><code>beat_left = segment_beat[seg_idx]</code>、<code>time_left = segment_time[seg_idx]</code>、<code>spb = segment_spb[seg_idx]</code> を取り出す。</li>\n<li><code>time_left + ((beat - beat_left) * spb)</code> を計算し、その値を出力する。</li>\n</ol>",
+      "sysinFormat": "<code>{\"segment_time\": [number, ...], \"segment_beat\": [number, ...], \"segment_spb\": [number, ...], \"beat\": number}</code>",
+      "defaultLanguage": "python3",
+      "sampleAnswer": "import sys\nimport json\nimport bisect\n\nsysin = json.loads(sys.stdin.read() or \"null\")\n\nsegment_time = sysin[\"segment_time\"]\nsegment_beat = sysin[\"segment_beat\"]\nsegment_spb = sysin[\"segment_spb\"]\nbeat = sysin[\"beat\"]\n\nidx = bisect.bisect_right(segment_beat, beat)\nseg_idx = idx - 1\nbeat_left = segment_beat[seg_idx]\ntime_left = segment_time[seg_idx]\nspb = segment_spb[seg_idx]\n\nresult = time_left + ((beat - beat_left) * spb)\n\nprint(json.dumps(result, ensure_ascii=False))\n",
+      "testcases": [
+        {
+          "sysin": {
+            "segment_time": [
+              0.0,
+              0.5,
+              1.0
+            ],
+            "segment_beat": [
+              0.0,
+              1.0,
+              2.0
+            ],
+            "segment_spb": [
+              0.5,
+              0.5,
+              0.5
+            ],
+            "beat": 0.0
+          },
+          "expected": 0.0
+        },
+        {
+          "sysin": {
+            "segment_time": [
+              0.0,
+              0.5,
+              1.0
+            ],
+            "segment_beat": [
+              0.0,
+              1.0,
+              2.0
+            ],
+            "segment_spb": [
+              0.5,
+              0.5,
+              0.5
+            ],
+            "beat": 0.5
+          },
+          "expected": 0.25
+        },
+        {
+          "sysin": {
+            "segment_time": [
+              -0.05,
+              15.95
+            ],
+            "segment_beat": [
+              0.0,
+              32.0
+            ],
+            "segment_spb": [
+              0.5,
+              1.0
+            ],
+            "beat": 32.0
+          },
+          "expected": 15.95
         }
       ]
     }
