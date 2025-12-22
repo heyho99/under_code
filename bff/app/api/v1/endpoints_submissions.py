@@ -133,6 +133,7 @@ async def submit_solution(data: SubmissionRequest, user_id: int = Depends(get_cu
                 "userId": user_id,
                 "problemId": data.problemId,
                 "isCorrect": is_correct,
+                "language": data.language,
             })
         except Exception:
             logger.warning("Failed to save submission to progress service", exc_info=True)

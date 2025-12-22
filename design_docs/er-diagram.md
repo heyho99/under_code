@@ -45,6 +45,7 @@ erDiagram
         int submission_id PK "解答ID"
         int user_id FK "解答したユーザーID"
         int problem_id FK "解答した問題ID"
+        varchar language "提出に使った言語(python3等)"
         boolean is_correct "正解したかどうか(True=正解, False=不正解)"
         timestamptz created_at "解答日時(日毎の集計はこれを使う)"
     }

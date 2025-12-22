@@ -136,21 +136,23 @@
           "status": 200,
           "body": {
             "totalProblems": 150,
-            "completedProblems": 45
+            "attemptedProblems": 60,
+            "solvedProblems": 45
           }
         }
       }
       ```
 
     - **BFF to Services**
-        - 処理：クイズ総数と完了数
+        - 処理：クイズ総数と「取り組んだ問題数（ユニーク）」「正解した問題数（ユニーク）」
         - サービス：[Quiz Service, Progress Service]
 
         ```markdown
         1. 並列で以下を実行する
            a. Quiz Service から「ユーザが作成したクイズ全問題数」を取得
            b. Progress Service から「ユーザーのユニーク正解数」を取得
-        2. 両方の結果をマージして { totalProblems, completedProblems } を返す
+           c. Progress Service から「ユーザーのユニーク取り組み数」を取得
+        2. 両方の結果をマージして { totalProblems, attemptedProblems, solvedProblems } を返す
         ```
 
         ```json
@@ -179,6 +181,19 @@
         }
         ```
 
+        ```json
+        {
+          "description": "(c) Progress Service から「ユーザーのユニーク取り組み数」を取得",
+          "request": "GET /progress/stats/unique-attempted?userId=101",
+          "header": "",
+          "body": null,
+          "response": {
+            "status": 200,
+            "body": { "attemptedProblems": 60 }
+          }
+        }
+        ```
+
 - GET `/api/v1/dashboard/categories`
     - **Frontend to BFF**
 
@@ -191,22 +206,21 @@
         "response": {
           "status": 200,
           "body": [
-            { "category": "Frontend", "count": 50, "solved": 20 },
-            { "category": "Backend", "count": 80, "solved": 25 }
+            { "category": "Frontend", "count": 50, "attempted": 30, "solved": 20, "attemptedRate": 60, "solvedRate": 40 },
+            { "category": "Backend", "count": 80, "attempted": 40, "solved": 25, "attemptedRate": 50, "solvedRate": 31 }
           ]
         }
       }
       ```
 
     - **BFF to Services**
-        - 処理：カテゴリ毎の数と完了数
+        - 処理：カテゴリ毎の数と「取り組み数」「正解数」
         - サービス：[Quiz Service, Progress Service]
 
         ```markdown
-        1. 並列で以下を実行する
-           a. Quiz Service から「ユーザが作成したカテゴリ別の全問題数」を取得
-           b. Progress Service から「ユーザーのカテゴリ別正解数」を取得
-        2. カテゴリをキーにしてデータを結合し、リスト形式で返す
+        1. Quiz Service から「カテゴリ別の全問題数」と「problemIdとcategoryの対応」を取得
+        2. Progress Service へ problemId 一覧を渡して「取り組み済み」「解答済み（正解）」の problemId 一覧を取得
+        3. category ごとに attempted/solved を集計し attemptedRate/solvedRate を計算して返す
         ```
 
         ```json
@@ -242,8 +256,51 @@
           - `GET /quiz/quizzes/stats/categories?userId=101`
         - Quiz Service: problemId と category の一覧
           - `GET /quiz/problem-categories?userId=101`
+        - Progress Service: 取り組み済み problemId 一覧（バッチ）
+          - `GET /progress/attempted-problems?userId=101&problemIds=1,2,3`
         - Progress Service: 解答済み problemId 一覧（バッチ）
           - `GET /progress/solved-problems?userId=101&problemIds=1,2,3`
+
+- GET `/api/v1/dashboard/languages`
+    - **Frontend to BFF**
+
+      ```json
+      {
+        "description": "言語別の取り組み数/正解数（ユニーク）取得（フロント→BFF）",
+        "request": "GET /api/v1/dashboard/languages",
+        "header": "Authorization: Bearer <token>",
+        "body": null,
+        "response": {
+          "status": 200,
+          "body": [
+            { "language": "python3", "attempted": 12, "solved": 8 },
+            { "language": "javascript", "attempted": 6, "solved": 2 }
+          ]
+        }
+      }
+      ```
+
+    - **BFF to Services**
+        - 処理：言語別のユニーク取り組み数・ユニーク正解数
+        - サービス：[Progress Service]
+
+        ```json
+        {
+          "description": "Progress Service から言語別のユニーク統計を取得",
+          "request": "GET /progress/stats/languages?userId=101",
+          "header": "",
+          "body": null,
+          "response": {
+            "status": 200,
+            "body": {
+              "items": [
+                { "language": "python3", "attempted": 12, "solved": 8 },
+                { "language": "javascript", "attempted": 6, "solved": 2 }
+              ]
+            }
+          }
+        }
+        ```
 
 - GET `/api/v1/dashboard/activities`
     - **Frontend to BFF**

@@ -5,6 +5,9 @@ export function renderCompletionDonut(
     total,
     percentElement,
     metaElement,
+    completedLabel = "完了",
+    remainingLabel = "未完了",
+    metaPrefix = "完了",
   } = {}
 ) {
   if (!canvas) return;
@@ -34,13 +37,13 @@ export function renderCompletionDonut(
     percentElement.textContent = `${percentage}%`;
   }
   if (metaElement) {
-    metaElement.textContent = `完了 ${safeCompleted} / ${safeTotal} 問`;
+    metaElement.textContent = `${metaPrefix} ${safeCompleted} / ${safeTotal} 問`;
   }
 
   const chart = new window.Chart(ctx, {
     type: "doughnut",
     data: {
-      labels: ["完了", "未完了"],
+      labels: [completedLabel, remainingLabel],
       datasets: [
         {
           data: [safeCompleted, remaining],

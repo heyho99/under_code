@@ -11,11 +11,16 @@ async def create_submission(payload: SubmissionCreate) -> int:
         user_id=payload.userId,
         problem_id=payload.problemId,
         is_correct=payload.isCorrect,
+        language=payload.language,
     )
 
 
 async def get_unique_solved_count(user_id: Optional[int]) -> int:
     return await submission_repository.count_unique_solved(user_id)
+
+
+async def get_unique_attempted_count(user_id: Optional[int]) -> int:
+    return await submission_repository.count_unique_attempted(user_id)
 
 
 async def get_activities(user_id: Optional[int], period_days: int) -> List[ActivityItem]:
@@ -42,3 +47,11 @@ async def get_activities(user_id: Optional[int], period_days: int) -> List[Activ
 
 async def get_solved_problem_ids(user_id: Optional[int], problem_ids: List[int]) -> List[int]:
     return await submission_repository.fetch_solved_problem_ids(user_id=user_id, problem_ids=problem_ids)
+
+
+async def get_attempted_problem_ids(user_id: Optional[int], problem_ids: List[int]) -> List[int]:
+    return await submission_repository.fetch_attempted_problem_ids(user_id=user_id, problem_ids=problem_ids)
+
+
+async def get_language_unique_stats(user_id: Optional[int]):
+    return await submission_repository.fetch_language_unique_stats(user_id=user_id)

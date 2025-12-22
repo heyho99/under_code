@@ -4,16 +4,17 @@ from typing import Dict, List, Tuple
 from app.db import database
 
 
-async def insert_submission(user_id: int, problem_id: int, is_correct: bool) -> int:
+async def insert_submission(user_id: int, problem_id: int, is_correct: bool, language: str) -> int:
     row = await database.fetchrow(
         """
-        INSERT INTO submissions (user_id, problem_id, is_correct)
-        VALUES ($1, $2, $3)
+        INSERT INTO submissions (user_id, problem_id, is_correct, language)
+        VALUES ($1, $2, $3, $4)
         RETURNING submission_id
         """,
         user_id,
         problem_id,
         is_correct,
+        language,
     )
     if not row:
         raise RuntimeError("failed to insert submission")
@@ -35,6 +36,26 @@ async def count_unique_solved(user_id) -> int:
             SELECT COUNT(DISTINCT problem_id) AS cnt
             FROM submissions
             WHERE user_id = $1 AND is_correct = TRUE
+            """,
+            user_id,
+        )
+    return int(row["cnt"] or 0)
+
+
+async def count_unique_attempted(user_id) -> int:
+    if user_id is None:
+        row = await database.fetchrow(
+            """
+            SELECT COUNT(DISTINCT (user_id, problem_id)) AS cnt
+            FROM submissions
+            """,
+        )
+    else:
+        row = await database.fetchrow(
+            """
+            SELECT COUNT(DISTINCT problem_id) AS cnt
+            FROM submissions
+            WHERE user_id = $1
             """,
             user_id,
         )
@@ -107,3 +128,69 @@ async def fetch_solved_problem_ids(user_id, problem_ids: List[int]) -> List[int]
         )
 
     return [int(r["problem_id"]) for r in rows]
+
+
+async def fetch_attempted_problem_ids(user_id, problem_ids: List[int]) -> List[int]:
+    if not problem_ids:
+        return []
+
+    if user_id is None:
+        rows = await database.fetch(
+            """
+            SELECT DISTINCT problem_id
+            FROM submissions
+            WHERE problem_id = ANY($1)
+            """,
+            problem_ids,
+        )
+    else:
+        rows = await database.fetch(
+            """
+            SELECT DISTINCT problem_id
+            FROM submissions
+            WHERE user_id = $1
+              AND problem_id = ANY($2)
+            """,
+            user_id,
+            problem_ids,
+        )
+
+    return [int(r["problem_id"]) for r in rows]
+
+
+async def fetch_language_unique_stats(user_id) -> List[Dict[str, int]]:
+    if user_id is None:
+        rows = await database.fetch(
+            """
+            SELECT
+              language,
+              COUNT(DISTINCT (user_id, problem_id)) AS attempted,
+              COUNT(DISTINCT (user_id, problem_id)) FILTER (WHERE is_correct = TRUE) AS solved
+            FROM submissions
+            GROUP BY language
+            ORDER BY language ASC
+            """,
+        )
+    else:
+        rows = await database.fetch(
+            """
+            SELECT
+              language,
+              COUNT(DISTINCT problem_id) AS attempted,
+              COUNT(DISTINCT problem_id) FILTER (WHERE is_correct = TRUE) AS solved
+            FROM submissions
+            WHERE user_id = $1
+            GROUP BY language
+            ORDER BY language ASC
+            """,
+            user_id,
+        )
+
+    return [
+        {
+            "language": str(r["language"]),
+            "attempted": int(r["attempted"] or 0),
+            "solved": int(r["solved"] or 0),
+        }
+        for r in rows
+    ]

@@ -3,13 +3,22 @@ from typing import List, Optional
 
 class DashboardSummary(BaseModel):
     totalProblems: int
-    completedProblems: int
+    attemptedProblems: int
+    solvedProblems: int
 
 class CategoryStat(BaseModel):
     category: str
     count: int
+    attempted: int = 0
     solved: int = 0
-    rate: int = 0
+    attemptedRate: int = 0
+    solvedRate: int = 0
+
+
+class LanguageStat(BaseModel):
+    language: str
+    attempted: int
+    solved: int
 
 class ActivityStat(BaseModel):
     date: str

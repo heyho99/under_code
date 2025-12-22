@@ -3,11 +3,19 @@ from typing import List, Optional
 from fastapi import APIRouter, Query
 
 from app.schemas.submission import SubmissionCreate, SubmissionCreateResponse
-from app.schemas.stats import ActivityItem, UniqueSolvedStatsResponse
+from app.schemas.stats import (
+    ActivityItem,
+    LanguageStatItem,
+    UniqueAttemptedStatsResponse,
+    UniqueSolvedStatsResponse,
+)
 from app.services.progress_service import (
     create_submission,
     get_activities,
+    get_attempted_problem_ids,
     get_solved_problem_ids,
+    get_language_unique_stats,
+    get_unique_attempted_count,
     get_unique_solved_count,
 )
 
@@ -25,6 +33,12 @@ async def post_submission(payload: SubmissionCreate) -> SubmissionCreateResponse
 async def get_unique_solved(userId: Optional[int] = Query(None)) -> UniqueSolvedStatsResponse:
     count = await get_unique_solved_count(userId)
     return UniqueSolvedStatsResponse(completedProblems=count)
+
+
+@router.get("/stats/unique-attempted", response_model=UniqueAttemptedStatsResponse)
+async def get_unique_attempted(userId: Optional[int] = Query(None)) -> UniqueAttemptedStatsResponse:
+    count = await get_unique_attempted_count(userId)
+    return UniqueAttemptedStatsResponse(attemptedProblems=count)
 
 
 @router.get("/activities", response_model=List[ActivityItem])
@@ -51,3 +65,26 @@ async def get_solved_problems(
 
     solved = await get_solved_problem_ids(user_id=userId, problem_ids=ids)
     return solved
+
+
+@router.get("/attempted-problems", response_model=List[int])
+async def get_attempted_problems(
+    userId: Optional[int] = Query(None),
+    problemIds: str = Query(""),
+) -> List[int]:
+    raw = [p.strip() for p in (problemIds or "").split(",") if p.strip()]
+    ids: List[int] = []
+    for p in raw:
+        try:
+            ids.append(int(p))
+        except ValueError:
+            continue
+
+    attempted = await get_attempted_problem_ids(user_id=userId, problem_ids=ids)
+    return attempted
+
+
+@router.get("/stats/languages", response_model=List[LanguageStatItem])
+async def get_language_stats(userId: Optional[int] = Query(None)) -> List[LanguageStatItem]:
+    rows = await get_language_unique_stats(userId)
+    return [LanguageStatItem(**r) for r in (rows or [])]

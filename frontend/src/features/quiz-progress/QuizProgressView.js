@@ -59,15 +59,26 @@ export const QuizProgressView = {
               </div>
               <div class="progress-summary__right">
                 <div class="overall-donut-card">
-                  <div class="overall-donut-card__title">全体完了率</div>
+                  <div class="overall-donut-card__title">全体取り組み率</div>
                   <div class="overall-donut-card__chart">
                     <canvas id="js-overall-progress-chart"></canvas>
                     <div class="overall-donut-card__center" id="js-overall-progress-percent">0%</div>
                   </div>
-                  <div class="overall-donut-card__meta" id="js-overall-progress-meta">完了 0 / 0 問</div>
+                  <div class="overall-donut-card__meta" id="js-overall-progress-meta">取り組み 0 / 0 問</div>
+                  <div class="overall-donut-card__meta" id="js-overall-solved-meta">正解率 0%（正解 0 / 0 問）</div>
                 </div>
               </div>
             </div>
+          </div>
+        </section>
+
+        <section class="card card--full">
+          <header class="card__header">
+            <h2 class="card__title">言語別の進捗</h2>
+            <p class="card__subtitle">取り組み数（ユニーク）・正解数（ユニーク）</p>
+          </header>
+          <div class="card__body card__body--list">
+            <ul class="list" id="js-language-list"></ul>
           </div>
         </section>
 

@@ -15,29 +15,37 @@ export const QuizProgressController = {
     const overallCanvas = root && root.querySelector("#js-overall-progress-chart");
     const overallPercentEl = root && root.querySelector("#js-overall-progress-percent");
     const overallMetaEl = root && root.querySelector("#js-overall-progress-meta");
+    const overallSolvedMetaEl = root && root.querySelector("#js-overall-solved-meta");
 
     if (overallCanvas && overallPercentEl && overallMetaEl) {
       try {
         const summary = await dashboardApi.getSummary();
         const totalQuestions = Number(summary?.totalProblems) || 0;
-        const completedQuestions = Number(summary?.completedProblems) || 0;
-        const percentage =
-          totalQuestions > 0
-            ? Math.round((completedQuestions / totalQuestions) * 100)
-            : 0;
-
-        overallPercentEl.textContent = `${percentage}%`;
-        overallMetaEl.textContent = `完了 ${completedQuestions} / ${totalQuestions} 問`;
+        const attemptedQuestions = Number(summary?.attemptedProblems) || 0;
+        const solvedQuestions = Number(summary?.solvedProblems) || 0;
 
         renderCompletionDonut(overallCanvas, {
-          completed: completedQuestions,
+          completed: attemptedQuestions,
           total: totalQuestions,
           percentElement: overallPercentEl,
           metaElement: overallMetaEl,
+          completedLabel: "取り組み済み",
+          remainingLabel: "未挑戦",
+          metaPrefix: "取り組み",
         });
+
+        const solvedRate = totalQuestions > 0
+          ? Math.round((solvedQuestions / totalQuestions) * 100)
+          : 0;
+        if (overallSolvedMetaEl) {
+          overallSolvedMetaEl.textContent = `正解率 ${solvedRate}%（正解 ${solvedQuestions} / ${totalQuestions} 問）`;
+        }
       } catch (_error) {
         overallPercentEl.textContent = "0%";
         overallMetaEl.textContent = "データを取得できませんでした";
+        if (overallSolvedMetaEl) {
+          overallSolvedMetaEl.textContent = "";
+        }
       }
     }
 
@@ -51,20 +59,17 @@ export const QuizProgressController = {
         categories.forEach((item) => {
           if (!item || !item.category) return;
           const total = Number(item.count) || 0;
+          const attempted = Number(item.attempted) || 0;
           const solved = Number(item.solved) || 0;
-          const rawRate =
-            item.rate !== undefined && item.rate !== null ? Number(item.rate) : null;
-          const rate =
-            rawRate !== null && !Number.isNaN(rawRate)
-              ? Math.max(0, Math.min(100, Math.round(rawRate)))
-              : total > 0
-              ? Math.round((solved / total) * 100)
-              : 0;
+          const attemptedRate = Number(item.attemptedRate) || 0;
+          const solvedRate = Number(item.solvedRate) || 0;
 
           statsByCategory[item.category] = {
             total,
+            attempted,
             solved,
-            rate,
+            attemptedRate,
+            solvedRate,
           };
         });
 
@@ -72,17 +77,17 @@ export const QuizProgressController = {
         items.forEach((li) => {
           const key = li.getAttribute("data-category");
           if (!key) return;
-          const stat = statsByCategory[key] || { total: 0, solved: 0, rate: 0 };
+          const stat = statsByCategory[key] || { total: 0, attempted: 0, solved: 0, attemptedRate: 0, solvedRate: 0 };
 
           const metaEl = li.querySelector(".list__meta");
           const barEl = li.querySelector(".progress__bar");
 
           if (metaEl) {
-            metaEl.textContent = `${stat.solved} / ${stat.total} 問完了 ・ 完了率 ${stat.rate}%`;
+            metaEl.textContent = `取り組み ${stat.attempted} / ${stat.total} 問（${stat.attemptedRate}%） ・ 正解 ${stat.solved} / ${stat.total} 問（${stat.solvedRate}%）`;
           }
 
           if (barEl) {
-            barEl.style.width = `${stat.rate}%`;
+            barEl.style.width = `${stat.attemptedRate}%`;
           }
         });
       } catch (_error) {
@@ -99,6 +104,57 @@ export const QuizProgressController = {
             barEl.style.width = "0%";
           }
         });
+      }
+    }
+
+    // 言語別の進捗リスト（動的に増える）
+    const languageList = root && root.querySelector("#js-language-list");
+    if (languageList) {
+      try {
+        const languages = await dashboardApi.getLanguages();
+        const items = Array.isArray(languages) ? languages : [];
+        languageList.innerHTML = "";
+
+        if (items.length === 0) {
+          languageList.innerHTML = `
+            <li class="list__item">
+              <div class="list__primary">
+                <span class="list__title">まだデータがありません</span>
+                <span class="list__meta">提出をすると言語別の統計が表示されます。</span>
+              </div>
+            </li>
+          `;
+        } else {
+          items.forEach((row) => {
+            const lang = String(row?.language || "");
+            if (!lang) return;
+            const attempted = Number(row?.attempted) || 0;
+            const solved = Number(row?.solved) || 0;
+            const rate = attempted > 0 ? Math.round((solved / attempted) * 100) : 0;
+
+            const li = document.createElement("li");
+            li.className = "list__item";
+            li.innerHTML = `
+              <div class="list__primary">
+                <span class="list__title">${lang}</span>
+                <span class="list__meta">取り組み ${attempted} 問 ・ 正解 ${solved} 問（正解率 ${rate}%）</span>
+              </div>
+              <div class="progress">
+                <div class="progress__bar" style="width: ${rate}%"></div>
+              </div>
+            `;
+            languageList.appendChild(li);
+          });
+        }
+      } catch (_error) {
+        languageList.innerHTML = `
+          <li class="list__item">
+            <div class="list__primary">
+              <span class="list__title">言語別データを取得できませんでした</span>
+              <span class="list__meta">時間をおいて再度お試しください。</span>
+            </div>
+          </li>
+        `;
       }
     }
 

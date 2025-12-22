@@ -30,4 +30,8 @@ export const dashboardApi = {
       params: { period },
     });
   },
+
+  async getLanguages() {
+    return apiClient.get("/dashboard/languages");
+  },
 };
