@@ -38,3 +38,11 @@ async def list_problem_categories(user_id: Optional[int]) -> List[dict]:
         for row in rows
     ]
 
+
+async def list_problem_languages(user_id: Optional[int]) -> List[dict]:
+    rows = await problem_repository.list_problem_languages(user_id)
+    return [
+        {"problemId": int(row["problem_id"]), "defaultLanguage": str(row["default_language"])}
+        for row in rows
+    ]
+

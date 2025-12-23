@@ -18,7 +18,7 @@ quiz_client = QuizClient()
 async def get_dashboard_summary(user_id: int = Depends(get_current_user_id)):
     scoped_user_id = None if is_admin_user_id(user_id) else user_id
     try:
-        quiz_stats = await quiz_client.get_stats_count(scoped_user_id)
+        quiz_stats = await quiz_client.get_stats_count(None)
         attempted_stats = await progress_client.get_unique_attempted_count(scoped_user_id)
         solved_stats = await progress_client.get_unique_solved_count(scoped_user_id)
     except Exception:
@@ -36,8 +36,8 @@ async def get_dashboard_summary(user_id: int = Depends(get_current_user_id)):
 async def get_dashboard_categories(user_id: int = Depends(get_current_user_id)):
     scoped_user_id = None if is_admin_user_id(user_id) else user_id
     try:
-        categories = await quiz_client.get_stats_categories(scoped_user_id)
-        problem_categories = await quiz_client.list_problem_categories(scoped_user_id)
+        categories = await quiz_client.get_stats_categories(None)
+        problem_categories = await quiz_client.list_problem_categories(None)
     except Exception:
         logger.exception("Failed to fetch dashboard categories from quiz service")
         raise HTTPException(status_code=502, detail="Failed to fetch dashboard categories")
@@ -120,17 +120,39 @@ async def get_dashboard_activities(user_id: int = Depends(get_current_user_id), 
 async def get_dashboard_languages(user_id: int = Depends(get_current_user_id)):
     scoped_user_id = None if is_admin_user_id(user_id) else user_id
     try:
-        items = await progress_client.get_language_stats(scoped_user_id)
+        problem_language_rows = await quiz_client.list_problem_languages(None)
+        stats_rows = await progress_client.get_language_stats(scoped_user_id)
     except Exception:
         logger.exception("Failed to fetch dashboard languages")
         raise HTTPException(status_code=502, detail="Failed to fetch dashboard languages")
 
+    totals_by_default_language: Dict[str, int] = {}
+    for r in problem_language_rows or []:
+        lang = r.get("defaultLanguage")
+        if not lang:
+            continue
+        key = str(lang)
+        totals_by_default_language[key] = totals_by_default_language.get(key, 0) + 1
+
+    stats_by_submission_language: Dict[str, Dict[str, int]] = {}
+    for r in stats_rows or []:
+        lang = r.get("language")
+        if not lang:
+            continue
+        key = str(lang)
+        stats_by_submission_language[key] = {
+            "attempted": int(r.get("attempted", 0) or 0),
+            "solved": int(r.get("solved", 0) or 0),
+        }
+
+    all_languages = sorted(set(list(totals_by_default_language.keys()) + list(stats_by_submission_language.keys())))
+
     return [
         LanguageStat(
-            language=str(i.get("language", "")),
-            attempted=int(i.get("attempted", 0) or 0),
-            solved=int(i.get("solved", 0) or 0),
+            language=lang,
+            attempted=int(stats_by_submission_language.get(lang, {}).get("attempted", 0) or 0),
+            solved=int(stats_by_submission_language.get(lang, {}).get("solved", 0) or 0),
+            total=int(totals_by_default_language.get(lang, 0) or 0),
         )
-        for i in (items or [])
-        if i and i.get("language")
+        for lang in all_languages
     ]

@@ -22,37 +22,81 @@ export const QuizProgressView = {
                   <li class="list__item" data-category="syntax">
                     <div class="list__primary">
                       <span class="list__title">基本文法</span>
-                      <span class="list__meta">0 / 0 問完了 ・ 完了率 0%</span>
+                      <span class="list__meta">取り組み 0 / 0 問 ・ 正解 0 / 0 問</span>
                     </div>
-                    <div class="progress">
-                      <div class="progress__bar" style="width: 0%"></div>
+                    <div class="progress-stack">
+                      <div class="progress-stack__row">
+                        <span class="progress-stack__label">取り組み</span>
+                        <div class="progress">
+                          <div class="progress__bar progress__bar--attempted" style="width: 0%"></div>
+                        </div>
+                      </div>
+                      <div class="progress-stack__row">
+                        <span class="progress-stack__label">正解</span>
+                        <div class="progress">
+                          <div class="progress__bar progress__bar--solved" style="width: 0%"></div>
+                        </div>
+                      </div>
                     </div>
                   </li>
                   <li class="list__item" data-category="logic">
                     <div class="list__primary">
                       <span class="list__title">処理</span>
-                      <span class="list__meta">0 / 0 問完了 ・ 完了率 0%</span>
+                      <span class="list__meta">取り組み 0 / 0 問 ・ 正解 0 / 0 問</span>
                     </div>
-                    <div class="progress">
-                      <div class="progress__bar" style="width: 0%"></div>
+                    <div class="progress-stack">
+                      <div class="progress-stack__row">
+                        <span class="progress-stack__label">取り組み</span>
+                        <div class="progress">
+                          <div class="progress__bar progress__bar--attempted" style="width: 0%"></div>
+                        </div>
+                      </div>
+                      <div class="progress-stack__row">
+                        <span class="progress-stack__label">正解</span>
+                        <div class="progress">
+                          <div class="progress__bar progress__bar--solved" style="width: 0%"></div>
+                        </div>
+                      </div>
                     </div>
                   </li>
                   <li class="list__item" data-category="function">
                     <div class="list__primary">
                       <span class="list__title">関数</span>
-                      <span class="list__meta">0 / 0 問完了 ・ 完了率 0%</span>
+                      <span class="list__meta">取り組み 0 / 0 問 ・ 正解 0 / 0 問</span>
                     </div>
-                    <div class="progress">
-                      <div class="progress__bar" style="width: 0%"></div>
+                    <div class="progress-stack">
+                      <div class="progress-stack__row">
+                        <span class="progress-stack__label">取り組み</span>
+                        <div class="progress">
+                          <div class="progress__bar progress__bar--attempted" style="width: 0%"></div>
+                        </div>
+                      </div>
+                      <div class="progress-stack__row">
+                        <span class="progress-stack__label">正解</span>
+                        <div class="progress">
+                          <div class="progress__bar progress__bar--solved" style="width: 0%"></div>
+                        </div>
+                      </div>
                     </div>
                   </li>
                   <li class="list__item" data-category="class">
                     <div class="list__primary">
                       <span class="list__title">クラス・モジュール</span>
-                      <span class="list__meta">0 / 0 問完了 ・ 完了率 0%</span>
+                      <span class="list__meta">取り組み 0 / 0 問 ・ 正解 0 / 0 問</span>
                     </div>
-                    <div class="progress">
-                      <div class="progress__bar" style="width: 0%"></div>
+                    <div class="progress-stack">
+                      <div class="progress-stack__row">
+                        <span class="progress-stack__label">取り組み</span>
+                        <div class="progress">
+                          <div class="progress__bar progress__bar--attempted" style="width: 0%"></div>
+                        </div>
+                      </div>
+                      <div class="progress-stack__row">
+                        <span class="progress-stack__label">正解</span>
+                        <div class="progress">
+                          <div class="progress__bar progress__bar--solved" style="width: 0%"></div>
+                        </div>
+                      </div>
                     </div>
                   </li>
                 </ul>
@@ -65,7 +109,7 @@ export const QuizProgressView = {
                     <div class="overall-donut-card__center" id="js-overall-progress-percent">0%</div>
                   </div>
                   <div class="overall-donut-card__meta" id="js-overall-progress-meta">取り組み 0 / 0 問</div>
-                  <div class="overall-donut-card__meta" id="js-overall-solved-meta">正解率 0%（正解 0 / 0 問）</div>
+                  <div class="overall-donut-card__meta" id="js-overall-solved-meta">正解 0 / 0 問</div>
                 </div>
               </div>
             </div>

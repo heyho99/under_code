@@ -29,12 +29,14 @@ class ProgressClient:
             response.raise_for_status()
             return response.json()
 
-    async def get_solved_problems(self, user_id: Optional[int], problem_ids: List[int]):
+    async def get_solved_problems(self, user_id: Optional[int], problem_ids: List[int], language: Optional[str] = None):
         ids_str = ",".join(map(str, problem_ids))
         async with httpx.AsyncClient() as client:
             params = {"problemIds": ids_str}
             if user_id is not None:
                 params["userId"] = user_id
+            if language:
+                params["language"] = language
             response = await client.get(
                 f"{self.base_url}/progress/solved-problems",
                 params=params,
@@ -42,12 +44,14 @@ class ProgressClient:
             response.raise_for_status()
             return response.json()
 
-    async def get_attempted_problems(self, user_id: Optional[int], problem_ids: List[int]):
+    async def get_attempted_problems(self, user_id: Optional[int], problem_ids: List[int], language: Optional[str] = None):
         ids_str = ",".join(map(str, problem_ids))
         async with httpx.AsyncClient() as client:
             params = {"problemIds": ids_str}
             if user_id is not None:
                 params["userId"] = user_id
+            if language:
+                params["language"] = language
             response = await client.get(
                 f"{self.base_url}/progress/attempted-problems",
                 params=params,

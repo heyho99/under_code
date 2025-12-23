@@ -27,6 +27,13 @@ class QuizClient:
             response.raise_for_status()
             return response.json()
 
+    async def list_problem_languages(self, user_id: Optional[int]):
+        async with httpx.AsyncClient() as client:
+            params = {"userId": user_id} if user_id is not None else None
+            response = await client.get(f"{self.base_url}/quiz/problem-languages", params=params)
+            response.raise_for_status()
+            return response.json()
+
     async def upload_source_data(self, data: dict):
         async with httpx.AsyncClient() as client:
             response = await client.post(f"{self.base_url}/api/v1/quiz/source-data", json=data)

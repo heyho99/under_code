@@ -34,11 +34,8 @@ export const QuizProgressController = {
           metaPrefix: "取り組み",
         });
 
-        const solvedRate = totalQuestions > 0
-          ? Math.round((solvedQuestions / totalQuestions) * 100)
-          : 0;
         if (overallSolvedMetaEl) {
-          overallSolvedMetaEl.textContent = `正解率 ${solvedRate}%（正解 ${solvedQuestions} / ${totalQuestions} 問）`;
+          overallSolvedMetaEl.textContent = `正解 ${solvedQuestions} / ${totalQuestions} 問`;
         }
       } catch (_error) {
         overallPercentEl.textContent = "0%";
@@ -80,28 +77,36 @@ export const QuizProgressController = {
           const stat = statsByCategory[key] || { total: 0, attempted: 0, solved: 0, attemptedRate: 0, solvedRate: 0 };
 
           const metaEl = li.querySelector(".list__meta");
-          const barEl = li.querySelector(".progress__bar");
+          const attemptedBarEl = li.querySelector(".progress__bar--attempted");
+          const solvedBarEl = li.querySelector(".progress__bar--solved");
 
           if (metaEl) {
-            metaEl.textContent = `取り組み ${stat.attempted} / ${stat.total} 問（${stat.attemptedRate}%） ・ 正解 ${stat.solved} / ${stat.total} 問（${stat.solvedRate}%）`;
+            metaEl.textContent = `取り組み ${stat.attempted} / ${stat.total} 問 ・ 正解 ${stat.solved} / ${stat.total} 問`;
           }
 
-          if (barEl) {
-            barEl.style.width = `${stat.attemptedRate}%`;
+          if (attemptedBarEl) {
+            attemptedBarEl.style.width = `${stat.attemptedRate}%`;
+          }
+          if (solvedBarEl) {
+            solvedBarEl.style.width = `${stat.solvedRate}%`;
           }
         });
       } catch (_error) {
         const items = categoryList.querySelectorAll("[data-category]");
         items.forEach((li) => {
           const metaEl = li.querySelector(".list__meta");
-          const barEl = li.querySelector(".progress__bar");
+          const attemptedBarEl = li.querySelector(".progress__bar--attempted");
+          const solvedBarEl = li.querySelector(".progress__bar--solved");
 
           if (metaEl) {
             metaEl.textContent = "データを取得できませんでした";
           }
 
-          if (barEl) {
-            barEl.style.width = "0%";
+          if (attemptedBarEl) {
+            attemptedBarEl.style.width = "0%";
+          }
+          if (solvedBarEl) {
+            solvedBarEl.style.width = "0%";
           }
         });
       }
@@ -130,17 +135,30 @@ export const QuizProgressController = {
             if (!lang) return;
             const attempted = Number(row?.attempted) || 0;
             const solved = Number(row?.solved) || 0;
-            const rate = attempted > 0 ? Math.round((solved / attempted) * 100) : 0;
+            const total = Number(row?.total) || 0;
+            const attemptedRate = total > 0 ? Math.round((attempted / total) * 100) : 0;
+            const solvedRate = total > 0 ? Math.round((solved / total) * 100) : 0;
 
             const li = document.createElement("li");
             li.className = "list__item";
             li.innerHTML = `
               <div class="list__primary">
                 <span class="list__title">${lang}</span>
-                <span class="list__meta">取り組み ${attempted} 問 ・ 正解 ${solved} 問（正解率 ${rate}%）</span>
+                <span class="list__meta">取り組み ${attempted} / ${total} 問 ・ 正解 ${solved} / ${total} 問</span>
               </div>
-              <div class="progress">
-                <div class="progress__bar" style="width: ${rate}%"></div>
+              <div class="progress-stack">
+                <div class="progress-stack__row">
+                  <span class="progress-stack__label">取り組み</span>
+                  <div class="progress">
+                    <div class="progress__bar progress__bar--attempted" style="width: ${attemptedRate}%"></div>
+                  </div>
+                </div>
+                <div class="progress-stack__row">
+                  <span class="progress-stack__label">正解</span>
+                  <div class="progress">
+                    <div class="progress__bar progress__bar--solved" style="width: ${solvedRate}%"></div>
+                  </div>
+                </div>
               </div>
             `;
             languageList.appendChild(li);

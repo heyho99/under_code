@@ -34,3 +34,8 @@ class ProblemDetail(BaseModel):
     sysinFormat: str
     sampleAnswer: Optional[str] = None
     testcases: List[Testcase]
+
+
+class ProblemLanguageItem(BaseModel):
+    problemId: int
+    defaultLanguage: str

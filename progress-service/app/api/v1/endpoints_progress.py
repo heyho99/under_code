@@ -54,6 +54,7 @@ async def get_user_activities(
 async def get_solved_problems(
     userId: Optional[int] = Query(None),
     problemIds: str = Query(""),
+    language: Optional[str] = Query(None),
 ) -> List[int]:
     raw = [p.strip() for p in (problemIds or "").split(",") if p.strip()]
     ids: List[int] = []
@@ -63,7 +64,7 @@ async def get_solved_problems(
         except ValueError:
             continue
 
-    solved = await get_solved_problem_ids(user_id=userId, problem_ids=ids)
+    solved = await get_solved_problem_ids(user_id=userId, problem_ids=ids, language=language)
     return solved
 
 
@@ -71,6 +72,7 @@ async def get_solved_problems(
 async def get_attempted_problems(
     userId: Optional[int] = Query(None),
     problemIds: str = Query(""),
+    language: Optional[str] = Query(None),
 ) -> List[int]:
     raw = [p.strip() for p in (problemIds or "").split(",") if p.strip()]
     ids: List[int] = []
@@ -80,7 +82,7 @@ async def get_attempted_problems(
         except ValueError:
             continue
 
-    attempted = await get_attempted_problem_ids(user_id=userId, problem_ids=ids)
+    attempted = await get_attempted_problem_ids(user_id=userId, problem_ids=ids, language=language)
     return attempted
 
 

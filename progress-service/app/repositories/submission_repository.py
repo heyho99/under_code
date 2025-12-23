@@ -1,5 +1,5 @@
 from datetime import date, datetime
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from app.db import database
 
@@ -100,60 +100,114 @@ async def fetch_daily_counts(user_id, start_datetime: datetime) -> Dict[date, Tu
     return result
 
 
-async def fetch_solved_problem_ids(user_id, problem_ids: List[int]) -> List[int]:
+async def fetch_solved_problem_ids(user_id, problem_ids: List[int], language: Optional[str] = None) -> List[int]:
     if not problem_ids:
         return []
 
     if user_id is None:
-        rows = await database.fetch(
-            """
-            SELECT DISTINCT problem_id
-            FROM submissions
-            WHERE is_correct = TRUE
-              AND problem_id = ANY($1)
-            """,
-            problem_ids,
-        )
+        if language:
+            rows = await database.fetch(
+                """
+                SELECT DISTINCT problem_id
+                FROM submissions
+                WHERE is_correct = TRUE
+                  AND language = $1
+                  AND problem_id = ANY($2)
+                """,
+                language,
+                problem_ids,
+            )
+        else:
+            rows = await database.fetch(
+                """
+                SELECT DISTINCT problem_id
+                FROM submissions
+                WHERE is_correct = TRUE
+                  AND problem_id = ANY($1)
+                """,
+                problem_ids,
+            )
     else:
-        rows = await database.fetch(
-            """
-            SELECT DISTINCT problem_id
-            FROM submissions
-            WHERE user_id = $1
-              AND is_correct = TRUE
-              AND problem_id = ANY($2)
-            """,
-            user_id,
-            problem_ids,
-        )
+        if language:
+            rows = await database.fetch(
+                """
+                SELECT DISTINCT problem_id
+                FROM submissions
+                WHERE user_id = $1
+                  AND is_correct = TRUE
+                  AND language = $2
+                  AND problem_id = ANY($3)
+                """,
+                user_id,
+                language,
+                problem_ids,
+            )
+        else:
+            rows = await database.fetch(
+                """
+                SELECT DISTINCT problem_id
+                FROM submissions
+                WHERE user_id = $1
+                  AND is_correct = TRUE
+                  AND problem_id = ANY($2)
+                """,
+                user_id,
+                problem_ids,
+            )
 
     return [int(r["problem_id"]) for r in rows]
 
 
-async def fetch_attempted_problem_ids(user_id, problem_ids: List[int]) -> List[int]:
+async def fetch_attempted_problem_ids(user_id, problem_ids: List[int], language: Optional[str] = None) -> List[int]:
     if not problem_ids:
         return []
 
     if user_id is None:
-        rows = await database.fetch(
-            """
-            SELECT DISTINCT problem_id
-            FROM submissions
-            WHERE problem_id = ANY($1)
-            """,
-            problem_ids,
-        )
+        if language:
+            rows = await database.fetch(
+                """
+                SELECT DISTINCT problem_id
+                FROM submissions
+                WHERE language = $1
+                  AND problem_id = ANY($2)
+                """,
+                language,
+                problem_ids,
+            )
+        else:
+            rows = await database.fetch(
+                """
+                SELECT DISTINCT problem_id
+                FROM submissions
+                WHERE problem_id = ANY($1)
+                """,
+                problem_ids,
+            )
     else:
-        rows = await database.fetch(
-            """
-            SELECT DISTINCT problem_id
-            FROM submissions
-            WHERE user_id = $1
-              AND problem_id = ANY($2)
-            """,
-            user_id,
-            problem_ids,
-        )
+        if language:
+            rows = await database.fetch(
+                """
+                SELECT DISTINCT problem_id
+                FROM submissions
+                WHERE user_id = $1
+                  AND language = $2
+                  AND problem_id = ANY($3)
+                """,
+                user_id,
+                language,
+                problem_ids,
+            )
+        else:
+            rows = await database.fetch(
+                """
+                SELECT DISTINCT problem_id
+                FROM submissions
+                WHERE user_id = $1
+                  AND problem_id = ANY($2)
+                """,
+                user_id,
+                problem_ids,
+            )
 
     return [int(r["problem_id"]) for r in rows]
 

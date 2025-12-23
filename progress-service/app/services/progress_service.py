@@ -45,12 +45,28 @@ async def get_activities(user_id: Optional[int], period_days: int) -> List[Activ
     return items
 
 
-async def get_solved_problem_ids(user_id: Optional[int], problem_ids: List[int]) -> List[int]:
-    return await submission_repository.fetch_solved_problem_ids(user_id=user_id, problem_ids=problem_ids)
+async def get_solved_problem_ids(
+    user_id: Optional[int],
+    problem_ids: List[int],
+    language: Optional[str] = None,
+) -> List[int]:
+    return await submission_repository.fetch_solved_problem_ids(
+        user_id=user_id,
+        problem_ids=problem_ids,
+        language=language,
+    )
 
 
-async def get_attempted_problem_ids(user_id: Optional[int], problem_ids: List[int]) -> List[int]:
-    return await submission_repository.fetch_attempted_problem_ids(user_id=user_id, problem_ids=problem_ids)
+async def get_attempted_problem_ids(
+    user_id: Optional[int],
+    problem_ids: List[int],
+    language: Optional[str] = None,
+) -> List[int]:
+    return await submission_repository.fetch_attempted_problem_ids(
+        user_id=user_id,
+        problem_ids=problem_ids,
+        language=language,
+    )
 
 
 async def get_language_unique_stats(user_id: Optional[int]):

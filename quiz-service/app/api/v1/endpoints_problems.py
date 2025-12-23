@@ -1,8 +1,8 @@
-from typing import Optional
+from typing import List, Optional
 
 from fastapi import APIRouter, HTTPException, Query, status
 
-from app.schemas.problem import ProblemDetail
+from app.schemas.problem import ProblemDetail, ProblemLanguageItem
 from app.services import problem_service
 
 
@@ -33,3 +33,9 @@ async def get_quiz_stats_categories(userId: Optional[int] = Query(None, descript
 async def list_problem_categories(userId: Optional[int] = Query(None, description="User ID")):
     rows = await problem_service.list_problem_categories(userId)
     return rows
+
+
+@router.get("/quiz/problem-languages", response_model=List[ProblemLanguageItem])
+async def list_problem_languages(userId: Optional[int] = Query(None, description="User ID")) -> List[ProblemLanguageItem]:
+    rows = await problem_service.list_problem_languages(userId)
+    return [ProblemLanguageItem(**r) for r in (rows or [])]

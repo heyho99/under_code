@@ -59,6 +59,27 @@ async def count_problems_by_category(user_id):
     )
 
 
+async def list_problem_languages(user_id):
+    if user_id is None:
+        return await database.fetch(
+            """
+            SELECT p.id AS problem_id, p.default_language
+            FROM problems p
+            INNER JOIN quiz_sets q ON q.id = p.quiz_set_id
+            """,
+        )
+
+    return await database.fetch(
+        """
+        SELECT p.id AS problem_id, p.default_language
+        FROM problems p
+        INNER JOIN quiz_sets q ON q.id = p.quiz_set_id
+        WHERE q.user_id = $1
+        """,
+        user_id,
+    )
+
+
 async def list_problem_categories(user_id):
     if user_id is None:
         return await database.fetch(

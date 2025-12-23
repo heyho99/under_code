@@ -19,6 +19,7 @@ class LanguageStat(BaseModel):
     language: str
     attempted: int
     solved: int
+    total: int = 0
 
 class ActivityStat(BaseModel):
     date: str
