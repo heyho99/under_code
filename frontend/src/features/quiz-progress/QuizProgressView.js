@@ -1,3 +1,47 @@
+// カテゴリ設定: comingSoon を false にすると通常表示に切り替わる
+const CATEGORY_CONFIG = {
+  syntax: { label: "基本文法", comingSoon: false },
+  function: { label: "関数", comingSoon: true },
+  class: { label: "クラス・モジュール", comingSoon: true },
+};
+
+const renderCategoryItem = (key, config) => {
+  if (config.comingSoon) {
+    return `
+      <li class="list__item list__item--coming-soon" data-category="${key}">
+        <div class="list__primary">
+          <span class="list__title">${config.label}</span>
+          <span class="list__badge list__badge--coming-soon">Coming Soon</span>
+        </div>
+      </li>
+    `;
+  }
+  return `
+    <li class="list__item" data-category="${key}">
+      <div class="list__primary">
+        <span class="list__title">${config.label}</span>
+        <span class="list__meta">取り組み 0 / 0 問 ・ 正解 0 / 0 問</span>
+      </div>
+      <div class="progress-stack">
+        <div class="progress-stack__row">
+          <span class="progress-stack__label">取り組み</span>
+          <div class="progress">
+            <div class="progress__bar progress__bar--attempted" style="width: 0%"></div>
+          </div>
+        </div>
+        <div class="progress-stack__row">
+          <span class="progress-stack__label">正解</span>
+          <div class="progress">
+            <div class="progress__bar progress__bar--solved" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+    </li>
+  `;
+};
+
+export { CATEGORY_CONFIG };
+
 export const QuizProgressView = {
   key: "quiz-progress",
   title: "クイズ進捗",
@@ -7,6 +51,10 @@ export const QuizProgressView = {
   },
   render(root) {
     if (!root) return;
+
+    const categoryListHtml = Object.entries(CATEGORY_CONFIG)
+      .map(([key, config]) => renderCategoryItem(key, config))
+      .join('');
 
     root.innerHTML = `
       <div class="layout-grid layout-grid--two">
@@ -19,86 +67,7 @@ export const QuizProgressView = {
             <div class="progress-summary">
               <div class="progress-summary__left card__body--list">
                 <ul class="list" id="js-category-list">
-                  <li class="list__item" data-category="syntax">
-                    <div class="list__primary">
-                      <span class="list__title">基本文法</span>
-                      <span class="list__meta">取り組み 0 / 0 問 ・ 正解 0 / 0 問</span>
-                    </div>
-                    <div class="progress-stack">
-                      <div class="progress-stack__row">
-                        <span class="progress-stack__label">取り組み</span>
-                        <div class="progress">
-                          <div class="progress__bar progress__bar--attempted" style="width: 0%"></div>
-                        </div>
-                      </div>
-                      <div class="progress-stack__row">
-                        <span class="progress-stack__label">正解</span>
-                        <div class="progress">
-                          <div class="progress__bar progress__bar--solved" style="width: 0%"></div>
-                        </div>
-                      </div>
-                    </div>
-                  </li>
-                  <li class="list__item" data-category="logic">
-                    <div class="list__primary">
-                      <span class="list__title">処理</span>
-                      <span class="list__meta">取り組み 0 / 0 問 ・ 正解 0 / 0 問</span>
-                    </div>
-                    <div class="progress-stack">
-                      <div class="progress-stack__row">
-                        <span class="progress-stack__label">取り組み</span>
-                        <div class="progress">
-                          <div class="progress__bar progress__bar--attempted" style="width: 0%"></div>
-                        </div>
-                      </div>
-                      <div class="progress-stack__row">
-                        <span class="progress-stack__label">正解</span>
-                        <div class="progress">
-                          <div class="progress__bar progress__bar--solved" style="width: 0%"></div>
-                        </div>
-                      </div>
-                    </div>
-                  </li>
-                  <li class="list__item" data-category="function">
-                    <div class="list__primary">
-                      <span class="list__title">関数</span>
-                      <span class="list__meta">取り組み 0 / 0 問 ・ 正解 0 / 0 問</span>
-                    </div>
-                    <div class="progress-stack">
-                      <div class="progress-stack__row">
-                        <span class="progress-stack__label">取り組み</span>
-                        <div class="progress">
-                          <div class="progress__bar progress__bar--attempted" style="width: 0%"></div>
-                        </div>
-                      </div>
-                      <div class="progress-stack__row">
-                        <span class="progress-stack__label">正解</span>
-                        <div class="progress">
-                          <div class="progress__bar progress__bar--solved" style="width: 0%"></div>
-                        </div>
-                      </div>
-                    </div>
-                  </li>
-                  <li class="list__item" data-category="class">
-                    <div class="list__primary">
-                      <span class="list__title">クラス・モジュール</span>
-                      <span class="list__meta">取り組み 0 / 0 問 ・ 正解 0 / 0 問</span>
-                    </div>
-                    <div class="progress-stack">
-                      <div class="progress-stack__row">
-                        <span class="progress-stack__label">取り組み</span>
-                        <div class="progress">
-                          <div class="progress__bar progress__bar--attempted" style="width: 0%"></div>
-                        </div>
-                      </div>
-                      <div class="progress-stack__row">
-                        <span class="progress-stack__label">正解</span>
-                        <div class="progress">
-                          <div class="progress__bar progress__bar--solved" style="width: 0%"></div>
-                        </div>
-                      </div>
-                    </div>
-                  </li>
+                  ${categoryListHtml}
                 </ul>
               </div>
               <div class="progress-summary__right">

@@ -1,4 +1,4 @@
-import { QuizProgressView } from "./QuizProgressView.js";
+import { QuizProgressView, CATEGORY_CONFIG } from "./QuizProgressView.js";
 import { updateHeader, activateSection } from "../../ui/MainHeader.js";
 import { renderActivityChart } from "../../ui/components/ActivityChart.js";
 import { renderCompletionDonut } from "../../ui/components/CompletionDonut.js";
@@ -74,6 +74,10 @@ export const QuizProgressController = {
         items.forEach((li) => {
           const key = li.getAttribute("data-category");
           if (!key) return;
+
+          // coming soon カテゴリはスキップ
+          if (CATEGORY_CONFIG[key]?.comingSoon) return;
+
           const stat = statsByCategory[key] || { total: 0, attempted: 0, solved: 0, attemptedRate: 0, solvedRate: 0 };
 
           const metaEl = li.querySelector(".list__meta");
@@ -94,6 +98,10 @@ export const QuizProgressController = {
       } catch (_error) {
         const items = categoryList.querySelectorAll("[data-category]");
         items.forEach((li) => {
+          const key = li.getAttribute("data-category");
+          // coming soon カテゴリはスキップ
+          if (CATEGORY_CONFIG[key]?.comingSoon) return;
+
           const metaEl = li.querySelector(".list__meta");
           const attemptedBarEl = li.querySelector(".progress__bar--attempted");
           const solvedBarEl = li.querySelector(".progress__bar--solved");
