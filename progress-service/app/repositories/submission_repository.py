@@ -212,6 +212,52 @@ async def fetch_attempted_problem_ids(user_id, problem_ids: List[int], language:
     return [int(r["problem_id"]) for r in rows]
 
 
+async def fetch_problem_submission_stats(user_id, problem_ids: List[int]) -> List[Dict]:
+    """問題ごとの提出回数と最終提出日時を取得"""
+    if not problem_ids:
+        return []
+
+    if user_id is None:
+        rows = await database.fetch(
+            """
+            SELECT
+                problem_id,
+                COUNT(*) AS submission_count,
+                MAX(created_at) AS last_submitted_at,
+                BOOL_OR(is_correct) AS is_solved
+            FROM submissions
+            WHERE problem_id = ANY($1)
+            GROUP BY problem_id
+            """,
+            problem_ids,
+        )
+    else:
+        rows = await database.fetch(
+            """
+            SELECT
+                problem_id,
+                COUNT(*) AS submission_count,
+                MAX(created_at) AS last_submitted_at,
+                BOOL_OR(is_correct) AS is_solved
+            FROM submissions
+            WHERE user_id = $1 AND problem_id = ANY($2)
+            GROUP BY problem_id
+            """,
+            user_id,
+            problem_ids,
+        )
+
+    return [
+        {
+            "problemId": int(r["problem_id"]),
+            "submissionCount": int(r["submission_count"] or 0),
+            "lastSubmittedAt": r["last_submitted_at"],
+            "isSolved": bool(r["is_solved"]),
+        }
+        for r in rows
+    ]
+
+
 async def fetch_language_unique_stats(user_id) -> List[Dict[str, int]]:
     if user_id is None:
         rows = await database.fetch(

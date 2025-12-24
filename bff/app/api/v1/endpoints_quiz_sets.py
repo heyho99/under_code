@@ -103,25 +103,34 @@ async def get_quiz_set_detail(quiz_set_id: int, user_id: int = Depends(get_curre
     raw_problems = data.get("problems") or []
     problem_ids = [p.get("problemId") for p in raw_problems if isinstance(p.get("problemId"), int)]
 
-    solved_set = set()
+    stats_by_problem: Dict[int, dict] = {}
     if problem_ids:
         try:
-            solved_ids = await progress_client.get_solved_problems(scoped_user_id, problem_ids)
-            solved_set = set(int(x) for x in (solved_ids or []))
+            stats_list = await progress_client.get_problem_stats(scoped_user_id, problem_ids)
+            for s in (stats_list or []):
+                pid = s.get("problemId")
+                if pid is not None:
+                    stats_by_problem[int(pid)] = s
         except Exception:
-            logger.exception("Failed to fetch solved problems")
-            raise HTTPException(status_code=502, detail="Failed to fetch solved problems")
+            logger.exception("Failed to fetch problem stats")
+            raise HTTPException(status_code=502, detail="Failed to fetch problem stats")
 
-    problems = [
-        ProblemSummary(
-            problemId=p.get("problemId"),
-            title=p.get("title", ""),
-            defaultLanguage=p.get("defaultLanguage", "python3"),
-            isSolved=(p.get("problemId") in solved_set),
+    problems = []
+    for p in raw_problems:
+        pid = p.get("problemId")
+        if pid is None:
+            continue
+        stats = stats_by_problem.get(int(pid), {})
+        problems.append(
+            ProblemSummary(
+                problemId=pid,
+                title=p.get("title", ""),
+                defaultLanguage=p.get("defaultLanguage", "python3"),
+                isSolved=stats.get("isSolved", False),
+                submissionCount=stats.get("submissionCount", 0),
+                lastSubmittedAt=stats.get("lastSubmittedAt"),
+            )
         )
-        for p in raw_problems
-        if p.get("problemId") is not None
-    ]
 
     return QuizSetDetail(
         quizSetId=data.get("quizSetId"),

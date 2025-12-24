@@ -79,27 +79,40 @@ export const QuizSetDetailController = {
               const isSolved = Boolean(problem.isSolved);
               const lang = problem.defaultLanguage || "python3";
               const langInfo = LANGUAGE_DISPLAY[lang] || LANGUAGE_DISPLAY.python3;
+              const submissionCount = Number(problem.submissionCount) || 0;
+              const lastSubmittedAt = problem.lastSubmittedAt || null;
+
+              let lastSubmittedText = "未提出";
+              if (lastSubmittedAt) {
+                const d = new Date(lastSubmittedAt);
+                lastSubmittedText = `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+              }
 
               article.innerHTML = `
                 <div class="quiz-grid__icon">Q${index + 1}</div>
-                <div class="quiz-grid__body">
-                  <h3 class="quiz-grid__title"></h3>
-                  <div class="quiz-grid__meta-row">
+                <div class="quiz-grid__content">
+                  <div class="quiz-grid__header">
+                    <h3 class="quiz-grid__title"></h3>
+                    <div class="quiz-grid__actions">
+                      <button class="primary-btn${
+                        isSolved ? " primary-btn--outline" : ""
+                      } js-open-quiz-play">
+                        ${isSolved ? "復習する" : "挑戦する"}
+                      </button>
+                    </div>
+                  </div>
+                  <div class="quiz-grid__footer">
                     <span class="quiz-grid__lang-badge" style="--lang-color: ${langInfo.color}">
-                      <span class="material-symbols-outlined">${langInfo.icon}</span>
                       ${langInfo.label}
                     </span>
-                    <span class="quiz-grid__status ${isSolved ? 'quiz-grid__status--solved' : ''}">
-                      ${isSolved ? "完了済み" : "未完了"}
-                    </span>
+                    <div class="quiz-grid__stats">
+                      <span class="quiz-grid__stat">提出 ${submissionCount}回</span>
+                      <span class="quiz-grid__stat">最終 ${lastSubmittedText}</span>
+                      <span class="quiz-grid__stat quiz-grid__status ${isSolved ? 'quiz-grid__status--solved' : ''}">
+                        ${isSolved ? "完了済み" : "未完了"}
+                      </span>
+                    </div>
                   </div>
-                </div>
-                <div class="quiz-grid__actions">
-                  <button class="primary-btn${
-                    isSolved ? " primary-btn--outline" : ""
-                  } js-open-quiz-play">
-                    ${isSolved ? "復習する" : "挑戦する"}
-                  </button>
                 </div>
               `;
 

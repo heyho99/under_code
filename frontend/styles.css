@@ -1715,37 +1715,57 @@ body {
 
 .quiz-grid__item {
   display: flex;
-  align-items: stretch;
-  gap: 10px;
-  padding: 10px 12px;
-  border-radius: 10px;
-  border: 1px solid rgba(209, 213, 219, 0.9);
-  background: #f9fafb;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(226, 232, 240, 0.6);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.85), rgba(248, 250, 252, 0.8));
+  backdrop-filter: blur(6px);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .quiz-grid__icon {
   flex: 0 0 auto;
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: rgba(37, 99, 235, 0.12);
-  color: var(--accent-strong);
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(99, 102, 241, 0.08));
+  color: #6366f1;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 14px;
 }
 
-.quiz-grid__body {
+.quiz-grid__content {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 10px;
+  min-width: 0;
+}
+
+.quiz-grid__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .quiz-grid__title {
   margin: 0;
-  font-size: 16px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-main);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-height: calc(1.4em * 3);
 }
 
 .quiz-grid__meta {
@@ -1755,7 +1775,28 @@ body {
 }
 
 .quiz-grid__actions {
-  align-self: center;
+  flex-shrink: 0;
+}
+
+.quiz-grid__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: auto;
+}
+
+.quiz-grid__stats {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.quiz-grid__stat {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-soft);
 }
 
 .quiz-set-detail__footer {
@@ -1764,38 +1805,20 @@ body {
   justify-content: flex-end;
 }
 
-.quiz-grid__meta-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
 .quiz-grid__lang-badge {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 2px 8px;
+  padding: 4px 10px;
   border-radius: 999px;
-  font-size: 12px;
-  font-weight: 500;
-  background: color-mix(in srgb, var(--lang-color, #6b7280) 15%, transparent);
+  font-size: 11px;
+  font-weight: 600;
+  background: color-mix(in srgb, var(--lang-color, #6b7280) 12%, transparent);
   color: var(--lang-color, #6b7280);
-  border: 1px solid color-mix(in srgb, var(--lang-color, #6b7280) 30%, transparent);
-}
-
-.quiz-grid__lang-badge .material-symbols-outlined {
-  font-size: 14px;
-}
-
-.quiz-grid__status {
-  font-size: 12px;
-  color: var(--text-soft);
+  border: 1px solid color-mix(in srgb, var(--lang-color, #6b7280) 25%, transparent);
 }
 
 .quiz-grid__status--solved {
-  color: #16a34a;
-  font-weight: 500;
+  color: #10b981;
 }
 
 .quiz-set-lang-badges {
@@ -1808,18 +1831,23 @@ body {
 .quiz-set-lang-badge {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 3px 10px;
+  gap: 6px;
+  padding: 4px 12px;
   border-radius: 999px;
   font-size: 12px;
-  font-weight: 500;
-  background: color-mix(in srgb, var(--lang-color, #6b7280) 12%, transparent);
-  color: var(--lang-color, #6b7280);
-  border: 1px solid color-mix(in srgb, var(--lang-color, #6b7280) 25%, transparent);
+  background: color-mix(in srgb, var(--lang-color, #6b7280) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--lang-color, #6b7280) 20%, transparent);
 }
 
-.quiz-set-lang-badge .material-symbols-outlined {
-  font-size: 14px;
+.quiz-set-lang-badge__name {
+  font-weight: 600;
+  color: var(--lang-color, #6b7280);
+}
+
+.quiz-set-lang-badge__count {
+  font-weight: 500;
+  color: var(--text-soft);
+  font-size: 11px;
 }
 
 /* Quiz Play - Modern Bright Design */

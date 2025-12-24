@@ -1,3 +1,4 @@
+from datetime import datetime
 from pydantic import BaseModel
 from typing import Any, List, Optional
 
@@ -12,6 +13,8 @@ class ProblemSummary(BaseModel):
     title: str
     defaultLanguage: str = "python3"
     isSolved: bool = False
+    submissionCount: int = 0
+    lastSubmittedAt: Optional[datetime] = None
 
 
 class ProblemDetail(BaseModel):

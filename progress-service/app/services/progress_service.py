@@ -71,3 +71,7 @@ async def get_attempted_problem_ids(
 
 async def get_language_unique_stats(user_id: Optional[int]):
     return await submission_repository.fetch_language_unique_stats(user_id=user_id)
+
+
+async def get_problem_submission_stats(user_id: Optional[int], problem_ids: List[int]):
+    return await submission_repository.fetch_problem_submission_stats(user_id=user_id, problem_ids=problem_ids)

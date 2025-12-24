@@ -72,3 +72,17 @@ class ProgressClient:
             response = await client.post(f"{self.base_url}/progress/submissions", json=data)
             response.raise_for_status()
             return response.json()
+
+    async def get_problem_stats(self, user_id: Optional[int], problem_ids: List[int]):
+        """問題ごとの提出統計を取得"""
+        ids_str = ",".join(map(str, problem_ids))
+        async with httpx.AsyncClient() as client:
+            params = {"problemIds": ids_str}
+            if user_id is not None:
+                params["userId"] = user_id
+            response = await client.get(
+                f"{self.base_url}/progress/problem-stats",
+                params=params,
+            )
+            response.raise_for_status()
+            return response.json()

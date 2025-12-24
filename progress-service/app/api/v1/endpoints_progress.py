@@ -15,6 +15,7 @@ from app.services.progress_service import (
     get_attempted_problem_ids,
     get_solved_problem_ids,
     get_language_unique_stats,
+    get_problem_submission_stats,
     get_unique_attempted_count,
     get_unique_solved_count,
 )
@@ -90,3 +91,20 @@ async def get_attempted_problems(
 async def get_language_stats(userId: Optional[int] = Query(None)) -> List[LanguageStatItem]:
     rows = await get_language_unique_stats(userId)
     return [LanguageStatItem(**r) for r in (rows or [])]
+
+
+@router.get("/problem-stats")
+async def get_problem_stats(
+    userId: Optional[int] = Query(None),
+    problemIds: str = Query(""),
+):
+    raw = [p.strip() for p in (problemIds or "").split(",") if p.strip()]
+    ids: List[int] = []
+    for p in raw:
+        try:
+            ids.append(int(p))
+        except ValueError:
+            continue
+
+    stats = await get_problem_submission_stats(user_id=userId, problem_ids=ids)
+    return stats

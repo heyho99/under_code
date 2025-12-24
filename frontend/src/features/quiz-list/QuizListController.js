@@ -17,8 +17,8 @@ function buildLanguageBadges(languageCounts) {
     .map(([lang, count]) => {
       const info = LANGUAGE_DISPLAY[lang] || { icon: "code", label: lang, color: "#6b7280" };
       return `<span class="quiz-set-lang-badge" style="--lang-color: ${info.color}">
-        <span class="material-symbols-outlined">${info.icon}</span>
-        ${info.label} ${count}
+        <span class="quiz-set-lang-badge__name">${info.label}</span>
+        <span class="quiz-set-lang-badge__count">${count}</span>
       </span>`;
     })
     .join('');
