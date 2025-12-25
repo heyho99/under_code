@@ -642,7 +642,7 @@ body {
   inset: 0;
   border-radius: inherit;
   background: radial-gradient(circle at top left, rgba(99, 102, 241, 0.08), transparent 50%),
-              radial-gradient(circle at bottom right, rgba(16, 185, 129, 0.06), transparent 50%);
+    radial-gradient(circle at bottom right, rgba(16, 185, 129, 0.06), transparent 50%);
   opacity: 1;
   pointer-events: none;
 }
@@ -2208,8 +2208,15 @@ body {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-4px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .primary-btn {
@@ -2365,7 +2372,7 @@ body {
   padding-left: 0;
 }
 
-.tree-node--folder.tree-node--collapsed > .tree-node__children {
+.tree-node--folder.tree-node--collapsed>.tree-node__children {
   display: none;
 }
 
