@@ -73,7 +73,7 @@ export const QuizListController = {
               </div>
               <div class="list__actions">
                 <button class="primary-btn js-open-quiz-set">クイズを選ぶ</button>
-                <button class="danger-btn js-delete-quiz-set" title="削除">🗑️</button>
+                <button class="danger-btn js-delete-quiz-set">削除</button>
               </div>
             </div>
             ${langBadgesHtml}
