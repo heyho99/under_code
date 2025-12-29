@@ -94,4 +94,7 @@ export const apiClient = {
   post(path, options) {
     return request("POST", path, options);
   },
+  delete(path, options) {
+    return request("DELETE", path, options);
+  },
 };

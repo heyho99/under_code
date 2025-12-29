@@ -625,6 +625,53 @@
         ```
 
 
+- DELETE `/api/v1/quiz-sets/{id}`
+    - **Frontend to BFF**
+
+      ```json
+      {
+        "description": "クイズセット削除（フロント→BFF）",
+        "request": "DELETE /api/v1/quiz-sets/205",
+        "header": "Authorization: Bearer <token>",
+        "body": null,
+        "response": {
+          "status": 204,
+          "body": null
+        }
+      }
+      ```
+
+    - **BFF to Services**
+        - 処理：クイズセットと関連する問題を削除
+        - サービス：[Quiz Service]
+        - **注意事項**: submissions（提出履歴）は削除されず、孤児レコードとして残る
+
+        ```markdown
+        1. パスパラメータ {id} を受け取る
+        2. Quiz Service の DELETE /quiz/quiz-sets/{id} を呼び出す
+        3. 成功時は 204 No Content を返す
+        4. 該当セットが存在しない場合は 404 Not Found を返す
+        ```
+
+        ```json
+        {
+          "description": "Quiz Service へセット削除を依頼",
+          "request": "DELETE /quiz/quiz-sets/205",
+          "header": "",
+          "body": null,
+          "response": {
+            "status": 204,
+            "body": null
+          }
+        }
+        ```
+
+        > **Note**: クイズセット削除時、`problems` テーブルの関連レコードは
+        > `ON DELETE CASCADE` により自動削除される。
+        > 一方、`submissions` テーブルには外部キー制約がないため、
+        > 削除された問題への参照（`problem_id`）を持つ提出履歴は孤児レコードとして残る。
+
+
 ### /#/quiz-play
 
 - GET `/api/v1/problems/{id}`

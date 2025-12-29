@@ -60,8 +60,8 @@ export const QuizListController = {
             rawRate !== null && !Number.isNaN(rawRate)
               ? Math.max(0, Math.min(100, Math.round(rawRate)))
               : total > 0
-              ? Math.round((completed / total) * 100)
-              : 0;
+                ? Math.round((completed / total) * 100)
+                : 0;
 
           const langBadgesHtml = buildLanguageBadges(quizSet.languageCounts);
 
@@ -73,6 +73,7 @@ export const QuizListController = {
               </div>
               <div class="list__actions">
                 <button class="primary-btn js-open-quiz-set">クイズを選ぶ</button>
+                <button class="danger-btn js-delete-quiz-set" title="削除">🗑️</button>
               </div>
             </div>
             ${langBadgesHtml}
@@ -123,10 +124,31 @@ export const QuizListController = {
       }
     }
 
-    root.addEventListener("click", (event) => {
+    root.addEventListener("click", async (event) => {
       const target = event.target;
       if (!(target instanceof Element)) return;
 
+      // 削除ボタン
+      const deleteButton = target.closest(".js-delete-quiz-set");
+      if (deleteButton) {
+        const item = deleteButton.closest(".quiz-set-item");
+        const quizSetId = item?.getAttribute("data-quiz-set-id");
+        if (!quizSetId) return;
+
+        const confirmed = confirm("このクイズセットと全ての問題を削除しますか？\nこの操作は取り消せません。");
+        if (!confirmed) return;
+
+        try {
+          await quizSetsApi.deleteQuizSet(parseInt(quizSetId));
+          // 削除成功 → リストを再読み込み
+          await QuizListController.mount();
+        } catch (error) {
+          alert("削除に失敗しました。もう一度お試しください。");
+        }
+        return;
+      }
+
+      // クイズを選ぶボタン
       const button = target.closest(".js-open-quiz-set");
       if (!button) return;
 

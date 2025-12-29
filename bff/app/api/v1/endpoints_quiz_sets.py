@@ -2,7 +2,7 @@ import asyncio
 from typing import Dict, List
 
 import logging
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.clients.progress_client import ProgressClient
 from app.clients.quiz_client import QuizClient
@@ -137,3 +137,20 @@ async def get_quiz_set_detail(quiz_set_id: int, user_id: int = Depends(get_curre
         title=data.get("title", ""),
         problems=problems,
     )
+
+
+@router.delete("/{quiz_set_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_quiz_set(quiz_set_id: int, user_id: int = Depends(get_current_user_id)):
+    """
+    クイズセットと関連する問題を削除する。
+    ※ submissions（提出履歴）は削除されず、孤児レコードとして残る。
+    """
+    try:
+        deleted = await quiz_client.delete_quiz_set(quiz_set_id)
+    except Exception:
+        logger.exception("Failed to delete quiz set")
+        raise HTTPException(status_code=502, detail="Failed to delete quiz set")
+
+    if not deleted:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Quiz set not found")
+    return None

@@ -23,4 +23,8 @@ export const quizSetsApi = {
   async getQuizSetDetail(quizSetId) {
     return apiClient.get(`/quiz-sets/${quizSetId}`);
   },
+
+  async deleteQuizSet(quizSetId) {
+    return apiClient.delete(`/quiz-sets/${quizSetId}`);
+  },
 };

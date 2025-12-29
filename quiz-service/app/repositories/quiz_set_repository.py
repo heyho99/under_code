@@ -68,3 +68,18 @@ async def get_quiz_set_with_problems(quiz_set_id: int):
     )
     return quiz_row, problem_rows
 
+
+async def delete_quiz_set(quiz_set_id: int) -> bool:
+    """
+    クイズセットを削除する。
+    ON DELETE CASCADE により関連する problems も自動削除される。
+    submissions は外部キー制約がないため残る（孤児レコード）。
+
+    Returns:
+        bool: 削除に成功した場合 True、該当セットが存在しない場合 False
+    """
+    result = await database.execute(
+        "DELETE FROM quiz_sets WHERE id = $1",
+        quiz_set_id,
+    )
+    return result == "DELETE 1"

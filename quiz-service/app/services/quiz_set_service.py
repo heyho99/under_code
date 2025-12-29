@@ -54,3 +54,7 @@ async def get_quiz_set_detail(quiz_set_id: int) -> Optional[QuizSetDetail]:
         problems=problems,
     )
 
+
+async def delete_quiz_set(quiz_set_id: int) -> bool:
+    """クイズセットと関連する問題を削除"""
+    return await quiz_set_repository.delete_quiz_set(quiz_set_id)

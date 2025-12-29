@@ -34,3 +34,15 @@ async def get_quiz_set_detail(quiz_set_id: int) -> QuizSetDetail:
     if detail is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Quiz set not found")
     return detail
+
+
+@router.delete("/quiz/quiz-sets/{quiz_set_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_quiz_set(quiz_set_id: int):
+    """
+    クイズセットと関連する問題を削除する。
+    ※ submissions（提出履歴）は削除されず、孤児レコードとして残る。
+    """
+    deleted = await quiz_set_service.delete_quiz_set(quiz_set_id)
+    if not deleted:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Quiz set not found")
+    return None

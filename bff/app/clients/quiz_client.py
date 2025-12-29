@@ -78,3 +78,12 @@ class QuizClient:
             response = await client.get(f"{self.base_url}/quiz/problems/{problem_id}")
             response.raise_for_status()
             return response.json()
+
+    async def delete_quiz_set(self, quiz_set_id: int) -> bool:
+        """クイズセットを削除する"""
+        async with httpx.AsyncClient() as client:
+            response = await client.delete(f"{self.base_url}/quiz/quiz-sets/{quiz_set_id}")
+            if response.status_code == 404:
+                return False
+            response.raise_for_status()
+            return True
