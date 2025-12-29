@@ -11,7 +11,7 @@ from app.schemas.generator import FileWithProblems, GenerateRequest
 logger = logging.getLogger(__name__)
 
 # Initialize Jinja2 environment
-TEMPLATES_DIR = Path(__file__).resolve().parent.parent / "prompts" / "templates"
+TEMPLATES_DIR = Path(__file__).resolve().parent.parent / "prompts"
 env = Environment(loader=FileSystemLoader(str(TEMPLATES_DIR)))
 
 
