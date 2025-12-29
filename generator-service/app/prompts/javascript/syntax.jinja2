@@ -20,32 +20,60 @@
 
 {% block output_example %}
 ~~~markdown
- # 1問目
- ## title
- 配列のフィルタリング
+# 1問目
+## title
+配列のフィルタリング
 
- ## statement
+## statement
 <p><code>sysin</code> は数値の配列です。偶数だけを残した配列を作り、それを JSON として出力してください。</p>
 
- ## sysinFormat
- `[number, number, ...]`
+## sysinFormat
+`[number, number, ...]`
 
- ## sampleAnswer
- ```javascript
+## sampleAnswer
+```javascript
 const fs = require("fs");
 const sysin = JSON.parse(fs.readFileSync(0, "utf8"));
 
 const result = sysin.filter(x => x % 2 === 0);
 
 process.stdout.write(JSON.stringify(result) + "\n");
- ```
+```
 
- ## testcases
- ### testcase1
- `{"sysin": [1, 2, 3, 4], "expected": [2, 4]}`
- ### testcase2
- `{"sysin": [], "expected": []}`
- ### testcase3
- `{"sysin": [2, 2, 3], "expected": [2, 2]}`
+## testcases
+### testcase1
+`{"sysin": [1, 2, 3, 4], "expected": [2, 4]}`
+### testcase2
+`{"sysin": [], "expected": []}`
+### testcase3
+`{"sysin": [2, 2, 3], "expected": [2, 2]}`
+
+# 2問目
+## title
+配列の合計値
+
+## statement
+<p><code>sysin</code> は数値の配列です。配列内の全ての数値の合計を計算し、それを JSON として出力してください。</p>
+
+## sysinFormat
+`[number, number, ...]`
+
+## sampleAnswer
+```javascript
+const fs = require("fs");
+const sysin = JSON.parse(fs.readFileSync(0, "utf8"));
+
+const result = sysin.reduce((sum, x) => sum + x, 0);
+
+process.stdout.write(JSON.stringify(result) + "\n");
+```
+
+## testcases
+### testcase1
+`{"sysin": [1, 2, 3, 4], "expected": 10}`
+### testcase2
+`{"sysin": [], "expected": 0}`
+### testcase3
+`{"sysin": [5, -3, 2], "expected": 4}`
 ~~~
 {% endblock %}

@@ -22,34 +22,64 @@
 
 {% block output_example %}
 ~~~markdown
- # 1問目
- ## title
- リスト内包表記によるフィルタリング
- 
- ## statement
+# 1問目
+## title
+リスト内包表記によるフィルタリング
+
+## statement
 <p><code>sysin</code> は数値のリストです。偶数だけを残したリストを作り、それを JSON として出力してください。</p>
- 
- ## sysinFormat
- `[number, number, ...]`
- 
- ## sampleAnswer
- ```python
- import sys
- import json
- 
- sysin = json.loads(sys.stdin.read() or "null")
- 
- result = [x for x in sysin if x % 2 == 0]
- 
- print(json.dumps(result, ensure_ascii=False))
- ```
- 
- ## testcases
- ### testcase1
- `{"sysin": [1, 2, 3, 4], "expected": [2, 4]}`
- ### testcase2
- `{"sysin": [], "expected": []}`
- ### testcase3
- `{"sysin": [2, 2, 3], "expected": [2, 2]}`
+
+## sysinFormat
+`[number, number, ...]`
+
+## sampleAnswer
+```python
+import sys
+import json
+
+sysin = json.loads(sys.stdin.read() or "null")
+
+result = [x for x in sysin if x % 2 == 0]
+
+print(json.dumps(result, ensure_ascii=False))
+```
+
+## testcases
+### testcase1
+`{"sysin": [1, 2, 3, 4], "expected": [2, 4]}`
+### testcase2
+`{"sysin": [], "expected": []}`
+### testcase3
+`{"sysin": [2, 2, 3], "expected": [2, 2]}`
+
+# 2問目
+## title
+辞書のキーと値の入れ替え
+
+## statement
+<p><code>sysin</code> は文字列をキー、数値を値とする辞書です。キーと値を入れ替えた新しい辞書を作り、それを JSON として出力してください。</p>
+
+## sysinFormat
+`{"key1": number, "key2": number, ...}`
+
+## sampleAnswer
+```python
+import sys
+import json
+
+sysin = json.loads(sys.stdin.read() or "null")
+
+result = {str(v): k for k, v in sysin.items()}
+
+print(json.dumps(result, ensure_ascii=False))
+```
+
+## testcases
+### testcase1
+`{"sysin": {"a": 1, "b": 2}, "expected": {"1": "a", "2": "b"}}`
+### testcase2
+`{"sysin": {}, "expected": {}}`
+### testcase3
+`{"sysin": {"x": 100}, "expected": {"100": "x"}}`
 ~~~
 {% endblock %}

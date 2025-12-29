@@ -25,40 +25,79 @@
 
 {% block output_example %}
 ~~~markdown
- # 1問目
- ## title
- 合計を計算する関数
+# 1問目
+## title
+合計を計算する関数
 
- ## statement
+## statement
 <p><code>sysin</code> は数値のリストです。リスト内の全ての数値の合計を返す関数 <code>calculate_sum</code> を定義し、その結果を JSON として出力してください。</p>
 
- ## sysinFormat
- `[number, number, ...]`
+## sysinFormat
+`[number, number, ...]`
 
- ## sampleAnswer
- ```python
- import sys
- import json
- 
- sysin = json.loads(sys.stdin.read() or "null")
- 
- def calculate_sum(numbers):
-     total = 0
-     for num in numbers:
-         total += num
-     return total
- 
- result = calculate_sum(sysin)
- 
- print(json.dumps(result, ensure_ascii=False))
- ```
+## sampleAnswer
+```python
+import sys
+import json
 
- ## testcases
- ### testcase1
- `{"sysin": [1, 2, 3, 4], "expected": 10}`
- ### testcase2
- `{"sysin": [], "expected": 0}`
- ### testcase3
- `{"sysin": [5, -3, 2], "expected": 4}`
+sysin = json.loads(sys.stdin.read() or "null")
+
+def calculate_sum(numbers):
+    total = 0
+    for num in numbers:
+        total += num
+    return total
+
+result = calculate_sum(sysin)
+
+print(json.dumps(result, ensure_ascii=False))
+```
+
+## testcases
+### testcase1
+`{"sysin": [1, 2, 3, 4], "expected": 10}`
+### testcase2
+`{"sysin": [], "expected": 0}`
+### testcase3
+`{"sysin": [5, -3, 2], "expected": 4}`
+
+# 2問目
+## title
+最大値を返す関数
+
+## statement
+<p><code>sysin</code> は数値のリストです。リスト内の最大値を返す関数 <code>find_max</code> を定義し、その結果を JSON として出力してください。空のリストの場合は <code>null</code> を返してください。</p>
+
+## sysinFormat
+`[number, number, ...]`
+
+## sampleAnswer
+```python
+import sys
+import json
+
+sysin = json.loads(sys.stdin.read() or "null")
+
+def find_max(numbers):
+    if not numbers:
+        return None
+    max_val = numbers[0]
+    for num in numbers[1:]:
+        if num > max_val:
+            max_val = num
+    return max_val
+
+result = find_max(sysin)
+
+print(json.dumps(result, ensure_ascii=False))
+```
+
+## testcases
+### testcase1
+`{"sysin": [3, 1, 4, 1, 5], "expected": 5}`
+### testcase2
+`{"sysin": [], "expected": null}`
+### testcase3
+`{"sysin": [-10, -5, -20], "expected": -5}`
 ~~~
 {% endblock %}
