@@ -1,0 +1,13 @@
+{% extends "base/base.jinja2" %}
+
+{% block category_name %}関数（function）{% endblock %}
+
+{% block quiz_creation_rules %}
+【クイズ作成ルール】
+- 対象コードに含まれる**関数定義**を題材にする
+- 関数の引数、戻り値、処理内容を問う問題を作成する
+- 関数の呼び出し方、引数の渡し方を問う問題を作成する
+- statement には必ず次を明記する
+  - 入力: 実行時に変数 `sysin` が与えられること（stdin の JSON を読み込んで `sysin` に入れる）
+  - 処理: 対象コードの関数をどのように実装・呼び出すか
+{% endblock %}

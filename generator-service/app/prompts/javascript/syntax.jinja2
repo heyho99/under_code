@@ -1,4 +1,4 @@
-{% extends "base.jinja2" %}
+{% extends "base/syntax.jinja2" %}
 
 {% block execution_environment %}
 【実行環境 / sampleAnswer（JavaScript）】
@@ -49,33 +49,5 @@ process.stdout.write(JSON.stringify(result) + "\n");
  `{"sysin": [], "expected": []}`
  ### testcase3
  `{"sysin": [2, 2, 3], "expected": [2, 2]}`
-
- # 2問目
- ## title
- オブジェクトのプロパティ存在チェック
-
- ## statement
-<p><code>sysin</code> は <code>{"obj": {...}, "key": "..."}</code> の形式です。<code>obj</code> に <code>key</code> で指定されたプロパティが存在するかどうかを判定し、true/false を JSON として出力してください。</p>
-
- ## sysinFormat
- `{"obj": object, "key": string}`
-
- ## sampleAnswer
- ```javascript
-const fs = require("fs");
-const sysin = JSON.parse(fs.readFileSync(0, "utf8"));
-
-const result = Object.prototype.hasOwnProperty.call(sysin.obj, sysin.key);
-
-process.stdout.write(JSON.stringify(result) + "\n");
- ```
-
- ## testcases
- ### testcase1
- `{"sysin": {"obj": {"a": 1}, "key": "a"}, "expected": true}`
- ### testcase2
- `{"sysin": {"obj": {"a": 1}, "key": "b"}, "expected": false}`
- ### testcase3
- `{"sysin": {"obj": {}, "key": "x"}, "expected": false}`
 ~~~
 {% endblock %}

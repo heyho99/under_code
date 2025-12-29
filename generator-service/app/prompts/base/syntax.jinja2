@@ -1,0 +1,13 @@
+{% extends "base/base.jinja2" %}
+
+{% block category_name %}文法・処理（syntax）{% endblock %}
+
+{% block quiz_creation_rules %}
+【クイズ作成ルール】
+- 対象コードに含まれる基本的な文法や処理を問う
+- 対象コード内の、**関数定義やクラス定義を含まない、数行の処理** を対象とする
+- 対象コード中の特定の行や小さなブロックを抜き出して問題にする
+- statement には必ず次を明記する
+  - 入力: 実行時に変数 `sysin` が与えられること（stdin の JSON を読み込んで `sysin` に入れる）
+  - 処理: 対象コードのロジックをどのように再現するか
+{% endblock %}

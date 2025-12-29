@@ -3,6 +3,7 @@
 
 重要: 出力は必ず、問題 3 問分の Markdown テキストのみです。余計な説明や例は絶対に出力しないでください。
 
+
 【クイズ作成ルール】
 - 対象コードに含まれる基本的な文法や処理を問う
 - 対象コード内の、**関数定義やクラス定義を含まない、数行の処理** を対象とする
@@ -10,6 +11,7 @@
 - statement には必ず次を明記する
   - 入力: 実行時に変数 `sysin` が与えられること（stdin の JSON を読み込んで `sysin` に入れる）
   - 処理: 対象コードのロジックをどのように再現するか
+
 
 
 【実行環境 / sampleAnswer（JavaScript）】
@@ -99,34 +101,6 @@ process.stdout.write(JSON.stringify(result) + "\n");
  `{"sysin": [], "expected": []}`
  ### testcase3
  `{"sysin": [2, 2, 3], "expected": [2, 2]}`
-
- # 2問目
- ## title
- オブジェクトのプロパティ存在チェック
-
- ## statement
-<p><code>sysin</code> は <code>{"obj": {...}, "key": "..."}</code> の形式です。<code>obj</code> に <code>key</code> で指定されたプロパティが存在するかどうかを判定し、true/false を JSON として出力してください。</p>
-
- ## sysinFormat
- `{"obj": object, "key": string}`
-
- ## sampleAnswer
- ```javascript
-const fs = require("fs");
-const sysin = JSON.parse(fs.readFileSync(0, "utf8"));
-
-const result = Object.prototype.hasOwnProperty.call(sysin.obj, sysin.key);
-
-process.stdout.write(JSON.stringify(result) + "\n");
- ```
-
- ## testcases
- ### testcase1
- `{"sysin": {"obj": {"a": 1}, "key": "a"}, "expected": true}`
- ### testcase2
- `{"sysin": {"obj": {"a": 1}, "key": "b"}, "expected": false}`
- ### testcase3
- `{"sysin": {"obj": {}, "key": "x"}, "expected": false}`
 ~~~
 
 

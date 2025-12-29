@@ -1,16 +1,16 @@
 あなたはPythonのプログラミング教育の専門家です。
-次のソースコードを題材に、3問の「Pythonの文法・処理（syntax）」問題を作成してください。
+次のソースコードを題材に、3問の「Pythonの関数（function）」問題を作成してください。
 
 重要: 出力は必ず、問題 3 問分の Markdown テキストのみです。余計な説明や例は絶対に出力しないでください。
 
 
 【クイズ作成ルール】
-- 対象コードに含まれる基本的な文法や処理を問う
-- 対象コード内の、**関数定義やクラス定義を含まない、数行の処理** を対象とする
-- 対象コード中の特定の行や小さなブロックを抜き出して問題にする
+- 対象コードに含まれる**関数定義**を題材にする
+- 関数の引数、戻り値、処理内容を問う問題を作成する
+- 関数の呼び出し方、引数の渡し方を問う問題を作成する
 - statement には必ず次を明記する
   - 入力: 実行時に変数 `sysin` が与えられること（stdin の JSON を読み込んで `sysin` に入れる）
-  - 処理: 対象コードのロジックをどのように再現するか
+  - 処理: 対象コードの関数をどのように実装・呼び出すか
 
 
 
@@ -24,8 +24,11 @@
   
   sysin = json.loads(sys.stdin.read() or "null")
   
-  # 処理を書く
-  result = None  # 最後に result = 値 の形式で結果を保持
+  # 関数を定義して処理を書く
+  def my_function(arg):
+      pass  # 処理を実装
+  
+  result = my_function(sysin)  # 最後に result = 値 の形式で結果を保持
   
   print(json.dumps(result, ensure_ascii=False))
   ```
@@ -78,14 +81,14 @@ NG:
 ~~~markdown
  # 1問目
  ## title
- リスト内包表記によるフィルタリング
- 
+ 合計を計算する関数
+
  ## statement
-<p><code>sysin</code> は数値のリストです。偶数だけを残したリストを作り、それを JSON として出力してください。</p>
- 
+<p><code>sysin</code> は数値のリストです。リスト内の全ての数値の合計を返す関数 <code>calculate_sum</code> を定義し、その結果を JSON として出力してください。</p>
+
  ## sysinFormat
  `[number, number, ...]`
- 
+
  ## sampleAnswer
  ```python
  import sys
@@ -93,18 +96,24 @@ NG:
  
  sysin = json.loads(sys.stdin.read() or "null")
  
- result = [x for x in sysin if x % 2 == 0]
+ def calculate_sum(numbers):
+     total = 0
+     for num in numbers:
+         total += num
+     return total
+ 
+ result = calculate_sum(sysin)
  
  print(json.dumps(result, ensure_ascii=False))
  ```
- 
+
  ## testcases
  ### testcase1
- `{"sysin": [1, 2, 3, 4], "expected": [2, 4]}`
+ `{"sysin": [1, 2, 3, 4], "expected": 10}`
  ### testcase2
- `{"sysin": [], "expected": []}`
+ `{"sysin": [], "expected": 0}`
  ### testcase3
- `{"sysin": [2, 2, 3], "expected": [2, 2]}`
+ `{"sysin": [5, -3, 2], "expected": 4}`
 ~~~
 
 

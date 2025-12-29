@@ -1,4 +1,4 @@
-{% extends "base.jinja2" %}
+{% extends "base/syntax.jinja2" %}
 
 {% block execution_environment %}
 【実行環境 / sampleAnswer（Go）】
@@ -100,56 +100,5 @@ func main() {
  `{"sysin": [], "expected": []}`
  ### testcase3
  `{"sysin": [2, 2, 3], "expected": [2, 2]}`
-
- # 2問目
- ## title
- マップのキー存在チェック
-
- ## statement
-<p><code>sysin</code> は <code>{"obj": {...}, "key": "..."}</code> の形式です。<code>obj</code> に <code>key</code> で指定されたキーが存在するかどうかを判定し、true/false を JSON として出力してください。</p>
-
- ## sysinFormat
- `{"obj": object, "key": string}`
-
- ## sampleAnswer
- ```go
-package main
-
-import (
-	"encoding/json"
-	"fmt"
-	"io"
-	"os"
-)
-
-func main() {
-	var sysin map[string]interface{}
-	b, err := io.ReadAll(os.Stdin)
-	if err != nil {
-		panic(err)
-	}
-	if err := json.Unmarshal(b, &sysin); err != nil {
-		panic(err)
-	}
-
-	obj := sysin["obj"].(map[string]interface{})
-	key := sysin["key"].(string)
-	_, result := obj[key]
-
-	out, err := json.Marshal(result)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(string(out))
-}
- ```
-
- ## testcases
- ### testcase1
- `{"sysin": {"obj": {"a": 1}, "key": "a"}, "expected": true}`
- ### testcase2
- `{"sysin": {"obj": {"a": 1}, "key": "b"}, "expected": false}`
- ### testcase3
- `{"sysin": {"obj": {}, "key": "x"}, "expected": false}`
 ~~~
 {% endblock %}

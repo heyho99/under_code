@@ -1,15 +1,10 @@
 あなたは{{ language_name }}のプログラミング教育の専門家です。
-次のソースコードを題材に、{{ total }}問の「{{ language_name }}の文法・処理（syntax）」問題を作成してください。
+次のソースコードを題材に、{{ total }}問の「{{ language_name }}の{% block category_name %}{% endblock %}」問題を作成してください。
 
 重要: 出力は必ず、問題 {{ total }} 問分の Markdown テキストのみです。余計な説明や例は絶対に出力しないでください。
 
-【クイズ作成ルール】
-- 対象コードに含まれる基本的な文法や処理を問う
-- 対象コード内の、**関数定義やクラス定義を含まない、数行の処理** を対象とする
-- 対象コード中の特定の行や小さなブロックを抜き出して問題にする
-- statement には必ず次を明記する
-  - 入力: 実行時に変数 `sysin` が与えられること（stdin の JSON を読み込んで `sysin` に入れる）
-  - 処理: 対象コードのロジックをどのように再現するか
+{% block quiz_creation_rules %}
+{% endblock %}
 
 {% block execution_environment %}
 {% endblock %}
