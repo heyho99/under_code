@@ -1,7 +1,6 @@
 {% extends "base/syntax.jinja2" %}
 
 {% block execution_environment %}
-【実行環境 / sampleAnswer（Python）】
 - sampleAnswer は Python で書く
 - sampleAnswer は必ず、stdin の JSON を読み込んで `sysin` を作り、最後に `result` を JSON として 1 行出力する（I/O テンプレを含む）
 - （I/O テンプレの最小形 / 出力に含めない）
@@ -22,7 +21,6 @@
 {% block json_constraints_extra %}（例: set, tuple, bytes, datetime, NaN, Infinity）{% endblock %}
 
 {% block output_example %}
-【出力例（2問分 / これは例。出力に含めない）】
 ~~~markdown
  # 1問目
  ## title
