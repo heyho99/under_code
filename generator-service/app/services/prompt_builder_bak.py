@@ -2,17 +2,11 @@ import logging
 from pathlib import Path
 from typing import Dict, List, Optional
 
-from jinja2 import Environment, FileSystemLoader
-
 from app.schemas.generator import FileWithProblems, GenerateRequest
 
 
 
 logger = logging.getLogger(__name__)
-
-# Initialize Jinja2 environment
-TEMPLATES_DIR = Path(__file__).resolve().parent.parent / "prompts" / "templates"
-env = Environment(loader=FileSystemLoader(str(TEMPLATES_DIR)))
 
 
 def _aggregate_problem_counts(base: Dict[str, int], files: List[FileWithProblems]) -> Dict[str, int]:
@@ -35,11 +29,13 @@ LANGUAGE_CODE_BLOCK_MAP = {
     "go": "go",
 }
 
-LANGUAGE_NAME_MAP = {
-    "python3": "Python",
-    "javascript": "JavaScript",
-    "go": "Go",
-}
+
+def _load_prompt_template(language: str, category: str) -> str:
+    prompts_dir = Path(__file__).resolve().parent.parent / "prompts"
+    path = prompts_dir / language / f"{category}.md"
+    if not path.exists():
+        raise ValueError(f"Prompt template not found: {path}")
+    return path.read_text(encoding="utf-8")
 
 
 def _get_category_problem_count(request: GenerateRequest, category: str) -> int:
@@ -76,7 +72,6 @@ def build_generation_prompt(request: GenerateRequest, category: str = "syntax") 
 
     language = request.defaultLanguage or "python3"
     code_block_lang = LANGUAGE_CODE_BLOCK_MAP.get(language, "python")
-    language_name = LANGUAGE_NAME_MAP.get(language, language)
 
     sources: List[str] = []
     for f in request.files:
@@ -95,23 +90,15 @@ def build_generation_prompt(request: GenerateRequest, category: str = "syntax") 
     description = request.description or ""
     source_md = "\n\n".join(sources)
 
-    template_name = f"{language}/{category}.jinja2"
-    
-    try:
-        template = env.get_template(template_name)
-    except Exception as e:
-         # Fallback to python3 if template not found, or raise error. 
-         # For now, let's better raise a clear error or default to python check.
-         # The original code raised ValueError if path.exists() failed.
-         logger.error(f"Failed to load template {template_name}: {e}")
-         raise ValueError(f"Prompt template not found: {template_name}")
+    template = _load_prompt_template(language, category)
+    replacements = {
+        "__GENERATOR_PROMPT_TOTAL__": str(total),
+        "__GENERATOR_PROMPT_TITLE__": title,
+        "__GENERATOR_PROMPT_DESCRIPTION__": description,
+        "__GENERATOR_PROMPT_SOURCE_MD__": source_md,
+    }
 
-    rendered_prompt = template.render(
-        total=str(total),
-        title=title,
-        description=description,
-        source_md=source_md,
-        language_name=language_name
-    )
+    for k, v in replacements.items():
+        template = template.replace(k, v)
 
-    return rendered_prompt
+    return template

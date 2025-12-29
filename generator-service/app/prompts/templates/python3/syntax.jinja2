@@ -1,0 +1,102 @@
+{% extends "base.jinja2" %}
+
+{% block execution_environment %}
+【実行環境 / sampleAnswer（Python）】
+- sampleAnswer は Python で書く
+- sampleAnswer は必ず、stdin の JSON を読み込んで `sysin` を作り、最後に `result` を JSON として 1 行出力する（I/O テンプレを含む）
+- （I/O テンプレの最小形 / 出力に含めない）
+  ```python
+  import sys
+  import json
+  
+  sysin = json.loads(sys.stdin.read() or "null")
+  
+  # 処理を書く
+  result = None  # 最後に result = 値 の形式で結果を保持
+  
+  print(json.dumps(result, ensure_ascii=False))
+  ```
+- 追加の print やデバッグ出力は禁止（採点が壊れるため）
+{% endblock %}
+
+{% block json_constraints_extra %}（例: set, tuple, bytes, datetime, NaN, Infinity）{% endblock %}
+
+{% block output_example %}
+【出力例（2問分 / これは例。出力に含めない）】
+~~~markdown
+ # 1問目
+ ## title
+ リスト内包表記によるフィルタリング
+ 
+ ## statement
+<p><code>sysin</code> は数値のリストです。偶数だけを残したリストを作り、それを JSON として出力してください。</p>
+ 
+ ## sysinFormat
+ `[number, number, ...]`
+ 
+ ## sampleAnswer
+ ```python
+ import sys
+ import json
+ 
+ sysin = json.loads(sys.stdin.read() or "null")
+ 
+ result = [x for x in sysin if x % 2 == 0]
+ 
+ print(json.dumps(result, ensure_ascii=False))
+ ```
+ 
+ ## testcases
+ ### testcase1
+ `{"sysin": [1, 2, 3, 4], "expected": [2, 4]}`
+ ### testcase2
+ `{"sysin": [], "expected": []}`
+ ### testcase3
+ `{"sysin": [2, 2, 3], "expected": [2, 2]}`
+ 
+ # 2問目
+ ## title
+ ステータスコードからレスポンスボディ可否判定
+ 
+ ## statement
+<p><code>sysin</code> は <code>{"statusCode": ...}</code> の形式です。次のルールでレスポンスボディを許可するか（true/false）を判定し、JSONとして出力してください。</p>
+<ul>
+<li>statusCode が null のとき: true</li>
+<li>statusCode が "default" / "1XX" / "2XX" / "3XX" / "4XX" / "5XX" のいずれかのとき: true</li>
+<li>それ以外: statusCode を整数に変換し、(statusCode &lt; 200) または (204/205/304 のいずれか) のとき false。そうでなければ true</li>
+</ul>
+ 
+ ## sysinFormat
+ `{"statusCode": number|string|null}`
+ 
+ ## sampleAnswer
+ ```python
+ import sys
+ import json
+ 
+ sysin = json.loads(sys.stdin.read() or "null")
+ 
+ status_code = None
+ if isinstance(sysin, dict):
+     status_code = sysin.get("statusCode")
+ 
+ if status_code is None:
+     result = True
+ elif status_code in {"default", "1XX", "2XX", "3XX", "4XX", "5XX"}:
+     result = True
+ else:
+     current_status_code = int(status_code)
+     result = not (current_status_code < 200 or current_status_code in {204, 205, 304})
+ 
+ print(json.dumps(result, ensure_ascii=False))
+ ```
+ 
+ ## testcases
+ ### testcase1
+ `{"sysin": {"statusCode": null}, "expected": true}`
+ ### testcase2
+ `{"sysin": {"statusCode": "2XX"}, "expected": true}`
+ ### testcase3
+ `{"sysin": {"statusCode": 204}, "expected": false}`
+~~~
+{% endblock %}

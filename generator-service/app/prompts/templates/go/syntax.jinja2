@@ -1,0 +1,155 @@
+{% extends "base.jinja2" %}
+
+{% block execution_environment %}
+【実行環境 / sampleAnswer（Go）】
+- sampleAnswer は Go で書く
+- sampleAnswer は必ず、stdin の JSON を読み込んで `sysin` を作り、最後に `result` を JSON として 1 行出力する（I/O テンプレを含む）
+- Go では `sysin` は `interface{}` 型で受け取り、型アサーションで適切な型に変換する
+- （I/O テンプレの最小形 / 出力に含めない）
+  ```go
+  package main
+
+  import (
+  	"encoding/json"
+  	"fmt"
+  	"io"
+  	"os"
+  )
+
+  func main() {
+  	var sysin interface{}
+  	b, err := io.ReadAll(os.Stdin)
+  	if err != nil {
+  		panic(err)
+  	}
+  	if err := json.Unmarshal(b, &sysin); err != nil {
+  		panic(err)
+  	}
+
+  	// 処理を書く
+  	var result interface{} = nil
+
+  	out, err := json.Marshal(result)
+  	if err != nil {
+  		panic(err)
+  	}
+  	fmt.Println(string(out))
+  }
+  ```
+- 追加の fmt.Println やデバッグ出力は禁止（採点が壊れるため）
+{% endblock %}
+
+{% block json_constraints_extra %}{% endblock %}
+
+{% block output_example %}
+【出力例（2問分 / これは例。出力に含めない）】
+~~~markdown
+ # 1問目
+ ## title
+ スライスのフィルタリング
+
+ ## statement
+<p><code>sysin</code> は数値の配列です。偶数だけを残した配列を作り、それを JSON として出力してください。</p>
+
+ ## sysinFormat
+ `[number, number, ...]`
+
+ ## sampleAnswer
+ ```go
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+	"io"
+	"os"
+)
+
+func main() {
+	var sysin []float64
+	b, err := io.ReadAll(os.Stdin)
+	if err != nil {
+		panic(err)
+	}
+	if err := json.Unmarshal(b, &sysin); err != nil {
+		panic(err)
+	}
+
+	var result []float64
+	for _, x := range sysin {
+		if int(x)%2 == 0 {
+			result = append(result, x)
+		}
+	}
+	if result == nil {
+		result = []float64{}
+	}
+
+	out, err := json.Marshal(result)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(string(out))
+}
+ ```
+
+ ## testcases
+ ### testcase1
+ `{"sysin": [1, 2, 3, 4], "expected": [2, 4]}`
+ ### testcase2
+ `{"sysin": [], "expected": []}`
+ ### testcase3
+ `{"sysin": [2, 2, 3], "expected": [2, 2]}`
+
+ # 2問目
+ ## title
+ マップのキー存在チェック
+
+ ## statement
+<p><code>sysin</code> は <code>{"obj": {...}, "key": "..."}</code> の形式です。<code>obj</code> に <code>key</code> で指定されたキーが存在するかどうかを判定し、true/false を JSON として出力してください。</p>
+
+ ## sysinFormat
+ `{"obj": object, "key": string}`
+
+ ## sampleAnswer
+ ```go
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+	"io"
+	"os"
+)
+
+func main() {
+	var sysin map[string]interface{}
+	b, err := io.ReadAll(os.Stdin)
+	if err != nil {
+		panic(err)
+	}
+	if err := json.Unmarshal(b, &sysin); err != nil {
+		panic(err)
+	}
+
+	obj := sysin["obj"].(map[string]interface{})
+	key := sysin["key"].(string)
+	_, result := obj[key]
+
+	out, err := json.Marshal(result)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(string(out))
+}
+ ```
+
+ ## testcases
+ ### testcase1
+ `{"sysin": {"obj": {"a": 1}, "key": "a"}, "expected": true}`
+ ### testcase2
+ `{"sysin": {"obj": {"a": 1}, "key": "b"}, "expected": false}`
+ ### testcase3
+ `{"sysin": {"obj": {}, "key": "x"}, "expected": false}`
+~~~
+{% endblock %}
