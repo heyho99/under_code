@@ -3,8 +3,8 @@
 
 ## 【クイズ作成ルール】
 - 末尾に示すソースコードセクションのコードを題材に問題を作成する
-{% block quiz_creation_rules %}
-{% endblock %}
+{%- block quiz_creation_rules %}
+{%- endblock %}
 
 ## 【**出力フォーマット**（厳守）】
 - 回答は {{ total }} 問分の Markdown テキストのみ
@@ -25,8 +25,8 @@
   - 処理: 対象コードの関数をどのように実装・呼び出すか
 
 ## 【sampleAnswer の書き方】
-{% block execution_environment %}
-{% endblock %}
+{%- block execution_environment %}
+{%- endblock %}
 
 ## 【testcases の書き方】
 - testcases の中に `### testcase1` / `### testcase2` / `### testcase3` を作る（testcaseは必ず**3つ丁度**）
@@ -48,11 +48,11 @@
 ## 【**JSON の制約**（重要）】
 - sysin / expected / sampleAnswer が出力する値（result）は、JSON の6種類の値のみを使う
   - object / array / string / number / boolean / null
-- JSONとして表現できない値{% block json_constraints_extra %}{% endblock %}は使わない
+- JSONとして表現できない値{%- block json_constraints_extra %}{%- endblock %}は使わない
 
 ## 【出力例（2問分 / これは例。出力に含めない）】
-{% block output_example %}
-{% endblock %}
+{%- block output_example %}
+{%- endblock %}
 
-## ソースコード
+## 【ソースコード】
 {{ source_md }}

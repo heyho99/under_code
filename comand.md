@@ -1,0 +1,1 @@
+docker compose exec quiz-db psql -U user -d quiz_d -c "SELECT * FROM quiz_sets;"
