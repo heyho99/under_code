@@ -1,0 +1,96 @@
+{
+  "problems": [
+    {
+      "title": "JSON入力の数値をそのまま出力",
+      "category": "syntax",
+      "statement": "標準入力から JSON オブジェクト `{\"n\": number}` を読み取り、その `n` の値を JSON として1行で標準出力してください。",
+      "sysinFormat": "{\"n\": number}",
+      "defaultLanguage": "go",
+      "sampleAnswer": "package main\n\nimport (\n    \"encoding/json\"\n    \"os\"\n)\n\nfunc main() {\n    var sysin map[string]interface{}\n    json.NewDecoder(os.Stdin).Decode(&sysin)\n    json.NewEncoder(os.Stdout).Encode(sysin[\"n\"])\n}\n",
+      "testcases": [
+        {
+          "sysin": {
+            "n": 1
+          },
+          "expected": 1
+        },
+        {
+          "sysin": {
+            "n": 2
+          },
+          "expected": 2
+        }
+      ]
+    },
+    {
+      "title": "2つの数値の合計を出力",
+      "category": "syntax",
+      "statement": "標準入力から JSON オブジェクト `{\"a\": number, \"b\": number}` を読み取り、`a + b` の結果を JSON として1行で標準出力してください。",
+      "sysinFormat": "{\"a\": number, \"b\": number}",
+      "defaultLanguage": "go",
+      "sampleAnswer": "package main\n\nimport (\n    \"encoding/json\"\n    \"os\"\n)\n\nfunc main() {\n    var sysin map[string]float64\n    json.NewDecoder(os.Stdin).Decode(&sysin)\n    result := sysin[\"a\"] + sysin[\"b\"]\n    json.NewEncoder(os.Stdout).Encode(result)\n}\n",
+      "testcases": [
+        {
+          "sysin": {
+            "a": 1,
+            "b": 2
+          },
+          "expected": 3
+        },
+        {
+          "sysin": {
+            "a": 10,
+            "b": 20
+          },
+          "expected": 30
+        }
+      ]
+    },
+    {
+      "title": "JSON入力の数値をそのまま出力",
+      "category": "syntax",
+      "statement": "変数 `sysin` には JSON オブジェクト `{\"n\": number}` が入ります。`sysin[\"n\"]` を JSON として1行で標準出力してください。",
+      "sysinFormat": "{\"n\": number}",
+      "defaultLanguage": "python3",
+      "sampleAnswer": "import sys, json\nsysin = json.loads(sys.stdin.read())\nprint(json.dumps(sysin[\"n\"]))\n",
+      "testcases": [
+        {
+          "sysin": {
+            "n": 1
+          },
+          "expected": 1
+        },
+        {
+          "sysin": {
+            "n": 2
+          },
+          "expected": 2
+        }
+      ]
+    },
+    {
+      "title": "2つの数値の合計を出力",
+      "category": "syntax",
+      "statement": "変数 `sysin` には JSON オブジェクト `{\"a\": number, \"b\": number}` が入ります。`sysin[\"a\"] + sysin[\"b\"]` の結果を JSON として1行で標準出力してください。",
+      "sysinFormat": "{\"a\": number, \"b\": number}",
+      "defaultLanguage": "python3",
+      "sampleAnswer": "import sys, json\nsysin = json.loads(sys.stdin.read())\nresult = sysin[\"a\"] + sysin[\"b\"]\nprint(json.dumps(result))\n",
+      "testcases": [
+        {
+          "sysin": {
+            "a": 1,
+            "b": 2
+          },
+          "expected": 3
+        },
+        {
+          "sysin": {
+            "a": 10,
+            "b": 20
+          },
+          "expected": 30
+        }
+      ]
+    }
+  ]
+}
