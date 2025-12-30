@@ -3,17 +3,26 @@
   --bg-sidebar: linear-gradient(180deg, #ffffff 0%, #f3f4f6 70%);
   --bg-main: radial-gradient(circle at top, #ffffff 0, #f3f4f6 55%);
   --bg-card: #ffffff;
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
+  --bg-tertiary: #f1f5f9;
   --border-subtle: rgba(148, 163, 184, 0.45);
+  --border-color: rgba(148, 163, 184, 0.45);
   --accent: #2563eb;
   --accent-soft: rgba(37, 99, 235, 0.12);
   --accent-strong: #1d4ed8;
+  --primary: #2563eb;
   --text-main: #111827;
   --text-muted: #111827;
   --text-soft: #111827;
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
   --radius-lg: 18px;
   --radius-md: 12px;
+  --radius-sm: 8px;
   --radius-pill: 999px;
   --shadow-soft: 0 16px 40px rgba(15, 23, 42, 0.12);
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
 * {
