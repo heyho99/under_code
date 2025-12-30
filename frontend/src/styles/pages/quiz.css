@@ -822,12 +822,14 @@
 }
 
 .quiz-feedback__content {
-    font-size: 13px;
-    line-height: 1.5;
-    color: var(--text-main);
+    font-size: 14px;
+    line-height: 1.6;
+    font-family: var(--font-mono);
+    color: #0f172a;
     margin: 0;
-    padding: 12px;
-    background: var(--bg-secondary);
+    padding: 16px;
+    background: #ffffff;
+    border: 1px solid rgba(148, 163, 184, 0.4);
     border-radius: var(--radius-sm);
     overflow-x: auto;
     white-space: pre-wrap;

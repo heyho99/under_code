@@ -1,62 +1,71 @@
 {
   "problems": [
     {
-      "title": "for文とタプルのアンパック代入",
+      "title": "docker compose コマンド文字列から <code>-f</code> オプションで指定されたファイルパスを抽出する処理",
       "category": "syntax",
-      "statement": "<p><code>sysin</code> は <code>[[beat, bpm], ...]</code> という形式の数値の2要素リストからなるリストです。これは次のコード断片と同じ構造を持つとします。</p>\n<p><code>for beat, bpm in beat_bpm:</code></p>\n<p>このコードと同様に、各要素を <code>beat</code> と <code>bpm</code> という2つの変数にアンパックしながら for ループで回し、<code>(beat, bpm)</code> のタプルを新しいリストに順番に追加してください。その結果のリストを JSON で出力してください。</p>\n<p>入力: 実行時に stdin から JSON を読み込み、<code>sysin</code> 変数にリストとして格納されます。</p>\n<p>処理: 上記仕様どおり for 文とアンパック代入を用いて処理し、結果を <code>result</code> に代入して出力してください。</p>",
-      "sysinFormat": "<code>[[number, number], [number, number], ...]</code>",
-      "defaultLanguage": "python3",
-      "sampleAnswer": "import sys\nimport json\n\nsysin = json.loads(sys.stdin.read() or \"null\")\n\nbeat_bpm = sysin\nbpms = []\nfor beat, bpm in beat_bpm:\n    bpms.append((beat, bpm))\n\nresult = bpms\n\nprint(json.dumps(result, ensure_ascii=False))\n",
+      "statement": "<p><code>sysin</code> は 1 つの文字列です。この文字列は docker compose のコマンド例を表し、<code>-f</code> オプションで compose ファイルのパスが指定されている場合があります。</p>\n<p>次の仕様で処理を行い、その結果を JSON として出力してください。</p>\n<ul>\n  <li><code>sysin</code> をスペース区切りで分割し、コマンドの引数配列を作成する（<code>strings.Fields</code> 相当の挙動）。</li>\n  <li>左から順に引数を走査し、要素が <code>\"-f\"</code> であり、かつその直後に要素が存在する場合、その直後の要素（ファイルパス文字列）を結果スライスに追加する。</li>\n  <li>すべての引数を確認したあと、集めたファイルパスのスライスをそのまま JSON として出力する。</li>\n  <li><code>-f</code> が 1 つも見つからなかった場合は、空スライス <code>[]</code> を JSON として出力する。</li>\n</ul>\n<p>入力: 実行時に stdin の JSON を読み込み、それを変数 <code>sysin</code> として扱う。<code>sysin</code> は文字列である。</p>\n<p>処理: 上記仕様に従って Go で実装し、最終的なスライスを <code>result</code> として 1 行の JSON で出力する。</p>",
+      "sysinFormat": "\"docker compose -f docker-compose.yml -f docker-compose.override.yml up\"",
+      "defaultLanguage": "go",
+      "sampleAnswer": "package main\n\nimport (\n\t\"encoding/json\"\n\t\"fmt\"\n\t\"io\"\n\t\"os\"\n\t\"strings\"\n)\n\nfunc main() {\n\tvar sysin interface{}\n\tb, err := io.ReadAll(os.Stdin)\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\tif err := json.Unmarshal(b, &sysin); err != nil {\n\t\tpanic(err)\n\t}\n\n\tcmdStr, ok := sysin.(string)\n\tif !ok {\n\t\tpanic(\"sysin must be string\")\n\t}\n\n\tcmdArgs := strings.Fields(cmdStr)\n\tpaths := []string{}\n\n\tfor i := 0; i < len(cmdArgs); i++ {\n\t\tif cmdArgs[i] == \"-f\" && i+1 < len(cmdArgs) {\n\t\t\tpaths = append(paths, cmdArgs[i+1])\n\t\t}\n\t}\n\n\tvar result interface{} = paths\n\n\tout, err := json.Marshal(result)\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\tfmt.Println(string(out))\n}\n",
       "testcases": [
         {
-          "sysin": [
-            [
-              0.0,
-              120.0
-            ],
-            [
-              32.0,
-              60.0
-            ]
-          ],
+          "sysin": "docker compose -f docker-compose.yml up",
           "expected": [
-            [
-              0.0,
-              120.0
-            ],
-            [
-              32.0,
-              60.0
-            ]
+            "docker-compose.yml"
           ]
         },
         {
-          "sysin": [],
+          "sysin": "docker compose -f a.yml -f b.yml -f c.yml up -d",
+          "expected": [
+            "a.yml",
+            "b.yml",
+            "c.yml"
+          ]
+        },
+        {
+          "sysin": "docker compose up -d",
           "expected": []
-        },
-        {
-          "sysin": [
-            [
-              1.5,
-              90.0
-            ]
-          ],
-          "expected": [
-            [
-              1.5,
-              90.0
-            ]
-          ]
         }
       ]
     },
     {
-      "title": "辞書への条件付き代入と累積加算",
+      "title": "docker compose up コマンドへのフラグ挿入（<code>--abort-on-container-exit</code> / <code>--exit-code-from</code>）",
       "category": "syntax",
-      "statement": "<p><code>sysin</code> は <code>[[beat, stop], ...]</code> という形式の数値の2要素リストからなるリストです。次のコード断片と類似の処理を実装してください。</p>\n<ul>\n<li>空の辞書 <code>stops = {}</code> を用意する。</li>\n<li><code>for beat, stop in beat_stop:</code> としてループを回す。</li>\n<li>同じ <code>beat</code> キーが既に辞書にある場合、その値に <code>stop</code> を加算する。</li>\n<li>その後、常に <code>stops[beat] = stop</code> の代入を行う。</li>\n</ul>\n<p>最終的に出来上がった <code>stops</code> 辞書を JSON として出力してください。</p>\n<p>入力: stdin の JSON を読み込み、<code>sysin</code> に代入されます。</p>\n<p>処理: 上記仕様どおりに for 文・条件分岐・辞書代入を実装し、その辞書を <code>result</code> に格納して出力してください。</p>",
-      "sysinFormat": "<code>[[number, number], [number, number], ...]</code>",
+      "statement": "<p><code>sysin</code> は 2 要素の配列です。</p>\n<ul>\n  <li>0 番目: docker compose コマンド文字列（例: <code>\"docker compose up -d\"</code>）</li>\n  <li>1 番目: サービス名を表す文字列（例: <code>\"web\"</code>、空文字列のこともある）</li>\n</ul>\n<p>次の仕様で処理を行い、その結果のコマンド文字列を JSON として出力してください。</p>\n<ol>\n  <li>まず、0 番目の文字列（コマンド）に <code>\"--abort-on-container-exit\"</code> または <code>\"--exit-code-from\"</code> が既に部分文字列として含まれているかを確認する。いずれかが含まれている場合は、そのコマンド文字列をそのまま結果として返す。</li>\n  <li>含まれていない場合は、コマンド文字列をスペース区切りで分割し、トークン配列を得る（<code>strings.Fields</code> 相当）。</li>\n  <li>トークンの中から最初に現れる <code>\"up\"</code> という要素を探し、その直後に以下のフラグ群を挿入する。</li>\n</ol>\n<ul>\n  <li>必ず挿入するフラグ: <code>--abort-on-container-exit</code></li>\n  <li>1 番目のサービス名文字列が空でない場合のみ、さらにその後ろに <code>--exit-code-from</code> とサービス名を続けて挿入する。</li>\n</ul>\n<ol start=\"4\">\n  <li>フラグ挿入後、トークン配列をスペース区切りで再結合して 1 つの文字列にし、それを結果とする。</li>\n  <li>トークン配列中に <code>\"up\"</code> が 1 度も出てこない場合は、元のコマンド文字列をそのまま結果とする。</li>\n</ol>\n<p>入力: 実行時に stdin の JSON を読み込み、それを変数 <code>sysin</code> として扱う。<code>sysin</code> は長さ 2 の配列であり、0 番目・1 番目はいずれも文字列である。</p>\n<p>処理: 上記仕様に従って Go で実装し、最終的なコマンド文字列を <code>result</code> として 1 行の JSON で出力する。</p>",
+      "sysinFormat": "[\"docker compose up -d\", \"web\"]",
+      "defaultLanguage": "go",
+      "sampleAnswer": "package main\n\nimport (\n\t\"encoding/json\"\n\t\"fmt\"\n\t\"io\"\n\t\"os\"\n\t\"strings\"\n)\n\nfunc main() {\n\tvar sysin interface{}\n\tb, err := io.ReadAll(os.Stdin)\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\tif err := json.Unmarshal(b, &sysin); err != nil {\n\t\tpanic(err)\n\t}\n\n\tarr, ok := sysin.([]interface{})\n\tif !ok || len(arr) != 2 {\n\t\tpanic(\"sysin must be array length 2\")\n\t}\n\n\tappCmd, ok1 := arr[0].(string)\n\tserviceName, ok2 := arr[1].(string)\n\tif !ok1 || !ok2 {\n\t\tpanic(\"elements must be strings\")\n\t}\n\n\tif strings.Contains(appCmd, \"--abort-on-container-exit\") || strings.Contains(appCmd, \"--exit-code-from\") {\n\t\tout, err := json.Marshal(appCmd)\n\t\tif err != nil {\n\t\t\tpanic(err)\n\t\t}\n\t\tfmt.Println(string(out))\n\t\treturn\n\t}\n\n\targs := []string{\"--abort-on-container-exit\"}\n\tif serviceName != \"\" {\n\t\targs = append(args, \"--exit-code-from\", serviceName)\n\t}\n\n\tparts := strings.Fields(appCmd)\n\tfor i, p := range parts {\n\t\tif p == \"up\" {\n\t\t\tnewParts := make([]string, 0, len(parts)+len(args))\n\t\t\tnewParts = append(newParts, parts[:i+1]...)\n\t\t\tnewParts = append(newParts, args...)\n\t\t\tnewParts = append(newParts, parts[i+1:]...)\n\t\t\tappCmd = strings.Join(newParts, \" \")\n\t\t\tbreak\n\t\t}\n\t}\n\n\tvar result interface{} = appCmd\n\n\tout, err := json.Marshal(result)\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\tfmt.Println(string(out))\n}\n",
+      "testcases": [
+        {
+          "sysin": [
+            "docker compose up -d",
+            "web"
+          ],
+          "expected": "docker compose up --abort-on-container-exit --exit-code-from web -d"
+        },
+        {
+          "sysin": [
+            "docker compose up",
+            ""
+          ],
+          "expected": "docker compose up --abort-on-container-exit"
+        },
+        {
+          "sysin": [
+            "docker compose --abort-on-container-exit up -d",
+            "api"
+          ],
+          "expected": "docker compose --abort-on-container-exit up -d"
+        }
+      ]
+    },
+    {
+      "title": "辞書への集約とフィルタ、ソートの実装",
+      "category": "syntax",
+      "statement": "<p><code>sysin</code> は、<code>[ [beat, stop], [beat, stop], ... ]</code> という形式の2要素リストのリストです。ここで <code>beat</code> は数値、<code>stop</code> も数値です。</p>\n<p>次の処理を行い、その結果を JSON として出力してください。</p>\n<ul>\n<li>まず空の辞書 <code>stops</code> を用意し、<code>sysin</code> の各要素 <code>[beat, stop]</code> について順に処理します。</li>\n<li><code>assert beat > 0.0</code> に相当するチェックを行い、条件を満たさない場合は <code>AssertionError</code> を送出してください。</li>\n<li>もし <code>beat</code> がすでに辞書 <code>stops</code> のキーとして存在する場合、そのキーに対応する値に <code>stop</code> を加算します。</li>\n<li>その後、キー <code>beat</code> に対して値 <code>stop</code> を代入します（つまり、同じ beat の最後の stop 値で上書きされるコードの挙動を再現します）。</li>\n<li>すべての要素を処理したあと、<code>stops</code> の各 <code>(beat, stop)</code> のペアを <code>stop != 0.0</code> でフィルタし、さらに <code>beat</code> の昇順でソートしたリストを作成します。</li>\n</ul>\n<p>最終的に、このフィルタ・ソート後の <code>[ [beat, stop], ... ]</code> のリストを <code>result</code> として JSON 出力してください。</p>\n<p>入力: 実行時に stdin の JSON を読み込み、<code>sysin</code> 変数に代入されます。</p>\n<p>処理: 上記仕様に従って辞書操作・条件分岐・ソートを行い、結果リストを作って出力してください。</p>",
+      "sysinFormat": "[[number, number], [number, number], ...]",
       "defaultLanguage": "python3",
-      "sampleAnswer": "import sys\nimport json\n\nsysin = json.loads(sys.stdin.read() or \"null\")\n\nbeat_stop = sysin\nstops = {}\nfor beat, stop in beat_stop:\n    if beat in stops:\n        stops[beat] += stop\n    stops[beat] = stop\n\nresult = stops\n\nprint(json.dumps(result, ensure_ascii=False))\n",
+      "sampleAnswer": "import sys\nimport json\n\nsysin = json.loads(sys.stdin.read() or \"null\")\n\nstops = {}\nfor beat, stop in sysin:\n    assert beat > 0.0\n    if beat in stops:\n        stops[beat] += stop\n    stops[beat] = stop\n\nitems = list(stops.items())\nitems = [x for x in items if x[1] != 0.0]\nitems.sort(key=lambda x: x[0])\n\nresult = [[beat, stop] for beat, stop in items]\n\nprint(json.dumps(result, ensure_ascii=False))\n",
       "testcases": [
         {
           "sysin": [
@@ -65,54 +74,74 @@
               5.0
             ]
           ],
-          "expected": {
-            "16.0": 5.0
-          }
+          "expected": [
+            [
+              16.0,
+              5.0
+            ]
+          ]
         },
         {
           "sysin": [
             [
-              1.0,
-              2.0
+              4.0,
+              1.0
             ],
             [
-              1.0,
-              3.0
+              4.0,
+              -1.0
+            ],
+            [
+              8.0,
+              2.0
             ]
           ],
-          "expected": {
-            "1.0": 3.0
-          }
+          "expected": [
+            [
+              4.0,
+              -1.0
+            ],
+            [
+              8.0,
+              2.0
+            ]
+          ]
         },
         {
           "sysin": [
+            [
+              3.0,
+              0.0
+            ],
             [
               1.0,
               2.0
             ],
             [
               2.0,
-              1.0
-            ],
-            [
-              1.0,
-              -1.0
+              0.5
             ]
           ],
-          "expected": {
-            "1.0": -1.0,
-            "2.0": 1.0
-          }
+          "expected": [
+            [
+              1.0,
+              2.0
+            ],
+            [
+              2.0,
+              0.5
+            ]
+          ]
         }
       ]
     },
     {
-      "title": "リスト内包表記と for ループの書き換え",
+      "title": "累積時間の計算とリストへの追加",
       "category": "syntax",
-      "statement": "<p>次のようなリスト内包表記があります。</p>\n<p><code>segment_beat = [beat for beat, _ in beat_bps]</code></p>\n<p><code>sysin</code> は <code>[[beat, bps], ...]</code> という形式の2要素リストからなるリストです。このリスト内包表記と同じ結果を、通常の for ループと <code>append</code> を使って実装し、得られた <code>segment_beat</code> リストを JSON で出力してください。</p>\n<p>入力: stdin の JSON を読み込み、<code>sysin</code> に代入します。</p>\n<p>処理: <code>for beat, _ in beat_bps:</code> の形でアンパックし、各 <code>beat</code> を新しいリストに追加していき、そのリストを <code>result</code> に格納して出力してください。</p>",
-      "sysinFormat": "<code>[[number, number], [number, number], ...]</code>",
+      "statement": "<p><code>sysin</code> は <code>[ [beat, bps], [beat, bps], ... ]</code> という形式の2要素リストのリストです。ここで <code>beat</code> はビート位置、<code>bps</code> は1秒あたりのビート数 (beats per second) を表す数値です。また、オフセット値 <code>offset</code> は 0.05 に固定とします。</p>\n<p>次の処理を行い、その結果を JSON として出力してください。</p>\n<ol>\n<li><code>time_cum</code> という変数に <code>-offset</code> を代入します。</li>\n<li><code>beat_last</code> と <code>bps_last</code> に、それぞれ <code>sysin[0]</code> の <code>beat</code> と <code>bps</code> を代入します。</li>\n<li><code>times</code> というリストを作成し、最初の要素として <code>-offset</code> を入れます。</li>\n<li><code>sysin</code> の先頭要素を除いた残りの要素について、順に以下を行います。\n  <ul>\n    <li>現在の <code>beat</code> と以前の <code>beat_last</code> の差 <code>dbeat</code> を計算します。</li>\n    <li><code>dtime = dbeat / bps_last</code> を計算し、<code>time_cum</code> に加算します。</li>\n    <li>更新された <code>time_cum</code> を <code>times</code> リストの末尾に追加します。</li>\n    <li><code>beat_last</code> と <code>bps_last</code> を現在の要素の <code>beat</code> と <code>bps</code> に更新します。</li>\n  </ul>\n</li>\n<li>最終的な <code>times</code> リストを <code>result</code> として JSON 出力してください。</li>\n</ol>\n<p>入力: 実行時に stdin の JSON を読み込み、<code>sysin</code> 変数に代入されます。</p>\n<p>処理: 上記仕様に従って、ループ・変数更新・リストへの追加を用いて累積時間を計算してください。</p>",
+      "sysinFormat": "[[number, number], [number, number], ...]",
       "defaultLanguage": "python3",
-      "sampleAnswer": "import sys\nimport json\n\nsysin = json.loads(sys.stdin.read() or \"null\")\n\nbeat_bps = sysin\nsegment_beat = []\nfor beat, _ in beat_bps:\n    segment_beat.append(beat)\n\nresult = segment_beat\n\nprint(json.dumps(result, ensure_ascii=False))\n",
+      "sampleAnswer": "import sys\nimport json\n\nsysin = json.loads(sys.stdin.read() or \"null\")\n\noffset = 0.05\n\ntime_cum = -offset\nbeat_last, bps_last = sysin[0]\ntimes = [-offset]\n\nfor beat, bps in sysin[1:]:\n    dbeat = beat - beat_last\n    dtime = dbeat / bps_last\n    time_cum += dtime\n    times.append(time_cum)\n    beat_last = beat\n    bps_last = bps\n\nresult = times\n\nprint(json.dumps(result, ensure_ascii=False))\n",
       "testcases": [
         {
           "sysin": [
@@ -121,34 +150,118 @@
               2.0
             ],
             [
-              32.0,
-              1.0
-            ],
-            [
-              64.0,
+              1.0,
               2.0
             ]
           ],
           "expected": [
-            0.0,
-            32.0,
-            64.0
+            -0.05,
+            0.45
           ]
-        },
-        {
-          "sysin": [],
-          "expected": []
         },
         {
           "sysin": [
             [
-              10.5,
-              3.0
+              0.0,
+              2.0
+            ],
+            [
+              2.0,
+              1.0
             ]
           ],
           "expected": [
-            10.5
+            -0.05,
+            0.95
           ]
+        },
+        {
+          "sysin": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              1.0,
+              2.0
+            ],
+            [
+              2.0,
+              2.0
+            ]
+          ],
+          "expected": [
+            -0.05,
+            0.95,
+            1.45
+          ]
+        }
+      ]
+    },
+    {
+      "title": "区間検索と線形補間の実装",
+      "category": "syntax",
+      "statement": "<p><code>sysin</code> は次の形式のオブジェクトです。</p>\n<ul>\n<li><code>segment_beat</code>: ビート位置を表す数値の配列（昇順ソート済み）</li>\n<li><code>segment_time</code>: 各ビート位置に対応する時刻（秒）を表す数値の配列</li>\n<li><code>segment_spb</code>: 各区間における1ビートあたりの時間（seconds per beat）を表す数値の配列</li>\n<li><code>beat</code>: 時刻に変換したいビート位置（数値）</li>\n</ul>\n<p>元コードの <code>beat_to_time</code> メソッドの処理ロジックを、関数定義を使わずにそのままスクリプトとして実装してください。具体的には次を行います。</p>\n<ol>\n<li><code>beat</code> が 0.0 以上であることを <code>assert beat >= 0.0</code> で確認します。</li>\n<li><code>segment_beat</code> の中から、<code>beat</code> が入る位置のインデックス <code>seg_idx</code> を「右側に挿入する位置 - 1」という形で求めます（<code>numpy.searchsorted(..., side='right') - 1</code> と同じ動作を、標準的な Python のループと条件分岐で実装してください）。</li>\n<li><code>beat_left = segment_beat[seg_idx]</code>、<code>time_left = segment_time[seg_idx]</code>、<code>spb = segment_spb[seg_idx]</code> を取得します。</li>\n<li><code>time_left + ((beat - beat_left) * spb)</code> を計算し、その値を <code>result</code> として JSON 出力してください。</li>\n</ol>\n<p>入力: 実行時に stdin の JSON を読み込み、<code>sysin</code> 変数に代入されます。</p>\n<p>処理: 上記仕様に従って、インデックス探索と線形補間の計算を行ってください（<code>numpy</code> は使用せず、リストとループのみを使って実装します）。</p>",
+      "sysinFormat": "{\"segment_beat\": [number, ...], \"segment_time\": [number, ...], \"segment_spb\": [number, ...], \"beat\": number}",
+      "defaultLanguage": "python3",
+      "sampleAnswer": "import sys\nimport json\n\nsysin = json.loads(sys.stdin.read() or \"null\")\n\nsegment_beat = sysin[\"segment_beat\"]\nsegment_time = sysin[\"segment_time\"]\nsegment_spb = sysin[\"segment_spb\"]\nbeat = sysin[\"beat\"]\n\nassert beat >= 0.0\n\npos = 0\nfor i, b in enumerate(segment_beat):\n    if beat < b:\n        pos = i\n        break\nelse:\n    pos = len(segment_beat)\n\nseg_idx = pos - 1\n\nbeat_left = segment_beat[seg_idx]\ntime_left = segment_time[seg_idx]\nspb = segment_spb[seg_idx]\n\nresult = time_left + ((beat - beat_left) * spb)\n\nprint(json.dumps(result, ensure_ascii=False))\n",
+      "testcases": [
+        {
+          "sysin": {
+            "segment_beat": [
+              0.0,
+              4.0
+            ],
+            "segment_time": [
+              0.0,
+              2.0
+            ],
+            "segment_spb": [
+              0.5,
+              1.0
+            ],
+            "beat": 1.0
+          },
+          "expected": 0.5
+        },
+        {
+          "sysin": {
+            "segment_beat": [
+              0.0,
+              2.0,
+              4.0
+            ],
+            "segment_time": [
+              0.0,
+              1.0,
+              3.0
+            ],
+            "segment_spb": [
+              0.5,
+              1.0,
+              0.5
+            ],
+            "beat": 3.0
+          },
+          "expected": 2.0
+        },
+        {
+          "sysin": {
+            "segment_beat": [
+              0.0,
+              1.0
+            ],
+            "segment_time": [
+              0.0,
+              0.5
+            ],
+            "segment_spb": [
+              0.5,
+              0.5
+            ],
+            "beat": 0.0
+          },
+          "expected": 0.0
         }
       ]
     }

@@ -1,11 +1,14 @@
 あなたはPythonのプログラミング教育の専門家です。
 次のソースコードを題材に、**3問**の「Pythonの文法・処理（syntax）」問題を作成してください。
 
+## 【目的】
+ユーザーがソースコード内のロジックを正しく理解し、それを実装できるかを確認すること
+
 ## 【クイズ作成ルール】
 - 末尾に示すソースコードセクションのコードを題材に問題を作成する
+- コードが行っている処理のロジック（仕様）を日本語で説明し、それを実装させるような問題を作成する
 - 対象コードに含まれる基本的な文法や処理を問う
 - 対象コード内の、**関数定義やクラス定義を含まない、数行の処理** を対象とする
-- 対象コード中の特定の行や小さなブロックを抜き出して問題にする
 
 
 ## 【**出力フォーマット**（厳守）】
@@ -68,39 +71,69 @@
 
 ## 【出力例（2問分 / これは例。出力に含めない）】
 ~~~markdown
- # 1問目
- ## title
- リスト内包表記によるフィルタリング
- 
- ## statement
+# 1問目
+## title
+リスト内包表記によるフィルタリング
+
+## statement
 <p><code>sysin</code> は数値のリストです。偶数だけを残したリストを作り、それを JSON として出力してください。</p>
- 
- ## sysinFormat
- `[number, number, ...]`
- 
- ## sampleAnswer
- ```python
- import sys
- import json
- 
- sysin = json.loads(sys.stdin.read() or "null")
- 
- result = [x for x in sysin if x % 2 == 0]
- 
- print(json.dumps(result, ensure_ascii=False))
- ```
- 
- ## testcases
- ### testcase1
- `{"sysin": [1, 2, 3, 4], "expected": [2, 4]}`
- ### testcase2
- `{"sysin": [], "expected": []}`
- ### testcase3
- `{"sysin": [2, 2, 3], "expected": [2, 2]}`
+
+## sysinFormat
+`[number, number, ...]`
+
+## sampleAnswer
+```python
+import sys
+import json
+
+sysin = json.loads(sys.stdin.read() or "null")
+
+result = [x for x in sysin if x % 2 == 0]
+
+print(json.dumps(result, ensure_ascii=False))
+```
+
+## testcases
+### testcase1
+`{"sysin": [1, 2, 3, 4], "expected": [2, 4]}`
+### testcase2
+`{"sysin": [], "expected": []}`
+### testcase3
+`{"sysin": [2, 2, 3], "expected": [2, 2]}`
+
+# 2問目
+## title
+辞書のキーと値の入れ替え
+
+## statement
+<p><code>sysin</code> は文字列をキー、数値を値とする辞書です。キーと値を入れ替えた新しい辞書を作り、それを JSON として出力してください。</p>
+
+## sysinFormat
+`{"key1": number, "key2": number, ...}`
+
+## sampleAnswer
+```python
+import sys
+import json
+
+sysin = json.loads(sys.stdin.read() or "null")
+
+result = {str(v): k for k, v in sysin.items()}
+
+print(json.dumps(result, ensure_ascii=False))
+```
+
+## testcases
+### testcase1
+`{"sysin": {"a": 1, "b": 2}, "expected": {"1": "a", "2": "b"}}`
+### testcase2
+`{"sysin": {}, "expected": {}}`
+### testcase3
+`{"sysin": {"x": 100}, "expected": {"100": "x"}}`
 ~~~
 
 
-## ソースコード
+## 【ソースコード】
 ### python_test_code.py
 ```python
 import numpy as np
