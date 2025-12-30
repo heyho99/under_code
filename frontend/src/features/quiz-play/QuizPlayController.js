@@ -29,6 +29,44 @@ function escapeHtml(str) {
     .replace(/'/g, "&#039;");
 }
 
+function formatJson(data, indentLevel = 0) {
+  const indent = "  ".repeat(indentLevel);
+  const nextIndent = "  ".repeat(indentLevel + 1);
+
+  if (Array.isArray(data)) {
+    if (data.length === 0) return "[]";
+
+    // 配列の中にオブジェクトまたは配列が含まれているかチェック
+    const hasComplex = data.some(
+      (item) => typeof item === "object" && item !== null
+    );
+
+    if (hasComplex) {
+      // 複合型を含む場合は改行して展開
+      const items = data.map(
+        (item) => `${nextIndent}${formatJson(item, indentLevel + 1)}`
+      );
+      return `[\n${items.join(",\n")}\n${indent}]`;
+    } else {
+      // プリミティブのみの場合は1行で表示、カンマの後にスペースを入れる
+      const items = data.map((item) => JSON.stringify(item));
+      return `[${items.join(", ")}]`;
+    }
+  } else if (typeof data === "object" && data !== null) {
+    const keys = Object.keys(data);
+    if (keys.length === 0) return "{}";
+
+    const items = keys.map((key) => {
+      const value = data[key];
+      return `${nextIndent}"${key}": ${formatJson(value, indentLevel + 1)}`;
+    });
+    return `{\n${items.join(",\n")}\n${indent}}`;
+  } else {
+    // プリミティブ値
+    return JSON.stringify(data);
+  }
+}
+
 function getSelectedProblemId() {
   try {
     if (typeof window !== "undefined" && window.sessionStorage) {
@@ -87,10 +125,10 @@ export const QuizPlayController = {
       currentTestcaseIndex = idx;
       const tc = testcases[idx] || testcases[0];
       if (testcaseSysinEl) {
-        testcaseSysinEl.textContent = JSON.stringify(tc.sysin, null, 2);
+        testcaseSysinEl.textContent = formatJson(tc.sysin);
       }
       if (testcaseExpectedEl) {
-        testcaseExpectedEl.textContent = JSON.stringify(tc.expected, null, 2);
+        testcaseExpectedEl.textContent = formatJson(tc.expected);
       }
       if (testcaseLabelEl) {
         testcaseLabelEl.textContent = `${idx + 1} / ${testcases.length}`;
@@ -316,11 +354,11 @@ export const QuizPlayController = {
                   <div class="submission-details__body">
                     <div class="submission-details__row">
                       <span class="submission-details__label">入力:</span>
-                      <code class="submission-details__value">${escapeHtml(JSON.stringify(d.sysin))}</code>
+                      <code class="submission-details__value">${escapeHtml(formatJson(d.sysin))}</code>
                     </div>
                     <div class="submission-details__row">
                       <span class="submission-details__label">期待:</span>
-                      <code class="submission-details__value">${escapeHtml(JSON.stringify(d.expected))}</code>
+                      <code class="submission-details__value">${escapeHtml(formatJson(d.expected))}</code>
                     </div>
                     <div class="submission-details__row">
                       <span class="submission-details__label">出力:</span>
